@@ -10,7 +10,7 @@ const ViewerComponent = () => {
       panorama: '/360-2.jpg',
       navbar: false,
       plugins: [
-        [AutorotatePlugin, { speed: '1rpm', delay: 8000 }]
+        [AutorotatePlugin, { speed: '0.1rpm', delay: 3000 }]
       ]
     });
 
