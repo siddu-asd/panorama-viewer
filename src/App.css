@@ -1,8 +1,5 @@
-.App {
-  text-align: center;
-}
 
 #app-viewer-container {
-  margin-top: 20px;
+overflow: hidden;
   border: 1px solid #ccc; /* Optional: add a border around the viewer */
 }

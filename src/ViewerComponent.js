@@ -18,29 +18,7 @@ const ViewerComponent = () => {
     console.log(viewer);
 
     // Add a hotspot at a specific position (latitude and longitude)
-    viewer.hotspot.add({
-      id: 'hotspot1',
-      latitude: 10,  // Latitude (in degrees)
-      longitude: 20, // Longitude (in degrees)
-      title: 'Hotspot 1', // Hotspot title
-      content: 'This is a hotspot', // Content of the popup
-      onClick: () => {
-        alert('Hotspot 1 clicked!');
-      },
-    });
-
-    // Add another hotspot
-    viewer.hotspot.add({
-      id: 'hotspot2',
-      latitude: -20,
-      longitude: 40,
-      title: 'Hotspot 2',
-      content: 'Another hotspot',
-      onClick: () => {
-        alert('Second hotspot clicked!');
-      },
-    });
-
+    
     // Clean up the viewer when the component is unmounted
     return () => {
       viewer.destroy();
@@ -50,7 +28,7 @@ const ViewerComponent = () => {
   return (
     <div 
       id="app-viewer-container" 
-      style={{ width: '100%', height: '100vh' }} // Ensure the viewer takes full viewport height
+      style={{ width: '100%', height: '100vh',overflow:'hidden' }} // Ensure the viewer takes full viewport height
     >
       {/* This div will hold the 360-degree viewer */}
     </div>
