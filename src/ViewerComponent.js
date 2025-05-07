@@ -1,19 +1,22 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Viewer } from '@photo-sphere-viewer/core';
 import { MarkersPlugin } from '@photo-sphere-viewer/markers-plugin';
 import { AutorotatePlugin } from '@photo-sphere-viewer/autorotate-plugin';
 
 import '@photo-sphere-viewer/core/index.css';
 import '@photo-sphere-viewer/markers-plugin/index.css';
+import 'font-awesome/css/font-awesome.min.css'; // Import Font Awesome
 
 const ViewerComponent = () => {
+  const [navbarVisible, setNavbarVisible] = useState(true); // State to control navbar visibility
+
   useEffect(() => {
     const container = document.getElementById('app-viewer-container');
 
     const viewer = new Viewer({
       container,
       panorama: '/360-1.jpg',
-      navbar: true,
+      navbar: navbarVisible, // Use the navbarVisible state
       defaultZoomLvl: 30,
       plugins: [
         [MarkersPlugin],
@@ -213,13 +216,36 @@ const ViewerComponent = () => {
     });
 
     return () => viewer.destroy();
-  }, []);
+  }, [navbarVisible]); // Re-run the effect when navbarVisible changes
+
+  const toggleNavbar = () => {
+    setNavbarVisible((prev) => !prev); // Toggle the navbar visibility
+  };
 
   return (
-    <div
-      id="app-viewer-container"
-      style={{ width: '100%', height: '100vh', overflow: 'hidden' }}
-    />
+    <div>
+      <button
+        onClick={toggleNavbar}
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          padding: '10px',
+          backgroundColor: '#007bff',
+          color: 'white',
+          border: 'none',
+          cursor: 'pointer',
+          zIndex: 10,
+        }}
+      >
+        <i className={`fa ${navbarVisible ? 'fa-eye-slash' : 'fa-eye'}`} /> {/* Eye icon for showing/hiding */}
+      </button>
+
+      <div
+        id="app-viewer-container"
+        style={{ width: '100%', height: '100vh', overflow: 'hidden' }}
+      />
+    </div>
   );
 };
 
