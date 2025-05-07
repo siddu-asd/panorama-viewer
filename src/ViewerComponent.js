@@ -26,13 +26,21 @@ const ViewerComponent = () => {
 
     const markersPlugin = viewer.getPlugin(MarkersPlugin);
 
+    // Define the functions before using them
     const addInitialMarkers = () => {
       markersPlugin.clearMarkers();
 
       markersPlugin.addMarker({
         id: 'ROOM_1',
         position: { yaw: 0.3, pitch: 0.1 },
-        html: `<div style="pointer-events:auto;cursor:pointer;width:30px;height:30px;background:red;border-radius:50%;border:2px solid white;"></div>`,
+        html: ` 
+          <div style="pointer-events:auto;cursor:pointer;width:60px;height:30px;
+            background-image: url('360-2.jpg');
+            background-size: cover;
+            border: 1px solid white;
+            outline: 1px solid white;
+            animation: blink 1s infinite;">
+          </div>`,
         anchor: 'center center',
         tooltip: 'Room 1',
       });
@@ -40,7 +48,14 @@ const ViewerComponent = () => {
       markersPlugin.addMarker({
         id: 'ROOM_2',
         position: { yaw: -0.5, pitch: 0.1 },
-        html: `<div style="pointer-events:auto;cursor:pointer;width:30px;height:30px;background:green;border-radius:50%;border:2px solid white;"></div>`,
+        html: ` 
+          <div style="pointer-events:auto;cursor:pointer;width:60px;height:30px;
+            background-image: url('image-2.jpg');
+            background-size: cover;
+            border: 1px solid white;
+            outline: 1px solid white;
+            animation: blink 1s infinite;">
+          </div>`,
         anchor: 'center center',
         tooltip: 'Room 2',
       });
@@ -52,7 +67,14 @@ const ViewerComponent = () => {
       markersPlugin.addMarker({
         id: 'ROOM_1_DETAIL',
         position: { yaw: 0.5, pitch: 0.2 },
-        html: `<div style="pointer-events:auto;cursor:pointer;width:30px;height:30px;background:yellow;border-radius:50%;border:2px solid white;"></div>`,
+        html: ` 
+          <div style="pointer-events:auto;cursor:pointer;width:60px;height:30px;
+            background-image: url('image-1.jpg');
+            background-size: cover;
+            border: 1px solid white;
+            outline: 1px solid white;
+            animation: blink 1s infinite;">
+          </div>`,
         anchor: 'center center',
         tooltip: 'Room 1 Details',
       });
@@ -60,7 +82,14 @@ const ViewerComponent = () => {
       markersPlugin.addMarker({
         id: 'BACK_TO_HOME',
         position: { yaw: -1.5, pitch: 0.0 },
-        html: `<div style="pointer-events:auto;cursor:pointer;width:30px;height:30px;background:black;border-radius:50%;border:2px solid white;"></div>`,
+        html: ` 
+          <div style="pointer-events:auto;cursor:pointer;width:60px;height:30px;
+            background-image: url('360-2.jpg');
+            background-size: cover;
+            border: 1px solid white;
+            outline: 1px solid white;
+            animation: blink 1s infinite;">
+          </div>`,
         anchor: 'center center',
         tooltip: 'Back',
       });
@@ -72,7 +101,14 @@ const ViewerComponent = () => {
       markersPlugin.addMarker({
         id: 'ROOM_2_DETAIL',
         position: { yaw: -0.2, pitch: 0.1 },
-        html: `<div style="pointer-events:auto;cursor:pointer;width:30px;height:30px;background:blue;border-radius:50%;border:2px solid white;"></div>`,
+        html: ` 
+          <div style="pointer-events:auto;cursor:pointer;width:60px;height:30px;
+            background-image: url('360-1.jpg');
+            background-size: cover;
+            border: 1px solid white;
+            outline: 1px solid white;
+            animation: blink 1s infinite;">
+          </div>`,
         anchor: 'center center',
         tooltip: 'Room 2 Details',
       });
@@ -80,7 +116,14 @@ const ViewerComponent = () => {
       markersPlugin.addMarker({
         id: 'BACK_TO_HOME',
         position: { yaw: 1.5, pitch: 0.0 },
-        html: `<div style="pointer-events:auto;cursor:pointer;width:30px;height:30px;background:black;border-radius:50%;border:2px solid white;"></div>`,
+        html: ` 
+          <div style="pointer-events:auto;cursor:pointer;width:60px;height:30px;
+            background-image: url('360-1.jpg');
+            background-size: cover;
+            border: 1px solid white;
+            outline: 1px solid white;
+            animation: blink 1s infinite;">
+          </div>`,
         anchor: 'center center',
         tooltip: 'Back',
       });
@@ -92,7 +135,14 @@ const ViewerComponent = () => {
       markersPlugin.addMarker({
         id: 'ROOM_1_FINAL',
         position: { yaw: 0.8, pitch: 0.1 },
-        html: `<div style="pointer-events:auto;cursor:pointer;width:30px;height:30px;background:purple;border-radius:50%;border:2px solid white;"></div>`,
+        html: ` 
+          <div style="pointer-events:auto;cursor:pointer;width:60px;height:30px;
+            background-image: url('image-2.jpg');
+            background-size: cover;
+            border: 1px solid white;
+            outline: 1px solid white;
+            animation: blink 1s infinite;">
+          </div>`,
         anchor: 'center center',
         tooltip: 'Room 1 Final View',
       });
@@ -100,14 +150,23 @@ const ViewerComponent = () => {
       markersPlugin.addMarker({
         id: 'BACK_TO_ROOM_1',
         position: { yaw: -1.5, pitch: 0.0 },
-        html: `<div style="pointer-events:auto;cursor:pointer;width:30px;height:30px;background:black;border-radius:50%;border:2px solid white;"></div>`,
+        html: ` 
+          <div style="pointer-events:auto;cursor:pointer;width:60px;height:30px;
+            background-image: url('image-1.jpg');
+            background-size: cover;
+            border: 1px solid white;
+            outline: 1px solid white;
+            animation: blink 1s infinite;">
+          </div>`,
         anchor: 'center center',
         tooltip: 'Back to Room 1',
       });
     };
 
+    // Add the initial markers when the component mounts
     addInitialMarkers();
 
+    // Event listener for marker selection
     markersPlugin.addEventListener('select-marker', (e) => {
       const markerId = e.marker?.id;
       console.log('Clicked marker:', markerId);

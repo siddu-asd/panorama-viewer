@@ -3,3 +3,8 @@
 overflow: hidden;
   border: 1px solid #ccc; /* Optional: add a border around the viewer */
 }
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
