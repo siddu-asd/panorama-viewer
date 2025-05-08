@@ -8,3 +8,30 @@ overflow: hidden;
   50% { opacity: 0.5; }
   100% { opacity: 1; }
 }
+
+
+/* Custom navbar overrides */
+.psv-navbar {
+  background-color: rgba(0, 0, 0, 0) !important;
+  height: auto;
+  position: absolute !important;
+  right: 20px;
+  bottom: 10px;
+  display: flex !important;
+  flex-direction: row; /* Make buttons appear in a row */
+  align-items: center;
+  justify-content: flex-end;
+  padding: 10px;
+  gap: 10px;
+  z-index: 1000;
+}
+
+.psv-button {
+  filter: brightness(1.8);
+  margin: 0 5px;
+}
+
+.psv-button svg {
+  width: 20px;
+  height: 20px;
+}
