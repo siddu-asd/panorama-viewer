@@ -5,10 +5,10 @@ import { AutorotatePlugin } from '@photo-sphere-viewer/autorotate-plugin';
 
 import '@photo-sphere-viewer/core/index.css';
 import '@photo-sphere-viewer/markers-plugin/index.css';
-import 'font-awesome/css/font-awesome.min.css'; // Import Font Awesome
+import 'font-awesome/css/font-awesome.min.css';
 
 const ViewerComponent = () => {
-  const [navbarVisible, setNavbarVisible] = useState(true); // State to control navbar visibility
+  const [navbarVisible, setNavbarVisible] = useState(true);
 
   useEffect(() => {
     const container = document.getElementById('app-viewer-container');
@@ -16,7 +16,7 @@ const ViewerComponent = () => {
     const viewer = new Viewer({
       container,
       panorama: '/360-1.jpg',
-      navbar: navbarVisible, // Use the navbarVisible state
+      navbar: navbarVisible,
       defaultZoomLvl: 30,
       plugins: [
         [MarkersPlugin],
@@ -29,36 +29,38 @@ const ViewerComponent = () => {
 
     const markersPlugin = viewer.getPlugin(MarkersPlugin);
 
-    // Define the functions before using them
+    const createMarkerHTML = (imageUrl) => `
+      <div style="
+        pointer-events: auto;
+        cursor: pointer;
+        width: 60px;
+        height: 30px;
+        background-image: url('${imageUrl}');
+        background-size: cover;
+        border: 1px solid white;
+        outline: 1px solid white;
+        animation: blink 1s infinite;
+        transition: transform 0.3s ease-in-out;"
+        onmouseover="this.style.transform='scale(1.5)'"
+        onmouseout="this.style.transform='scale(1)'"
+      ></div>
+    `;
+
     const addInitialMarkers = () => {
       markersPlugin.clearMarkers();
 
       markersPlugin.addMarker({
         id: 'ROOM_1',
-        position: { yaw: 0.3, pitch: 0.1 },
-        html: ` 
-          <div style="pointer-events:auto;cursor:pointer;width:60px;height:30px;
-            background-image: url('360-2.jpg');
-            background-size: cover;
-            border: 1px solid white;
-            outline: 1px solid white;
-            animation: blink 1s infinite;">
-          </div>`,
+        position: { yaw: -2.65, pitch: -0.1 },
+        html: createMarkerHTML('360-2.jpg'),
         anchor: 'center center',
         tooltip: 'Room 1',
       });
 
       markersPlugin.addMarker({
         id: 'ROOM_2',
-        position: { yaw: -0.5, pitch: 0.1 },
-        html: ` 
-          <div style="pointer-events:auto;cursor:pointer;width:60px;height:30px;
-            background-image: url('image-2.jpg');
-            background-size: cover;
-            border: 1px solid white;
-            outline: 1px solid white;
-            animation: blink 1s infinite;">
-          </div>`,
+        position: { yaw: -3.00, pitch: -0.1 },
+        html: createMarkerHTML('image-2.jpg'),
         anchor: 'center center',
         tooltip: 'Room 2',
       });
@@ -69,30 +71,16 @@ const ViewerComponent = () => {
 
       markersPlugin.addMarker({
         id: 'ROOM_1_DETAIL',
-        position: { yaw: 0.5, pitch: 0.2 },
-        html: ` 
-          <div style="pointer-events:auto;cursor:pointer;width:60px;height:30px;
-            background-image: url('image-1.jpg');
-            background-size: cover;
-            border: 1px solid white;
-            outline: 1px solid white;
-            animation: blink 1s infinite;">
-          </div>`,
+        position: { yaw: 2.7, pitch: -0.1 },
+        html: createMarkerHTML('image-1.jpg'),
         anchor: 'center center',
         tooltip: 'Room 1 Details',
       });
 
       markersPlugin.addMarker({
         id: 'BACK_TO_HOME',
-        position: { yaw: -1.5, pitch: 0.0 },
-        html: ` 
-          <div style="pointer-events:auto;cursor:pointer;width:60px;height:30px;
-            background-image: url('360-2.jpg');
-            background-size: cover;
-            border: 1px solid white;
-            outline: 1px solid white;
-            animation: blink 1s infinite;">
-          </div>`,
+        position: { yaw: -1.9, pitch: -0.2 },
+        html: createMarkerHTML('360-2.jpg'),
         anchor: 'center center',
         tooltip: 'Back',
       });
@@ -104,14 +92,7 @@ const ViewerComponent = () => {
       markersPlugin.addMarker({
         id: 'ROOM_2_DETAIL',
         position: { yaw: -0.2, pitch: 0.1 },
-        html: ` 
-          <div style="pointer-events:auto;cursor:pointer;width:60px;height:30px;
-            background-image: url('360-1.jpg');
-            background-size: cover;
-            border: 1px solid white;
-            outline: 1px solid white;
-            animation: blink 1s infinite;">
-          </div>`,
+        html: createMarkerHTML('360-1.jpg'),
         anchor: 'center center',
         tooltip: 'Room 2 Details',
       });
@@ -119,14 +100,7 @@ const ViewerComponent = () => {
       markersPlugin.addMarker({
         id: 'BACK_TO_HOME',
         position: { yaw: 1.5, pitch: 0.0 },
-        html: ` 
-          <div style="pointer-events:auto;cursor:pointer;width:60px;height:30px;
-            background-image: url('360-1.jpg');
-            background-size: cover;
-            border: 1px solid white;
-            outline: 1px solid white;
-            animation: blink 1s infinite;">
-          </div>`,
+        html: createMarkerHTML('360-1.jpg'),
         anchor: 'center center',
         tooltip: 'Back',
       });
@@ -138,14 +112,7 @@ const ViewerComponent = () => {
       markersPlugin.addMarker({
         id: 'ROOM_1_FINAL',
         position: { yaw: 0.8, pitch: 0.1 },
-        html: ` 
-          <div style="pointer-events:auto;cursor:pointer;width:60px;height:30px;
-            background-image: url('image-2.jpg');
-            background-size: cover;
-            border: 1px solid white;
-            outline: 1px solid white;
-            animation: blink 1s infinite;">
-          </div>`,
+        html: createMarkerHTML('image-2.jpg'),
         anchor: 'center center',
         tooltip: 'Room 1 Final View',
       });
@@ -153,23 +120,14 @@ const ViewerComponent = () => {
       markersPlugin.addMarker({
         id: 'BACK_TO_ROOM_1',
         position: { yaw: -1.5, pitch: 0.0 },
-        html: ` 
-          <div style="pointer-events:auto;cursor:pointer;width:60px;height:30px;
-            background-image: url('image-1.jpg');
-            background-size: cover;
-            border: 1px solid white;
-            outline: 1px solid white;
-            animation: blink 1s infinite;">
-          </div>`,
+        html: createMarkerHTML('image-1.jpg'),
         anchor: 'center center',
         tooltip: 'Back to Room 1',
       });
     };
 
-    // Add the initial markers when the component mounts
     addInitialMarkers();
 
-    // Event listener for marker selection
     markersPlugin.addEventListener('select-marker', (e) => {
       const markerId = e.marker?.id;
       console.log('Clicked marker:', markerId);
@@ -216,10 +174,10 @@ const ViewerComponent = () => {
     });
 
     return () => viewer.destroy();
-  }, [navbarVisible]); // Re-run the effect when navbarVisible changes
+  }, [navbarVisible]);
 
   const toggleNavbar = () => {
-    setNavbarVisible((prev) => !prev); // Toggle the navbar visibility
+    setNavbarVisible((prev) => !prev);
   };
 
   return (
@@ -238,7 +196,7 @@ const ViewerComponent = () => {
           zIndex: 10,
         }}
       >
-        <i className={`fa ${navbarVisible ? 'fa-eye-slash' : 'fa-eye'}`} /> {/* Eye icon for showing/hiding */}
+        <i className={`fa ${navbarVisible ? 'fa-eye-slash' : 'fa-eye'}`} />
       </button>
 
       <div
