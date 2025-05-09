@@ -53,7 +53,7 @@ const ViewerComponent = () => {
       container,
       panorama: '/360-1.jpg',
       defaultZoomLvl: 30,
-      navbar: navbarVisible,
+      // navbar: navbarVisible,
       navbar: navbarVisible ? [
         'autorotate',
         'fullscreen',
@@ -101,7 +101,7 @@ const ViewerComponent = () => {
 
     switch (id) {
       case 'ROOM_1':
-        switchPanorama('/360-3.jpg', addRoom1Markers, { yaw: 0.5, pitch: 0.2, zoom: 50 });
+        switchPanorama('/36-4.jpg', addRoom1Markers, { yaw: 0.5, pitch: 0.2, zoom: 50 });
         break;
       case 'ROOM_2':
         switchPanorama('/image-1.jpg', addRoom2Markers, { yaw: -0.2, pitch: 0.1, zoom: 50 });
