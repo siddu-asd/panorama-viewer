@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Viewer } from '@photo-sphere-viewer/core';
 import { MarkersPlugin } from '@photo-sphere-viewer/markers-plugin';
 import { AutorotatePlugin } from '@photo-sphere-viewer/autorotate-plugin';
@@ -7,13 +7,15 @@ import '@photo-sphere-viewer/core/index.css';
 import '@photo-sphere-viewer/markers-plugin/index.css';
 import 'font-awesome/css/font-awesome.min.css';
 
+// Image URLs to preload
 const imageUrls = [
-  '/360-1.jpg',
-  '/360-2.jpg',
-  '/image-1.jpg',
-  '/image-2.jpg',
+  '/360-1.jpg', '/360-2.jpg', '/image-1.jpg', '/image-2.jpg',
+  '/office-1.jpg', '/office-10.jpg', '/office-14.jpg', '/office-15.jpg',
+  '/office-7.jpg', '/office-6.jpg', '/office-16.jpg', '/office-2.jpg',
+  '/office-11.jpg', '/office-12.jpg',
 ];
 
+// Preload all images
 const preloadImages = (urls) => {
   urls.forEach((url) => {
     const img = new Image();
@@ -21,22 +23,75 @@ const preloadImages = (urls) => {
   });
 };
 
+// Enhanced marker HTML
 const createMarkerHTML = (imageUrl) => `
-  <div style="
-    pointer-events: auto;
-    cursor: pointer;
-    width: 60px;
-    height: 30px;
-    background-image: url('${imageUrl}');
-    background-size: cover;
-    border: 1px solid white;
-    outline: 1px solid white;
-    animation: blink 1s infinite;
-    transition: transform 0.3s ease-in-out;"
-    onmouseover="this.style.transform='scale(1.5)'"
-    onmouseout="this.style.transform='scale(1)'"
-  ></div>
+  <div class="custom-marker" style="background-image: url('${imageUrl}');"></div>
 `;
+
+// Scene configuration
+const scenes = {
+  ENTRY: {
+    panorama: '/office-15.jpg',
+    markers: [
+      { id: 'TO-ROOM1', image: 'office-10.jpg', tooltip: 'Enter into the office', position: {yaw: -3.0, pitch: -0.15 }, target: 'ROOM1' },
+      { id: 'TO-STUDIO-OUTSIDE', image: 'office-6.jpg', tooltip: 'Go to Studio', position: {  yaw: -2.0, pitch: -0.1  }, target: 'STUDIO-OUTSIDE' },
+      { id: 'TO-NEW-OFFICE', image: 'office-11.jpg', tooltip: 'Enter New Office', position: { yaw: 1.5, pitch: 0.2}, target: 'NEW-OFFICE' },
+    ],
+  },
+  ROOM1: {
+    panorama: '/office-10.jpg',
+    markers: [
+      { id: 'TO-ADMIN-BLOCK', image: 'office-14.jpg', tooltip: 'See Workspace', position: { yaw: 2.5, pitch: -0.1 }, target: 'ADMIN-BLOCK' },
+      { id: 'ROOM1-BACK', image: 'office-15.jpg', tooltip: 'Back', position: { yaw: -0.6, pitch: 0.1 }, target: 'ENTRY' },
+    ],
+  },
+  'ADMIN-BLOCK': {
+    panorama: '/office-14.jpg',
+    markers: [
+      { id: 'TO-MEETING-ROOM', image: 'office-7.jpg', tooltip: 'Meeting Room', position: { yaw: -0.7, pitch: -0.1 }, target: 'MEETING-ROOM' },
+      { id: 'TO-WORKSPACE-FROM-ADMIN', image: 'office-7.jpg', tooltip: 'Work-space', position: { yaw: -0.4, pitch: 0.1 }, target: 'WORKSPACE' },
+      { id: 'ADMIN-BLOCK-BACK', image: 'office-10.jpg', tooltip: 'Back', position: {yaw: 2.6, pitch: -0.1}, target: 'ROOM1' },
+    ],
+  },
+  'MEETING-ROOM': {
+    panorama: '/office-7.jpg',
+    markers: [
+      { id: 'MEETING-BACK', image: 'office-14.jpg', tooltip: 'Back to Admin Block', position: { yaw: -0.95, pitch: -0.25 }, target: 'ADMIN-BLOCK' },
+    ],
+  },
+  'WORKSPACE': {
+    panorama: '/office-2.jpg',
+    markers: [
+      { id: 'WORKSPACE-BACK', image: 'office-14.jpg', tooltip: 'Back to Admin Block', position: { yaw: -2.5, pitch: -0.1 }, target: 'ADMIN-BLOCK' },
+    ],
+  },
+  'NEW-OFFICE': {
+    panorama: '/office-11.jpg',
+    markers: [
+      { id: 'TO-NEW-OFFICE-INSIDE', image: 'office-12.jpg', tooltip: 'See New Office', position: { yaw: -0.2, pitch: 0.1 }, target: 'NEW-OFFICE-INSIDE' },
+      { id: 'NEW-OFFICE-BACK', image: 'office-15.jpg', tooltip: 'Back', position: { yaw: 1.5, pitch: 0.1 }, target: 'ENTRY' },
+    ],
+  },
+  'NEW-OFFICE-INSIDE': {
+    panorama: '/office-12.jpg',
+    markers: [
+      { id: 'NEW-OFFICE-INSIDE-BACK', image: 'office-11.jpg', tooltip: 'Back to  Office', position: { yaw: -3.55, pitch: -0.1 }, target: 'NEW-OFFICE' },
+    ],
+  },
+  'STUDIO-OUTSIDE': {
+    panorama: '/office-6.jpg',
+    markers: [
+      { id: 'TO-STUDIO', image: 'office-1.jpg', tooltip: 'Enter Studio', position: { yaw: 1.9, pitch: 0.05 }, target: 'STUDIO' },
+      { id: 'STUDIO-OUTSIDE-BACK', image: 'office-15.jpg', tooltip: 'Back to Entry', position: { yaw: -0.6, pitch: 0.05 }, target: 'ENTRY' },
+    ],
+  },
+  'STUDIO': {
+    panorama: '/office-16.jpg',
+    markers: [
+      { id: 'STUDIO-BACK', image: 'office-6.jpg', tooltip: 'Back to Studio Outside', position: { yaw: -2.19, pitch: -0.18}, target: 'STUDIO-OUTSIDE' },
+    ],
+  },
+};
 
 const ViewerComponent = () => {
   const [navbarVisible, setNavbarVisible] = useState(true);
@@ -44,30 +99,24 @@ const ViewerComponent = () => {
   const markersPluginRef = useRef(null);
   const autorotateRef = useRef(null);
 
+  const handleMarkerClick = useCallback((e) => {
+    const markerId = e.marker.id;
+    const allMarkers = Object.values(scenes).flatMap(s => s.markers);
+    const found = allMarkers.find(m => m.id === markerId);
+    if (found?.target) switchToScene(found.target);
+  }, []);
+
   useEffect(() => {
     preloadImages(imageUrls);
-
     const container = document.getElementById('app-viewer-container');
-
     const viewer = new Viewer({
       container,
-      panorama: '/360-1.jpg',
+      panorama: scenes.ENTRY.panorama,
       defaultZoomLvl: 30,
-      // navbar: navbarVisible,
-      navbar: navbarVisible ? [
-        'autorotate',
-        'fullscreen',
-         'markers-list',
-        'markers',
-       
-      ] : false,
-      transition: {
-        duration: 1000,
-        loader: false,
-        blur: false,
-        fade: true,
-        zoom:false,
-      },
+      minFov: 30,
+      maxFov: 90,
+      navbar: navbarVisible ? ['autorotate', 'fullscreen', 'markers-list', 'markers'] : false,
+      transition: { duration: 1000, loader: false, blur: false, fade: true, zoom: false },
       plugins: [
         [MarkersPlugin],
         [AutorotatePlugin, { speed: 0.5 }],
@@ -79,137 +128,68 @@ const ViewerComponent = () => {
     autorotateRef.current = viewer.getPlugin(AutorotatePlugin);
 
     autorotateRef.current.start();
-
-    addInitialMarkers();
+    setSceneMarkers(scenes.ENTRY.markers);
 
     markersPluginRef.current.addEventListener('select-marker', handleMarkerClick);
 
     return () => viewer.destroy();
-  }, [navbarVisible]);
+  }, [navbarVisible, handleMarkerClick]);
 
-  const handleMarkerClick = (e) => {
-    const id = e.marker?.id;
-    const viewer = viewerRef.current;
+  const switchToScene = async (sceneId) => {
+    const scene = scenes[sceneId];
+    if (!scene) return;
 
-    const switchPanorama = async (url, addMarkersFn, animation) => {
-      autorotateRef.current.stop();
-      await viewer.setPanorama(url);
-      addMarkersFn();
-      viewer.animate(animation);
-      autorotateRef.current.start();
-    };
-
-    switch (id) {
-      case 'ROOM_1':
-        switchPanorama('/36-4.jpg', addRoom1Markers, { yaw: 0.5, pitch: 0.2, zoom: 50 });
-        break;
-      case 'ROOM_2':
-        switchPanorama('/image-1.jpg', addRoom2Markers, { yaw: -0.2, pitch: 0.1, zoom: 50 });
-        break;
-      case 'ROOM_1_DETAIL':
-        switchPanorama('/image-2.jpg', addFinalRoomMarkers, { yaw: 0.8, pitch: 0.1, zoom: 50 });
-        break;
-      case 'BACK_TO_HOME':
-        switchPanorama('/360-1.jpg', addInitialMarkers, { yaw: 0, pitch: 0, zoom: 30 });
-        break;
-      case 'BACK_TO_ROOM_1':
-        switchPanorama('/360-2.jpg', addRoom1Markers, { yaw: 0.5, pitch: 0.2, zoom: 50 });
-        break;
-      default:
-        break;
-    }
+    autorotateRef.current.stop();
+    await viewerRef.current.setPanorama(scene.panorama);
+    setSceneMarkers(scene.markers);
+    autorotateRef.current.start();
   };
 
-  const addInitialMarkers = () => {
-    const markers = [
-      {
-        id: 'ROOM_1',
-        position: { yaw: -2.65, pitch: -0.1 },
-        html: createMarkerHTML('360-2.jpg'),
-        tooltip: 'Room 1',
-      },
-      {
-        id: 'ROOM_2',
-        position: { yaw: -3.00, pitch: -0.1 },
-        html: createMarkerHTML('image-2.jpg'),
-        tooltip: 'Room 2',
-      },
-    ];
-    setMarkers(markers);
-  };
-
-  const addRoom1Markers = () => {
-    const markers = [
-      {
-        id: 'ROOM_1_DETAIL',
-        position: { yaw: 2.7, pitch: -0.1 },
-        html: createMarkerHTML('image-1.jpg'),
-        tooltip: 'Room 1 Details',
-      },
-      {
-        id: 'BACK_TO_HOME',
-        position: { yaw: -1.9, pitch: -0.2 },
-        html: createMarkerHTML('360-2.jpg'),
-        tooltip: 'Back',
-      },
-    ];
-    setMarkers(markers);
-  };
-
-  const addRoom2Markers = () => {
-    const markers = [
-      {
-        id: 'ROOM_2_DETAIL',
-        position: { yaw: -0.2, pitch: 0.1 },
-        html: createMarkerHTML('360-1.jpg'),
-        tooltip: 'Room 2 Details',
-      },
-      {
-        id: 'BACK_TO_HOME',
-        position: { yaw: 1.5, pitch: 0.0 },
-        html: createMarkerHTML('360-1.jpg'),
-        tooltip: 'Back',
-      },
-    ];
-    setMarkers(markers);
-  };
-
-  const addFinalRoomMarkers = () => {
-    const markers = [
-      {
-        id: 'ROOM_1_FINAL',
-        position: { yaw: 0.8, pitch: 0.1 },
-        html: createMarkerHTML('image-2.jpg'),
-        tooltip: 'Room 1 Final View',
-      },
-      {
-        id: 'BACK_TO_ROOM_1',
-        position: { yaw: -1.5, pitch: 0.0 },
-        html: createMarkerHTML('image-1.jpg'),
-        tooltip: 'Back to Room 1',
-      },
-    ];
-    setMarkers(markers);
-  };
-
-  const setMarkers = (markerArray) => {
+  const setSceneMarkers = (markerList) => {
     const plugin = markersPluginRef.current;
     plugin.clearMarkers();
-    markerArray.forEach(marker => {
+    markerList.forEach(({ id, position, image, tooltip }) => {
       plugin.addMarker({
-        ...marker,
+        id,
+        position,
+        tooltip,
+        html: createMarkerHTML(image),
         anchor: 'center center',
       });
     });
   };
 
-  const toggleNavbar = () => setNavbarVisible(prev => !prev);
-
   return (
     <div>
-      {/* Logo at the top-left corner */}
+      <style>{`
+        .custom-marker {
+          pointer-events: auto;
+          cursor: pointer;
+          width: 70px;
+          height: 40px;
+          border-radius: 12px;
+          background-size: cover;
+          background-position: center;
+          box-shadow: 0 0 12px rgba(255, 255, 255, 0.5), 0 0 20px rgba(0, 0, 0, 0.3);
+          border: 2px solid rgba(255, 255, 255, 0.8);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          animation: pulseGlow 2s infinite ease-in-out;
+        }
+
+        .custom-marker:hover {
+          transform: scale(1.4);
+          box-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 30px rgba(0, 123, 255, 0.6);
+        }
+
+        @keyframes pulseGlow {
+          0% { box-shadow: 0 0 12px rgba(255, 255, 255, 0.4); }
+          50% { box-shadow: 0 0 20px rgba(0, 123, 255, 0.6); }
+          100% { box-shadow: 0 0 12px rgba(255, 255, 255, 0.4); }
+        }
+      `}</style>
+
       <img
-        src="/LOGO.png" // Replace with your logo path
+        src="/LOGO.png"
         alt="Logo"
         style={{
           position: 'fixed',
@@ -219,10 +199,8 @@ const ViewerComponent = () => {
           zIndex: 1000,
         }}
       />
-
-      {/* Button to toggle navbar visibility */}
       <button
-        onClick={toggleNavbar}
+        onClick={() => setNavbarVisible(prev => !prev)}
         style={{
           position: 'absolute',
           top: '10px',
@@ -233,18 +211,13 @@ const ViewerComponent = () => {
           border: 'none',
           cursor: 'pointer',
           zIndex: 10,
-          backdropFilter: 'blur(5px)', // Adds a blur effect behind the button
-          boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)', 
+          backdropFilter: 'blur(5px)',
+          boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
         }}
       >
         <i className={`fa ${navbarVisible ? 'fa-eye-slash' : 'fa-eye'}`} />
       </button>
-
-      {/* Viewer Container */}
-      <div
-        id="app-viewer-container"
-        style={{ width: '100%', height: '100vh', overflow: 'hidden' }}
-      />
+      <div id="app-viewer-container" style={{ width: '100%', height: '100vh', overflow: 'hidden' }} />
     </div>
   );
 };
