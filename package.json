@@ -35,6 +35,9 @@
     "extends": [
       "react-app",
       "react-app/jest"
+    ],
+    "ignorePatterns": [
+      "node_modules/@mediapipe/tasks-vision/vision_bundle_mjs.js.map"
     ]
   },
   "browserslist": {
