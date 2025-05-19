@@ -6,6 +6,7 @@ import { AutorotatePlugin } from '@photo-sphere-viewer/autorotate-plugin';
 import '@photo-sphere-viewer/core/index.css';
 import '@photo-sphere-viewer/markers-plugin/index.css';
 import 'font-awesome/css/font-awesome.min.css';
+import { color } from 'three/tsl';
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const synth = window.speechSynthesis;
@@ -283,10 +284,12 @@ const ViewerComponent = () => {
     };
   }, [navbarVisible, setSceneMarkers, switchToScene]);
 
+  const [isListening, setIsListening] = useState(false);
+
   useEffect(() => {
     if (showBot) {
       if (['granted', 'prompt', 'unknown'].includes(micPermission)) {
-        startListening();
+   
         const greeting = language.startsWith('hi') ? "नमस्ते, मैं निसा हूँ।" :
                          language.startsWith('es') ? "¡Hola! Soy Nisaa." :
                          language.startsWith('fr') ? "Bonjour! Je suis Nisaa." :
@@ -295,15 +298,25 @@ const ViewerComponent = () => {
         speak(greeting);
       } else {
         alert('Microphone permission denied.');
-        setShowBot(false);
+        setShowBot(false  );
       }
-    } else {
+    } else {  
       stopListening();
       stopSpeaking();
       setUserMessage('');
       setBotMessage('');
+      setIsListening(false);
     }
   }, [showBot, startListening, micPermission, language, speak]);
+  const toggleListening = () => {
+  if (isListening) {
+    stopListening();
+    setIsListening(false);
+  } else {
+    startListening();
+    setIsListening(true);
+  }
+};
 
   return (    
     <div>
@@ -335,127 +348,196 @@ const ViewerComponent = () => {
 
       <img src="/LOGO.png" alt="Logo" style={{ position: 'fixed', top: '10px', left: '10px', height: '50px', zIndex: 1000 }} />
 
-      <button onClick={() => setNavbarVisible(prev => !prev)} style={{
-        position: 'absolute', top: '10px', right: '10px', padding: '10px',
-        backgroundColor: 'rgba(0, 123, 255, 0.4)', color: 'white',
-        border: 'none', cursor: 'pointer', zIndex: 10
-      }}>
-        <i className={`fa ${navbarVisible ? 'fa-eye-slash' : 'fa-eye'}`} />
-      </button>
-
-      <button onClick={() => setShowBot(prev => !prev)} style={{
-        position: 'absolute', bottom: '20px', left: '20px', zIndex: 10,
-        background: '#fff', border: 'none', borderRadius: '50%',
-        width: '50px', height: '50px', fontSize: '20px', cursor: 'pointer'
-      }}>
-<img
-  src="/bot.png" // Replace with your actual GIF path
-  alt="Mic"
+    <button 
+  onClick={() => setShowBot(prev => !prev)} 
   style={{
-    width: '24px',
-    height: '24px',
-    objectFit: 'contain',
-    filter: `drop-shadow(0 0 4px #a259ff) drop-shadow(0 0 8px #c175ff) drop-shadow(0 0 12px #7a1fff)`,
-    transition: 'filter 0.3s ease-in-out',
+    position: 'absolute',
+    bottom: '20px',
+    left: '20px',
+    zIndex: 10,
+    border: 'none',
+    background: 'transparent',
+    padding: 0,
+    margin: 0,
+    width: '100px',
+    height: '100px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   }}
-/>
-      </button>
+>
+  <img
+    src="/nisaa.png"
+    alt="Bot"
+    style={{
+      width: '100%',
+      height: '100%',
+      objectFit: 'contain',
+      background: 'transparent',
+      transition: 'transform 0.3s ease-in-out'
+    }}
+  />
+</button>
+
 
       <div id="app-viewer-container" style={{ width: '100%', height: '100vh', overflow: 'hidden' }} />
 
-   {showBot && (
+ {showBot && (
   <div style={{
     position: 'fixed',
     bottom: '100px',
     left: '30px',
-    width: '360px',
-    maxHeight: '80vh',
-    padding: '24px',
-    borderRadius: '28px',
-    background: 'radial-gradient(ellipse at center, #0f0f16 0%, #1a1a29 90%)',
-    boxShadow: '0 0 30px 4px rgba(120, 0, 255, 0.6)',
-    color: '#eee',
+    width: '370px',
+    borderRadius: '30px',
+    background: 'linear-gradient(135deg, #f9f7ff 0%, #ece7ff 100%)',
+    boxShadow: '0 12px 28px rgba(120, 0, 255, 0.15)',
     zIndex: 1000,
+    fontFamily: "'Montserrat', sans-serif",
+    overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
-    overflow: 'hidden',
-    border: '1px solid rgba(128, 0, 255, 0.5)',
-    animation: 'fadeInBot 0.5s ease-out',
-    fontFamily: "'Montserrat', sans-serif",
+    padding: '20px'
   }}>
     <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap');
 
-      @keyframes fadeInBot {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
+      .nisaa-bot-img {
+        width: 120px;
+        margin: 0 auto;
+        border-radius: 50%;
+        box-shadow: 0 0 35px rgba(170, 110, 255, 0.4);
+        margin-bottom: 20px;
       }
 
-      .bot-heading {
-        font-family: 'Montserrat', sans-serif;
-        font-weight: 700;
-        font-size: 32px;
-        text-align: center;
-        color: #a259ff;
-        text-shadow:
-          0 0 5px #a259ff,
-          0 0 15px #c175ff,
-          0 0 25px #c175ff,
-          0 0 40px #7a1fff;
-        margin-bottom: 18px;
-        user-select: none;
-        letter-spacing: 1.5px;
+      .chat-bubble-user {
+        align-self: flex-end;
+        background: linear-gradient(135deg, #e0e7ff, #d2c7ff);
+        border-radius: 18px 18px 4px 18px;
+        padding: 12px 16px;
+        max-width: 75%;
+        margin-bottom: 10px;
+        font-size: 14px;
+      }
+
+      .chat-bubble-bot {
+        align-self: flex-start;
+        background: white;
+        border-radius: 18px 18px 18px 4px;
+        padding: 12px 16px;
+        max-width: 85%;
+        margin-bottom: 10px;
+        font-size: 14px;
+        display: flex;
+        gap: 10px;
       }
 
       .bot-avatar {
-        width: 90px;
-        height: 90px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
-        margin: 0 auto 22px;
-        border: 3px solid #a259ff;
-        box-shadow: 0 0 15px #a259ff;
-        animation: pulseBorder 3s infinite ease-in-out;
-        background: radial-gradient(circle at center, #6a00ff 0%, #3a00bb 100%);
+        background: #e7d6ff;
+        padding: 2px;
       }
 
-      @keyframes pulseBorder {
-        0%, 100% { box-shadow: 0 0 15px #a259ff; }
-        50% { box-shadow: 0 0 30px #c175ff; }
+      .input-area {
+        display: flex;
+        align-items: center;
+        background: white;
+        border-radius: 20px;
+        padding: 10px 16px;
+        box-shadow: 0 4px 12px rgba(120, 0, 255, 0.1);
+        margin-top: 12px;
       }
 
-      .user-msg {
-        margin-bottom: 14px;
-        background: #2c1a54;
-        border-radius: 14px;
-        padding: 12px 16px;
+      .input-area input {
+        flex: 1;
+        border: none;
+        outline: none;
         font-size: 14px;
-        color: #ddd;
-        box-shadow: inset 0 0 10px rgba(193, 117, 255, 0.4);
+        font-family: 'Montserrat';
+        color: #333;
+        background: transparent;
       }
 
-      .bot-msg {
-        background: linear-gradient(90deg, #a259ff 0%, #c175ff 100%);
-        color: #1e1b28;
-        border-radius: 14px;
-        padding: 12px 16px;
-        font-size: 14px;
-        box-shadow: 0 5px 15px rgba(193, 117, 255, 0.6);
+      .input-area .mic-btn {
+        width: 28px;
+        height: 28px;
+        background: #f0e4ff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 10px;
+        box-shadow: 0 2px 6px rgba(120, 0, 255, 0.1);
+        cursor: pointer;
       }
     `}</style>
 
-    <div className="bot-heading">Nisaa</div>
+    <img src="/nisaa.png" alt="Bot" className="nisaa-bot-img" />
 
-    <img src="/bot.gif" alt="Bot" className="bot-avatar" />
+    <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+  {userMessage && (
+    <div className="chat-bubble-user">{userMessage}</div>
+  )}
 
-    <div className="user-msg">
-      <strong style={{ color: '#c9b6ff' }}>You:</strong><br />
-      {userMessage || <span style={{ color: '#7a4bff' }}>Listening...</span>}
+  {botMessage && (
+    <div className="chat-bubble-bot">
+      <img src="/nisaa.png" className="bot-avatar" alt="bot avatar" style={{ width: '40px', height: '40px' }} />
+      <div>
+        {botMessage.includes("<ul") ? (
+          <div dangerouslySetInnerHTML={{ __html: botMessage }} />
+        ) : (
+          <div>{botMessage}</div>
+        )}
+      </div>
     </div>
+  )}
 
-    <div className="bot-msg">
-      <strong>Bot (Nisaa):</strong><br />
-      {botMessage}
+  <div className="input-area" style={{ display: 'flex', alignItems: 'center', marginTop: '12px', gap: '8px' }}>
+    <input
+      type="text"
+      value={userMessage}
+      onChange={(e) => setUserMessage(e.target.value)}
+      placeholder="Ask me something..."
+      style={{ flexGrow: 1, padding: '10px', borderRadius: '16px', border: '1px solid #ccc' }}
+    />
+    <button
+  onClick={() => {
+    if (!userMessage.trim()) return;
+   //call api here//
+    const simulatedResponse =
+      userMessage.toLowerCase().includes("course")
+        ? `We offer over 100 courses across 5 faculties:<ul style='margin-top:6px; padding-left:16px;'><li>Science</li><li>Engineering</li><li>Arts</li><li>Business</li><li>Education</li></ul><img src='/office-1.jpg' alt='campus' style='width:100%;margin-top:10px;border-radius:12px;'/>`
+        : "I'm Nisaa! Let me help you with anything related to our virtual campus.";
+    setBotMessage(simulatedResponse);
+    speak(simulatedResponse);
+    setUserMessage('');  // <-- Clear input here
+  }}
+  style={{ padding: '8px 16px', borderRadius: '16px', backgroundColor: '#aa6eff', color: 'white', border: 'none' }}
+>
+  Send
+</button>
+    <div
+      className="mic-btn"
+      onClick={toggleListening}
+      style={{
+        backgroundColor: isListening ? '#aa6eff' : '#f0e4ff',
+        borderRadius: '50%',
+        width: '50px',
+        height: '50px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer'
+      }}
+      title={isListening ? 'Stop listening' : 'Start listening'}
+    >
+      <img src="/mic.png" alt="mic" style={{ width: '32px' }} />
     </div>
+  </div>
+</div>
+
   </div>
 )}
 
@@ -465,3 +547,4 @@ const ViewerComponent = () => {
 };
 
 export default ViewerComponent;
+  
