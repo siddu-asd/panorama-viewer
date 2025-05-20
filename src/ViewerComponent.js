@@ -505,14 +505,35 @@ const ViewerComponent = () => {
     <button
   onClick={() => {
     if (!userMessage.trim()) return;
-   //call api here//
-    const simulatedResponse =
-      userMessage.toLowerCase().includes("course")
-        ? `We offer over 100 courses across 5 faculties:<ul style='margin-top:6px; padding-left:16px;'><li>Science</li><li>Engineering</li><li>Arts</li><li>Business</li><li>Education</li></ul><img src='/office-1.jpg' alt='campus' style='width:100%;margin-top:10px;border-radius:12px;'/>`
-        : "I'm Nisaa! Let me help you with anything related to our virtual campus.";
-    setBotMessage(simulatedResponse);
-    speak(simulatedResponse);
-    setUserMessage('');  // <-- Clear input here
+
+const lowerMsg = userMessage.toLowerCase();
+
+const simulatedResponse =
+  lowerMsg.includes("what is") || lowerMsg.includes("raising 100x")
+    ? "Raising 100X is a growth-focused marketing company helping brands scale rapidly using data-driven strategies."
+  : lowerMsg.includes("employees") || lowerMsg.includes("staff") || lowerMsg.includes("team")
+    ? "We have a talented team of over 20 professionals across strategy, content, performance marketing, and design."
+  : lowerMsg.includes("ceo") || lowerMsg.includes("founder") || lowerMsg.includes("leader")
+    ? "Our CEO is Mr. Ibrahim Abdulla, a marketing visionary with years of experience scaling brands."
+  : lowerMsg.includes("services") || lowerMsg.includes("offerings") || lowerMsg.includes("solutions")
+    ? "We offer branding, performance marketing, SEO, social media strategy, content creation, and marketing automation services."
+  : lowerMsg.includes("contact") || lowerMsg.includes("reach") || lowerMsg.includes("email")
+    ? "You can contact us at contact@raising100x.com or fill out the form on our website."
+  : lowerMsg.includes("location") || lowerMsg.includes("based") || lowerMsg.includes("office")
+    ? "We are based in India, with a digital-first team supporting clients worldwide."
+  : lowerMsg.includes("meeting") || lowerMsg.includes("appointment") || lowerMsg.includes("book")
+    ? "You can book a consultation with us here: <a href='https://calendly.com' target='_blank'>Book a Call</a>."
+  : lowerMsg.includes("clients") || lowerMsg.includes("portfolio") || lowerMsg.includes("worked with")
+    ? "We’ve worked with startups and enterprises across tech, fashion, and education. Want to see case studies?"
+  : lowerMsg.includes("why") || lowerMsg.includes("different") || lowerMsg.includes("unique")
+    ? "We combine data science with storytelling to deliver rapid growth marketing solutions."
+  : lowerMsg.includes("hiring") || lowerMsg.includes("careers") || lowerMsg.includes("jobs")
+    ? "Yes! We're hiring. Send your CV to careers@raising100x.com or visit our Careers page."
+  : "I'm Nisaa, your assistant from Raising 100X. Ask me anything about our services, team, or how to get started!";
+
+setBotMessage(simulatedResponse);
+speak(simulatedResponse);
+setUserMessage('');
   }}
   style={{ padding: '8px 16px', borderRadius: '16px', backgroundColor: '#aa6eff', color: 'white', border: 'none' }}
 >
