@@ -1,14 +1,20 @@
-import React from 'react';
-import './App.css';
-import ViewerComponent from './ViewerComponent'; // Import the viewer component
+import React, { useState } from 'react';
+import ViewerComponent from './ViewerComponent';
+import ChatBot from './ChatBot';
 
-function App() {
+const App = () => {
+  const [showBot, setShowBot] = useState(false);
+
+  const toggleChatBot = () => {
+    setShowBot((prev) => !prev);
+  };
+
   return (
-    <div className="App">
- 
-      <ViewerComponent />
+    <div>
+      <ViewerComponent toggleChatBot={toggleChatBot} />
+      <ChatBot isVisible={showBot} toggleChatBot={toggleChatBot} />
     </div>
   );
-}
+};
 
 export default App;
