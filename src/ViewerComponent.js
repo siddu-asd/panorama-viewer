@@ -8,64 +8,64 @@ import '@photo-sphere-viewer/markers-plugin/index.css';
 
 const scenes = {
   ENTRY: {
-    panorama: '/office-15.jpg',
+    panorama: './office-15.jpg',
     markers: [
-      { id: 'TO-ROOM1', image: 'office-10.jpg', tooltip: 'Enter into the office', position: { yaw: -3.0, pitch: -0.15 }, target: 'ROOM1' },
-      { id: 'TO-STUDIO-OUTSIDE', image: 'office-6.jpg', tooltip: 'Go to Studio', position: { yaw: -2.0, pitch: -0.1 }, target: 'STUDIO-OUTSIDE' },
-      { id: 'TO-NEW-OFFICE', image: 'office-11.jpg', tooltip: 'Enter New Office', position: { yaw: 1.5, pitch: 0.2 }, target: 'NEW-OFFICE' },
+      { id: 'TO-ROOM1', image: './office-10.jpg', tooltip: 'Enter into the office', position: { yaw: -3.0, pitch: -0.15 }, target: 'ROOM1' },
+      { id: 'TO-STUDIO-OUTSIDE', image: './office-6.jpg', tooltip: 'Go to Studio', position: { yaw: -2.0, pitch: -0.1 }, target: 'STUDIO-OUTSIDE' },
+      { id: 'TO-NEW-OFFICE', image: './office-11.jpg', tooltip: 'Enter New Office', position: { yaw: 1.5, pitch: 0.2 }, target: 'NEW-OFFICE' },
     ],
   },
   ROOM1: {
-    panorama: '/office-10.jpg',
+    panorama: './office-10.jpg',
     markers: [
-      { id: 'TO-ADMIN-BLOCK', image: 'office-14.jpg', tooltip: 'See Workspace', position: { yaw: 2.5, pitch: -0.1 }, target: 'ADMIN-BLOCK' },
-      { id: 'ROOM1-BACK', image: 'office-15.jpg', tooltip: 'Back', position: { yaw: -0.6, pitch: 0.1 }, target: 'ENTRY' },
+      { id: 'TO-ADMIN-BLOCK', image: './office-14.jpg', tooltip: 'See Workspace', position: { yaw: 2.5, pitch: -0.1 }, target: 'ADMIN-BLOCK' },
+      { id: 'ROOM1-BACK', image: './office-15.jpg', tooltip: 'Back', position: { yaw: -0.6, pitch: 0.1 }, target: 'ENTRY' },
     ],
   },
   'ADMIN-BLOCK': {
-    panorama: '/office-14.jpg',
+    panorama: './office-14.jpg',
     markers: [
-      { id: 'TO-MEETING-ROOM', image: 'office-7.jpg', tooltip: 'Meeting Room', position: { yaw: -0.7, pitch: -0.1 }, target: 'MEETING-ROOM' },
-      { id: 'TO-WORKSPACE-FROM-ADMIN', image: 'office-7.jpg', tooltip: 'Work-space', position: { yaw: -0.4, pitch: 0.1 }, target: 'WORKSPACE' },
-      { id: 'ADMIN-BLOCK-BACK', image: 'office-10.jpg', tooltip: 'Back', position: { yaw: 2.6, pitch: -0.1 }, target: 'ROOM1' },
+      { id: 'TO-MEETING-ROOM', image: './office-7.jpg', tooltip: 'Meeting Room', position: { yaw: -0.7, pitch: -0.1 }, target: 'MEETING-ROOM' },
+      { id: 'TO-WORKSPACE-FROM-ADMIN', image: './office-7.jpg', tooltip: 'Work-space', position: { yaw: -0.4, pitch: 0.1 }, target: 'WORKSPACE' },
+      { id: 'ADMIN-BLOCK-BACK', image: './office-10.jpg', tooltip: 'Back', position: { yaw: 2.6, pitch: -0.1 }, target: 'ROOM1' },
     ],
   },
   'MEETING-ROOM': {
-    panorama: '/office-7.jpg',
+    panorama: './office-7.jpg',
     markers: [
-      { id: 'MEETING-BACK', image: 'office-14.jpg', tooltip: 'Back to Admin Block', position: { yaw: -0.95, pitch: -0.25 }, target: 'ADMIN-BLOCK' },
+      { id: 'MEETING-BACK', image: './office-14.jpg', tooltip: 'Back to Admin Block', position: { yaw: -0.95, pitch: -0.25 }, target: 'ADMIN-BLOCK' },
     ],
   },
   'WORKSPACE': {
-    panorama: '/office-2.jpg',
+    panorama: './office-2.jpg',
     markers: [
-      { id: 'WORKSPACE-BACK', image: 'office-14.jpg', tooltip: 'Back to Admin Block', position: { yaw: -2.5, pitch: -0.1 }, target: 'ADMIN-BLOCK' },
+      { id: 'WORKSPACE-BACK', image: './office-14.jpg', tooltip: 'Back to Admin Block', position: { yaw: -2.5, pitch: -0.1 }, target: 'ADMIN-BLOCK' },
     ],
   },
   'NEW-OFFICE': {
-    panorama: '/office-11.jpg',
+    panorama: './office-11.jpg',
     markers: [
-      { id: 'TO-NEW-OFFICE-INSIDE', image: 'office-12.jpg', tooltip: 'See New Office', position: { yaw: -0.2, pitch: 0.1 }, target: 'NEW-OFFICE-INSIDE' },
-      { id: 'NEW-OFFICE-BACK', image: 'office-15.jpg', tooltip: 'Back', position: { yaw: 1.5, pitch: 0.1 }, target: 'ENTRY' },
+      { id: 'TO-NEW-OFFICE-INSIDE', image: './office-12.jpg', tooltip: 'See New Office', position: { yaw: -0.2, pitch: 0.1 }, target: 'NEW-OFFICE-INSIDE' },
+      { id: 'NEW-OFFICE-BACK', image: './office-15.jpg', tooltip: 'Back', position: { yaw: 1.5, pitch: 0.1 }, target: 'ENTRY' },
     ],
   },
   'NEW-OFFICE-INSIDE': {
-    panorama: '/office-12.jpg',
+    panorama: './office-12.jpg',
     markers: [
-      { id: 'NEW-OFFICE-INSIDE-BACK', image: 'office-11.jpg', tooltip: 'Back to Office', position: { yaw: -3.55, pitch: -0.1 }, target: 'NEW-OFFICE' },
+      { id: 'NEW-OFFICE-INSIDE-BACK', image: './office-11.jpg', tooltip: 'Back to Office', position: { yaw: -3.55, pitch: -0.1 }, target: 'NEW-OFFICE' },
     ],
   },
   'STUDIO-OUTSIDE': {
-    panorama: '/office-6.jpg',
+    panorama: './office-6.jpg',
     markers: [
-      { id: 'TO-STUDIO', image: 'office-1.jpg', tooltip: 'Enter Studio', position: { yaw: 1.9, pitch: 0.05 }, target: 'STUDIO' },
-      { id: 'STUDIO-OUTSIDE-BACK', image: 'office-15.jpg', tooltip: 'Back to Entry', position: { yaw: -0.6, pitch: 0.05 }, target: 'ENTRY' },
+      { id: 'TO-STUDIO', image: './office-1.jpg', tooltip: 'Enter Studio', position: { yaw: 1.9, pitch: 0.05 }, target: 'STUDIO' },
+      { id: 'STUDIO-OUTSIDE-BACK', image: './office-15.jpg', tooltip: 'Back to Entry', position: { yaw: -0.6, pitch: 0.05 }, target: 'ENTRY' },
     ],
   },
   'STUDIO': {
-    panorama: '/office-16.jpg',
+    panorama: './office-16.jpg',
     markers: [
-      { id: 'STUDIO-BACK', image: 'office-6.jpg', tooltip: 'Back to Studio Outside', position: { yaw: -2.19, pitch: -0.18 }, target: 'STUDIO-OUTSIDE' },
+      { id: 'STUDIO-BACK', image: './office-6.jpg', tooltip: 'Back to Studio Outside', position: { yaw: -2.19, pitch: -0.18 }, target: 'STUDIO-OUTSIDE' },
     ],
   },
 };
@@ -177,8 +177,8 @@ const ViewerComponent = ({ toggleChatBot }) => {
           background: 'transparent',
           padding: 0,
           margin: 0,
-          width: '100px',
-          height: '100px',
+          width: '230px',
+          height: '230px',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -198,7 +198,17 @@ const ViewerComponent = ({ toggleChatBot }) => {
         />
       </button>
 
-      <div id="app-viewer-container" style={{ width: '100%', height: '100vh', overflow: 'hidden' }} />
+      <div id="app-viewer-container" style={{ 
+        width: '100%', 
+        height: '100vh', 
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        overflow: 'hidden',
+        zIndex: 0 
+      }} />
     </div>
   );
 };

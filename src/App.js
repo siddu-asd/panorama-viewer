@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ViewerComponent from './ViewerComponent';
-import ChatBot from './ChatBot';
+import ChatBot2 from './ChatBot2';
 
 const App = () => {
   const [showBot, setShowBot] = useState(false);
@@ -10,9 +10,14 @@ const App = () => {
   };
 
   return (
-    <div>
+    <div style={{ 
+      width: '100%', 
+      height: '100vh', 
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
       <ViewerComponent toggleChatBot={toggleChatBot} />
-      <ChatBot isVisible={showBot} toggleChatBot={toggleChatBot} />
+      <ChatBot2 isVisible={showBot} toggleChatBot={toggleChatBot} />
     </div>
   );
 };
