@@ -126,27 +126,44 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
   }, [messages]);
 
   const handleSendMessage = () => {
-    if (!userMessage.trim()) return;
+  if (!userMessage.trim()) return;
 
-    const newUserMessage = { type: 'user', content: userMessage };
-    setMessages(prev => [...prev, newUserMessage]);
+  const newUserMessage = { type: 'user', content: userMessage };
+  setMessages(prev => [...prev, newUserMessage]);
+  setIsTyping(true);
 
-    setIsTyping(true);
-
-    const simulatedResponse = {
-      type: 'bot',
-      content: "Hi Shareena, how can I help you today?",
-      displayedContent: "Hi Shareena, how can I help you today?",
-      isTyping: false
-    };
-
-    setTimeout(() => {
+  fetch('https://chat-bot-nissa.onrender.com/chat', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ message: userMessage }),
+  })
+    .then(res => res.json())
+    .then(data => {
+      const botReply = {
+        type: 'bot',
+        content: data.reply || "Sorry, I didn't understand that.",
+        displayedContent: data.reply || "Sorry, I didn't understand that.",
+        isTyping: false
+      };
       setIsTyping(false);
-      setMessages(prev => [...prev, simulatedResponse]);
-    }, 1500);
+      setMessages(prev => [...prev, botReply]);
+      setTimeout(() => speak(botReply.content), 100);
+    })
+    .catch(err => {
+      console.error("Backend error:", err);
+      setIsTyping(false);
+      setMessages(prev => [...prev, {
+        type: 'bot',
+        content: "Oops! Something went wrong. Please try again later.",
+        displayedContent: "Oops! Something went wrong. Please try again later.",
+        isTyping: false
+      }]);
+    });
 
-    setUserMessage('');
-  };
+  setUserMessage('');
+};
 
   useEffect(() => {
     if (currentTypingIndex >= 0 && messages[currentTypingIndex]?.isTyping) {
