@@ -63,8 +63,8 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
       const langVoices = allVoices.filter(v => v.lang.toLowerCase().startsWith(langPrefix));
 
       // Enhanced female voice detection keywords
-      const preferredKeywords = ['female', 'woman', 'girl', 'google'];
-      const femaleIdentifiers = ['female', 'woman', 'girl'];
+      const preferredKeywords = ['female', 'woman', 'google'];
+      const femaleIdentifiers = ['female', 'woman', ];
 
       // First try to find a high-quality female voice
       let selectedVoice = langVoices.find(v =>

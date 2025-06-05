@@ -1,7 +1,9 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
+import ReactDOM from 'react-dom';
 import { Viewer } from '@photo-sphere-viewer/core';
 import { MarkersPlugin } from '@photo-sphere-viewer/markers-plugin';
 import { AutorotatePlugin } from '@photo-sphere-viewer/autorotate-plugin';
+import VerticalNav from './components/VerticalNav';
 
 import '@photo-sphere-viewer/core/index.css';
 import '@photo-sphere-viewer/markers-plugin/index.css';
@@ -71,9 +73,11 @@ const scenes = {
 };
 
 const ViewerComponent = ({ toggleChatBot }) => {
+  const [currentScene, setCurrentScene] = useState('ENTRY');
   const viewerRef = useRef(null);
   const markersPluginRef = useRef(null);
   const autorotateRef = useRef(null);
+  const [portalContainer, setPortalContainer] = useState(null);
 
   const setSceneMarkers = useCallback((markerList) => {
     const plugin = markersPluginRef.current;
@@ -98,26 +102,75 @@ const ViewerComponent = ({ toggleChatBot }) => {
     autorotateRef.current.start();
   }, [setSceneMarkers]);
 
+  const handleNavigation = useCallback((target) => {
+    if (target === 'exit') {
+      if (window.confirm('Are you sure you want to exit?')) {
+        window.location.href = '/';
+      }
+    } else {
+      switchToScene(target);
+      setCurrentScene(target);
+    }
+  }, [switchToScene]);
+
   useEffect(() => {
     const container = document.getElementById('app-viewer-container');
     const viewer = new Viewer({
       container,
       panorama: scenes.ENTRY.panorama,
       defaultZoomLvl: 30,
-      navbar: [
-        'autorotate',
-        'zoom',
-        'move',
-        'download',
-        'description',
-        'caption',
-        'fullscreen',
-      ],
-      plugins: [
-        MarkersPlugin,
-        [AutorotatePlugin, { autorotateSpeed: 0.5 }],
-      ],
+      navbar: ['fullscreen', 'autorotate'],
+      plugins: [MarkersPlugin, [AutorotatePlugin, { autorotateSpeed: 0.5 }]],
     });
+
+    // Logo overlay
+    const logoOverlay = document.createElement('div');
+    logoOverlay.className = 'psv-logo-overlay';
+    logoOverlay.innerHTML = `<img src="/LOGO.png" alt="Logo" style="height: 50px; width: auto; padding: 10px;" />`;
+    viewer.container.appendChild(logoOverlay);
+
+    // Chatbot overlay
+    const chatbotOverlay = document.createElement('div');
+    chatbotOverlay.className = 'psv-chatbot-overlay';
+    chatbotOverlay.innerHTML = `<img src="/nisaa.png" alt="Bot" style="width: 230px; height: 230px; object-fit: contain; cursor: pointer; transition: transform 0.3s ease-in-out;" />`;
+    chatbotOverlay.onclick = toggleChatBot;
+    viewer.container.appendChild(chatbotOverlay);
+
+    // Navbar & overlay styling
+    const style = document.createElement('style');
+    style.textContent = `
+      .psv-navbar {
+        justify-content: flex-end !important;
+        right: 10px;
+        left: auto;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .psv-logo-overlay {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 100000;
+        pointer-events: auto;
+      }
+      .psv-chatbot-overlay {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        z-index: 100000;
+        background: transparent;
+        border: none;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+      }
+      .psv--fullscreen .psv-logo-overlay,
+      .psv--fullscreen .psv-chatbot-overlay {
+        position: fixed !important;
+        z-index: 100000 !important;
+      }
+    `;
+    document.head.appendChild(style);
 
     viewerRef.current = viewer;
     markersPluginRef.current = viewer.getPlugin(MarkersPlugin);
@@ -126,89 +179,112 @@ const ViewerComponent = ({ toggleChatBot }) => {
     setSceneMarkers(scenes.ENTRY.markers);
 
     markersPluginRef.current.addEventListener('select-marker', (e) => {
-      const target = Object.values(scenes).flatMap(s => s.markers).find(m => m.id === e.marker.id)?.target;
+      document.querySelectorAll('.custom-marker').forEach((el) =>
+        el.classList.remove('selected-marker')
+      );
+      if (e.marker?.domElement?.firstChild) {
+        e.marker.domElement.firstChild.classList.add('selected-marker');
+      }
+
+      const target = Object.values(scenes)
+        .flatMap((s) => s.markers)
+        .find((m) => m.id === e.marker.id)?.target;
       if (target) switchToScene(target);
     });
 
+    setPortalContainer(viewer.container);
+
     return () => {
+      style.remove();
       viewer.destroy();
     };
-  }, [setSceneMarkers, switchToScene]);
+  }, [setSceneMarkers, switchToScene, toggleChatBot]);
 
   return (
     <div>
-      <style>
-        {`
-          .custom-marker {
-            pointer-events: auto;
-            cursor: pointer;
-            width: 70px;
-            height: 40px;
-            border-radius: 12px;
-            background-size: cover;
-            background-position: center;
-            animation: pulseGlow 2s infinite;
-          }
-          .custom-marker:hover {
-            transform: scale(1.4);
-          }
-          @keyframes pulseGlow {
-            0% { box-shadow: 0 0 10px rgba(255,255,255,0.5); }
-            50% { box-shadow: 0 0 20px rgba(0,123,255,0.7); }
-            100% { box-shadow: 0 0 10px rgba(255,255,255,0.5); }
-          }
-        `}
-      </style>
+      <style>{`
+        .custom-marker {
+          pointer-events: auto;
+          cursor: pointer;
+          padding:16px;
+          width: 70px;
+          height: 40px;
+          border-radius: 4px;
+          background-size: cover;
+          background-position: center;
+          background-color: white;
+          border: 2px solid white;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+          position: relative;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          animation: pulseGlow 2s infinite;
+        }
+        .custom-marker::after {
+          content: '';
+          position: absolute;
+          top: 0px;
+          left: 0px;
+          right: 0px;
+          bottom: 0px;
+          border: 0 solid transparent;
+          border-radius: 4px;
+          transition: all 0.3s ease;
+          pointer-events: none;
+        }
+          
+        .custom-marker:hover::after {
+          top: -10px;
+          left: -10px;
+          right: -10px;
+          bottom: -10px;
+          border: 4px solid rgba(109, 34, 44, 0.6);
+          border-radius: 10px;
+        }
+        .custom-marker:hover {
+          transform: scale(1.4);
+          box-shadow: 0 0 14px rgba(109, 34, 44, 0.4);
+        }
+        @keyframes pulseGlow {
+          0% { box-shadow: 0 0 10px rgba(255,255,255,0.4); }
+          50% { box-shadow: 0 0 16px rgba(109, 34, 44, 0.4); }
+          100% { box-shadow: 0 0 10px rgba(255,255,255,0.4); }
+        }
+        .custom-marker.selected-marker::before {
+          content: '';
+          position: absolute;
+          top: -16px;
+          left: -16px;
+          right: -16px;
+          bottom: -16px;
+          border: 3px solid rgba(109, 34, 44, 0.6);
+          border-radius: 12px;
+          box-shadow: 0 0 12px rgba(109, 34, 44, 0.4);
+          transition: all 0.4s ease;
+          pointer-events: none;
+          z-index: -1;
+        }
+      `}</style>
 
-      <img
-        src="/LOGO.png"
-        alt="Logo"
-        style={{ position: 'fixed', top: '10px', left: '10px', height: '50px', zIndex: 1000 }}
+      <div
+        id="app-viewer-container"
+        style={{
+          width: '100%',
+          height: '100vh',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          overflow: 'hidden',
+          zIndex: 0,
+        }}
       />
 
-      <button
-        onClick={toggleChatBot}
-        style={{
-          position: 'absolute',
-          bottom: '20px',
-          right: '20px',
-          zIndex: 10,
-          border: 'none',
-          background: 'transparent',
-          padding: 0,
-          margin: 0,
-          width: '230px',
-          height: '230px',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <img
-          src="/nisaa.png"
-          alt="Bot"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-            background: 'transparent',
-            transition: 'transform 0.3s ease-in-out',
-          }}
-        />
-      </button>
-
-      <div id="app-viewer-container" style={{ 
-        width: '100%', 
-        height: '100vh', 
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        overflow: 'hidden',
-        zIndex: 0 
-      }} />
+      {portalContainer &&
+        ReactDOM.createPortal(
+          <VerticalNav onNavigate={handleNavigation} currentScene={currentScene} />,
+          portalContainer
+        )}
     </div>
   );
 };

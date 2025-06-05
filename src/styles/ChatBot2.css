@@ -12,7 +12,7 @@
   display: flex;
   flex-direction: column;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.1);  /* Light transparent white */
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -55,12 +55,13 @@
 }
 
 .messages-container {
+  flex: 1;
   border-radius: 16px;
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-height: 400px;
+  max-height: 100%;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(107, 70, 193, 0.2) transparent;
@@ -111,9 +112,8 @@
 
 .message.user {
   margin-left: auto;
- background: linear-gradient(135deg, #D6C4F8, #BFA6FF);
- color: rgb(3, 3, 3);
-
+  background: linear-gradient(135deg, #D6C4F8, #BFA6FF);
+  color: rgb(3, 3, 3);
   border-radius: 16px 16px 4px 16px;
 }
 
@@ -276,8 +276,7 @@
 }
 
 .input-container {
-  margin-top: 12px;
-  position: relative;
+  margin-top: auto;
   display: flex;
   align-items: center;
   gap: 8px;
