@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
 import ViewerComponent from './ViewerComponent';
 import ChatBot2 from './ChatBot2';
+import VerticalNav from './components/VerticalNav';
 
 const App = () => {
   const [showBot, setShowBot] = useState(false);
+  const [currentScene, setCurrentScene] = useState('ENTRY');
 
   const toggleChatBot = () => {
     setShowBot((prev) => !prev);
+  };
+
+  const handleNavigate = (scene) => {
+    setCurrentScene(scene);
   };
 
   return (
@@ -16,7 +22,8 @@ const App = () => {
       position: 'relative',
       overflow: 'hidden'
     }}>
-      <ViewerComponent toggleChatBot={toggleChatBot} />
+      <VerticalNav onNavigate={handleNavigate} currentScene={currentScene} />
+      <ViewerComponent toggleChatBot={toggleChatBot} currentScene={currentScene} onNavigate={handleNavigate} />
       <ChatBot2 isVisible={showBot} toggleChatBot={toggleChatBot} />
     </div>
   );

@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './VerticalNav.css';
 
 const VerticalNav = ({ onNavigate, currentScene }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    document.body.classList.toggle('nav-open', isMenuOpen);
+  }, [isMenuOpen]);
 
   const navigationItems = [
     { id: 'entry', label: 'Main Entry', scene: 'ENTRY' },
@@ -19,40 +23,56 @@ const VerticalNav = ({ onNavigate, currentScene }) => {
     if (typeof onNavigate === 'function') {
       onNavigate(item.scene);
     }
+    setIsMenuOpen(false); // Auto close menu on navigation
   };
 
   return (
-    <div className={`nav-container ${isMenuOpen ? 'open' : ''}`}>
-      <div className="nav-content">
-        {!isMenuOpen && (
-          <button 
-            className="main-button explore"
-            onClick={() => setIsMenuOpen(true)}
-          >
-            Explore
-          </button>
-        )}
+    <>
+      {/* Explore Button */}
+      {!isMenuOpen && (
+        <button
+          className="main-button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsMenuOpen(true);
+          }}
+          aria-label="Open navigation"
+          aria-expanded={isMenuOpen}
+          type="button"
+        >
+          Explore
+        </button>
+      )}
 
-        <div className="vertical-nav">
-          <button
-            className="nav-item exit-item"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Exit
-          </button>
-          {navigationItems.map((item) => (
+      {/* Navigation Container */}
+      <div className={`nav-container${isMenuOpen ? ' open' : ''}`}>
+        <div className="nav-content">
+          <div className="vertical-nav">
+            {/* Exit Button */}
             <button
-              key={item.id}
-              className={`nav-item ${currentScene === item.scene ? 'active' : ''}`}
-              onClick={() => handleClick(item)}
+              className="nav-item exit-item"
+              onClick={() => setIsMenuOpen(false)}
+              type="button"
             >
-              {item.label}
+              Exit
             </button>
-          ))}
+
+            {/* Navigation Items */}
+            {navigationItems.map((item) => (
+              <button
+                key={item.id}
+                className={`nav-item${currentScene === item.scene ? ' active' : ''}`}
+                onClick={() => handleClick(item)}
+                type="button"
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
-export default VerticalNav; 
+export default VerticalNav;

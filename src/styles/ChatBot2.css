@@ -26,8 +26,8 @@
 }
 
 .main-bot-avatar {
-  width: 190px;
-  height: 190px;
+  width: 280px;
+  height: 180px;
   object-fit: contain;
   cursor: pointer;
   transition: transform 0.3s ease, filter 0.3s ease;
@@ -377,8 +377,8 @@
 
 @media (max-width: 480px) {
   .chatbot-container {
-    width: 90%;
+    width: 78%;
     right: 5%;
-    bottom: 20px;
+    bottom: 45px;
   }
 }

@@ -214,7 +214,7 @@ const ChatBot = ({ isVisible, toggleChatBot }) => {
       : lowerMsg.includes('meeting') || lowerMsg.includes('appointment') || lowerMsg.includes('book')
       ? "You can book a consultation with us here: <a href='https://calendly.com' target='_blank'>Book a Call</a>."
       : lowerMsg.includes('clients') || lowerMsg.includes('portfolio') || lowerMsg.includes('worked with')
-      ? 'We’ve worked with startups and enterprises across tech, fashion, and education. Want to see case studies?'
+      ? 'We've worked with startups and enterprises across tech, fashion, and education. Want to see case studies?'
       : lowerMsg.includes('why') || lowerMsg.includes('different') || lowerMsg.includes('unique')
       ? 'We combine data science with storytelling to deliver rapid growth marketing solutions.'
       : lowerMsg.includes('hiring') || lowerMsg.includes('careers') || lowerMsg.includes('jobs')
@@ -228,35 +228,17 @@ const ChatBot = ({ isVisible, toggleChatBot }) => {
 
   return (
     isVisible && (
-      <div
-        style={{
-          position: 'fixed',
-          bottom: '100px',
-          right: '30px', // Changed from left to right
-          width: '370px',
-          borderRadius: '30px',
-          background: 'linear-gradient(135deg, #f9f7ff 0%, #ece7ff 100%)',
-          boxShadow: '0 12px 28px rgba(120, 0, 255, 0.15)',
-          zIndex: 1000,
-          fontFamily: "'Montserrat', sans-serif",
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          padding: '20px',
-        }}
-      >
+      <>
         <style>
           {`
             @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap');
-
             .nisaa-bot-img {
-              width: 120px;
+              width: 180px;
               margin: 0 auto;
               border-radius: 50%;
               box-shadow: 0 0 35px rgba(170, 110, 255, 0.4);
-              margin-bottom: 20px;
+              margin-bottom: 28px;
             }
-
             .chat-bubble-user {
               align-self: flex-end;
               background: linear-gradient(135deg, #e0e7ff, #d2c7ff);
@@ -266,7 +248,6 @@ const ChatBot = ({ isVisible, toggleChatBot }) => {
               margin-bottom: 10px;
               font-size: 14px;
             }
-
             .chat-bubble-bot {
               align-self: flex-start;
               background: white;
@@ -278,7 +259,6 @@ const ChatBot = ({ isVisible, toggleChatBot }) => {
               display: flex;
               gap: 10px;
             }
-
             .bot-avatar {
               width: 36px;
               height: 36px;
@@ -286,7 +266,6 @@ const ChatBot = ({ isVisible, toggleChatBot }) => {
               background: #e7d6ff;
               padding: 2px;
             }
-
             .input-area {
               display: flex;
               align-items: center;
@@ -296,7 +275,6 @@ const ChatBot = ({ isVisible, toggleChatBot }) => {
               box-shadow: 0 4px 12px rgba(120, 0, 255, 0.1);
               margin-top: 12px;
             }
-
             .input-area input {
               flex: 1;
               border: none;
@@ -306,7 +284,6 @@ const ChatBot = ({ isVisible, toggleChatBot }) => {
               color: #333;
               background: transparent;
             }
-
             .input-area .mic-btn {
               width: 28px;
               height: 28px;
@@ -319,61 +296,120 @@ const ChatBot = ({ isVisible, toggleChatBot }) => {
               box-shadow: 0 2px 6px rgba(120, 0, 255, 0.1);
               cursor: pointer;
             }
+            @media (max-width: 768px) {
+              div[style*='position: fixed'] {
+                width: 98vw !important;
+                right: 1vw !important;
+                left: 1vw !important;
+                bottom: 10px !important;
+                padding: 18px !important;
+                border-radius: 22px !important;
+              }
+              .nisaa-bot-img {
+                width: 150px;
+                margin-bottom: 22px;
+              }
+              .input-area {
+                padding: 8px 10px;
+              }
+              .chat-bubble-user, .chat-bubble-bot {
+                font-size: 13px;
+                padding: 10px 12px;
+              }
+            }
+            @media (max-width: 480px) {
+              div[style*='position: fixed'] {
+                width: 100vw !important;
+                right: 0 !important;
+                left: 0 !important;
+                bottom: 0 !important;
+                border-radius: 0 !important;
+                min-height: 70vh !important;
+                max-height: 100vh !important;
+                height: 70vh !important;
+                padding: 6vw 2vw !important;
+              }
+              .nisaa-bot-img {
+                width: 120px;
+                margin-bottom: 16px;
+              }
+              .input-area {
+                padding: 6px 6px;
+              }
+              .chat-bubble-user, .chat-bubble-bot {
+                font-size: 12px;
+                padding: 8px 8px;
+              }
+            }
           `}
         </style>
-
-        <img src="/nisaa.png" alt="Bot" className="nisaa-bot-img" />
-
-        <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-          {userMessage && <div className="chat-bubble-user">{userMessage}</div>}
-
-          {botMessage && (
-            <div className="chat-bubble-bot">
-              <img src="/nisaa.png" className="bot-avatar" alt="bot avatar" style={{ width: '40px', height: '40px' }} />
-              <div>
-                {botMessage.includes('<ul') ? (
-                  <div dangerouslySetInnerHTML={{ __html: botMessage }} />
-                ) : (
-                  <div>{botMessage}</div>
-                )}
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '100px',
+            right: '30px', // Changed from left to right
+            width: '370px',
+            borderRadius: '30px',
+            background: 'linear-gradient(135deg, #f9f7ff 0%, #ece7ff 100%)',
+            boxShadow: '0 12px 28px rgba(120, 0, 255, 0.15)',
+            zIndex: 1000,
+            fontFamily: "'Montserrat', sans-serif",
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            padding: '20px',
+          }}
+        >
+          <img src="/nisaa.png" alt="Bot" className="nisaa-bot-img" />
+          <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+            {userMessage && <div className="chat-bubble-user">{userMessage}</div>}
+            {botMessage && (
+              <div className="chat-bubble-bot">
+                <img src="/nisaa.png" className="bot-avatar" alt="bot avatar" style={{ width: '40px', height: '40px' }} />
+                <div>
+                  {botMessage.includes('<ul') ? (
+                    <div dangerouslySetInnerHTML={{ __html: botMessage }} />
+                  ) : (
+                    <div>{botMessage}</div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
-
-          <div className="input-area" style={{ display: 'flex', alignItems: 'center', marginTop: '12px', gap: '8px' }}>
-            <input
-              type="text"
-              value={userMessage}
-              onChange={(e) => setUserMessage(e.target.value)}
-              placeholder="Ask me something..."
-              style={{ flexGrow: 1, padding: '10px', borderRadius: '16px', border: '1px solid #ccc' }}
-            />
-            <button
-              onClick={handleSendMessage}
-              style={{ padding: '8px 16px', borderRadius: '16px', backgroundColor: '#aa6eff', color: 'white', border: 'none' }}
-            >
-              Send
-            </button>
-            <div
-              className="mic-btn"
-              onClick={toggleListening}
-              style={{
-                backgroundColor: isListening ? '#aa6eff' : '#f0e4ff',
-                borderRadius: '50%',
-                width: '50px',
-                height: '50px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-              }}
-              title={isListening ? 'Stop listening' : 'Start listening'}
-            >
-              <img src="/mic.png" alt="mic" style={{ width: '32px' }} />
+            )}
+            <div className="input-area" style={{ display: 'flex', alignItems: 'center', marginTop: '12px', gap: '8px' }}>
+              <input
+                type="text"
+                value={userMessage}
+                onChange={(e) => setUserMessage(e.target.value)}
+                placeholder="Ask me something..."
+                style={{ flexGrow: 1, padding: '10px', borderRadius: '16px', border: '1px solid #ccc' }}
+              />
+              <button
+                onClick={handleSendMessage}
+                style={{ padding: '8px 16px', borderRadius: '16px', backgroundColor: '#aa6eff', color: 'white', border: 'none' }}
+              >
+                Send
+              </button>
+              <div
+                className="mic-btn"
+                onClick={toggleListening}
+                style={{
+                  backgroundColor: isListening ? '#aa6eff' : '#f0e4ff',
+                  borderRadius: '50%',
+                  width: '50px',
+                  height: '50px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+                title={isListening ? 'Stop listening' : 'Start listening'}
+              >
+                <img src="/mic.png" alt="mic" style={{ width: '32px' }} />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </>
     )
   );
 };
