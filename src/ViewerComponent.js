@@ -143,6 +143,9 @@ const ViewerComponent = ({ toggleChatBot }) => {
         left: auto;
         gap: 10px;
         background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(0px);
+        pointer-events: auto !important; /* ✅ Add this */
+        z-index: 1000; /* Make sure it's above */
       }
       .psv-logo-overlay {
         position: absolute;

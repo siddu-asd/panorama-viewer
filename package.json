@@ -23,7 +23,7 @@
     "web-vitals": "^2.1.4"
   },
   "resolutions": {
-    "three": "0.175.0"
+    "three": "0.157.0"
   },
   "scripts": {
     "start": "react-scripts start",
