@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './styles/ChatBot2.css';
+import BotResponse from './BotResponse'; // adjust the path if needed
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const synth = window.speechSynthesis;
@@ -189,7 +190,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
                   <div className="bot-avatar"><img src="/nisaa.png" alt="Bot" /></div>
                   <div className="bot-content">
                     <div className="message bot">
-                      <span className="message-text">{msg.displayedContent}</span>
+                    <BotResponse content={msg.displayedContent} />
                       <button className="speak-button" onClick={() => speak(msg.content)} title="Click to hear this message">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
