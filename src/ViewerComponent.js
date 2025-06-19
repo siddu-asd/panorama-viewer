@@ -120,7 +120,7 @@ const ViewerComponent = ({ toggleChatBot }) => {
       panorama: scenes.ENTRY.panorama,
       defaultZoomLvl: 30,
       navbar: ['fullscreen', 'autorotate'],
-      plugins: [MarkersPlugin, [AutorotatePlugin, { autorotateSpeed: 0.5 }]],
+      plugins: [MarkersPlugin, [AutorotatePlugin, { autorotateSpeed: 0.1 }]],
     });
 
     const logoOverlay = document.createElement('div');
