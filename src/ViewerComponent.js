@@ -130,9 +130,12 @@ const ViewerComponent = ({ toggleChatBot }) => {
 
     const chatbotOverlay = document.createElement('div');
     chatbotOverlay.className = 'psv-chatbot-overlay';
-    chatbotOverlay.innerHTML = `<img src="/nisaa.png" alt="Bot" style="width: 320px; height: 280px; object-fit: contain; cursor: pointer; transition: transform 0.3s ease-in-out;" />`;
-    chatbotOverlay.onclick = toggleChatBot;
-    chatbotOverlay.addEventListener('touchstart', toggleChatBot);
+    chatbotOverlay.innerHTML = `<img id="psv-chatbot-img" src="/nisaa.png" alt="Bot" style="width: 320px; height: 280px; object-fit: contain; cursor: pointer; transition: transform 0.3s ease-in-out;" />`;
+    const chatbotImg = chatbotOverlay.querySelector('#psv-chatbot-img');
+    if (chatbotImg) {
+      chatbotImg.onclick = toggleChatBot;
+      chatbotImg.addEventListener('touchstart', toggleChatBot);
+    }
     viewer.container.appendChild(chatbotOverlay);
 
     const style = document.createElement('style');
@@ -144,8 +147,8 @@ const ViewerComponent = ({ toggleChatBot }) => {
         gap: 10px;
         background: rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(0px);
-        pointer-events: auto !important; /* ✅ Add this */
-        z-index: 1000; /* Make sure it's above */
+        pointer-events: auto !important;
+        z-index: 2147483647 !important; /* Max z-index to ensure always on top */
       }
       .psv-logo-overlay {
         position: absolute;
@@ -159,41 +162,9 @@ const ViewerComponent = ({ toggleChatBot }) => {
         width: auto;
         padding: 10px;
       }
-      .psv-chatbot-overlay img {
-        width: 320px !important;
-        height: 280px !important;
-        padding-bottom:160px;
-        padding-right:40px;
-      }
-      @media (max-width: 768px) {
-        .responsive-logo {
-          height: 36px;
-        }
-        .psv-chatbot-overlay img {
-          width: 200px !important;
-          height: 200px !important;
-        }
-        .psv-chatbot-overlay {
-          bottom: 10px !important;
-          right: 10px !important;
-        }
-      }
-      @media (max-width: 480px) {
-        .responsive-logo {
-          height: 28px;
-        }
-        .psv-chatbot-overlay img {
-          width: 150px !important;
-          height: 150px !important;
-        }
-        .psv-chatbot-overlay {
-          bottom: 4vw !important;
-          right: 4vw !important;
-        }
-      }
       .psv-chatbot-overlay {
         position: absolute;
-        bottom: 40px;
+        bottom: 20px;
         right: 20px;
         z-index: 100001;
         background: transparent;
@@ -201,7 +172,47 @@ const ViewerComponent = ({ toggleChatBot }) => {
         padding: 0;
         margin: 0;
         cursor: pointer;
+        pointer-events: none; /* Overlay ignores pointer events */
+        width: auto;
+        height: auto;
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-end;
+      }
+      .psv-chatbot-overlay img {
         pointer-events: auto;
+        width: 200px !important;
+        height: 200px !important;
+        padding: 0;
+        margin: 0;
+        object-fit: contain;
+        display: block;
+      }
+      @media (max-width: 768px) {
+        .responsive-logo {
+          height: 36px;
+        }
+        .psv-chatbot-overlay {
+          bottom: 10px !important;
+          right: 10px !important;
+        }
+        .psv-chatbot-overlay img {
+          width: 120px !important;
+          height: 120px !important;
+        }
+      }
+      @media (max-width: 480px) {
+        .responsive-logo {
+          height: 28px;
+        }
+        .psv-chatbot-overlay {
+          bottom: 4vw !important;
+          right: 4vw !important;
+        }
+        .psv-chatbot-overlay img {
+          width: 80px !important;
+          height: 80px !important;
+        }
       }
       .psv--fullscreen .psv-logo-overlay,
       .psv--fullscreen .psv-chatbot-overlay {
