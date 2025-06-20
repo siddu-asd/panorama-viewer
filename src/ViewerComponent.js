@@ -141,14 +141,17 @@ const ViewerComponent = ({ toggleChatBot }) => {
     const style = document.createElement('style');
     style.textContent = `
       .psv-navbar {
-        justify-content: flex-end !important;
-        right: 10px;
-        left: auto;
-        gap: 10px;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(0px);
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        left: 10px !important;
+        right: auto !important;
+        gap: 10px !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(0px) !important;
         pointer-events: auto !important;
-        z-index: 2147483647 !important; /* Max z-index to ensure always on top */
+        z-index: 2147483647 !important;
       }
       .psv-logo-overlay {
         position: absolute;
