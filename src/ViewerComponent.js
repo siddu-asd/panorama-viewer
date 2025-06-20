@@ -175,7 +175,7 @@ const ViewerComponent = ({ toggleChatBot }) => {
         padding: 0;
         margin: 0;
         cursor: pointer;
-        pointer-events: none; /* Overlay ignores pointer events */
+        pointer-events: auto !important;
         width: auto;
         height: auto;
         display: flex;
@@ -183,9 +183,9 @@ const ViewerComponent = ({ toggleChatBot }) => {
         justify-content: flex-end;
       }
       .psv-chatbot-overlay img {
-        pointer-events: auto;
-        width: 200px !important;
-        height: 200px !important;
+        pointer-events: auto !important;
+        width: 220px !important;
+        height: 220px !important;
         padding: 0;
         margin: 0;
         object-fit: contain;
@@ -200,8 +200,8 @@ const ViewerComponent = ({ toggleChatBot }) => {
           right: 10px !important;
         }
         .psv-chatbot-overlay img {
-          width: 120px !important;
-          height: 120px !important;
+          width: 160px !important;
+          height: 160px !important;
         }
       }
       @media (max-width: 480px) {
@@ -211,10 +211,13 @@ const ViewerComponent = ({ toggleChatBot }) => {
         .psv-chatbot-overlay {
           bottom: 4vw !important;
           right: 4vw !important;
+          pointer-events: none !important;
+          z-index: 1 !important;
         }
         .psv-chatbot-overlay img {
-          width: 80px !important;
-          height: 80px !important;
+          width: 180px !important;
+          height: 180px !important;
+          pointer-events: auto !important;
         }
       }
       .psv--fullscreen .psv-logo-overlay,

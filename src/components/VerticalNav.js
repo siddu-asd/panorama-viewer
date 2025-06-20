@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import './VerticalNav.css';
 
 const VerticalNav = ({ onNavigate, currentScene }) => {
@@ -26,51 +27,60 @@ const VerticalNav = ({ onNavigate, currentScene }) => {
     setIsMenuOpen(false); // Auto close menu on navigation
   };
 
-  return (
-    <>
-      {/* Explore Button */}
-      {!isMenuOpen && (
-        <button
-          className="main-button"
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsMenuOpen(true);
-          }}
-          aria-label="Open navigation"
-          aria-expanded={isMenuOpen}
-          type="button"
-        >
-          Explore
-        </button>
-      )}
+  // Portal the Explore button to document.body so it's always on top
+  const exploreButton = !isMenuOpen && ReactDOM.createPortal(
+    <button
+      className="main-button"
+      onClick={(e) => {
+        e.stopPropagation();
+        setIsMenuOpen(true);
+      }}
+      aria-label="Open navigation"
+      aria-expanded={isMenuOpen}
+      type="button"
+    >
+      Explore
+    </button>,
+    document.body
+  );
 
-      {/* Navigation Container */}
-      <div className={`nav-container${isMenuOpen ? ' open' : ''}`}>
-        <div className="nav-content">
-          <div className="vertical-nav">
-            {/* Exit Button */}
-            <button
-              className="nav-item exit-item"
-              onClick={() => setIsMenuOpen(false)}
-              type="button"
-            >
-              Exit
-            </button>
-
-            {/* Navigation Items */}
-            {navigationItems.map((item) => (
+  // Portal the nav menu to document.body when open
+  const navMenu = isMenuOpen
+    ? ReactDOM.createPortal(
+        <div className={`nav-container open`}>
+          <div className="nav-content">
+            <div className="vertical-nav">
+              {/* Exit Button */}
               <button
-                key={item.id}
-                className={`nav-item${currentScene === item.scene ? ' active' : ''}`}
-                onClick={() => handleClick(item)}
+                className="nav-item exit-item"
+                onClick={() => setIsMenuOpen(false)}
                 type="button"
               >
-                {item.label}
+                Exit
               </button>
-            ))}
+
+              {/* Navigation Items */}
+              {navigationItems.map((item) => (
+                <button
+                  key={item.id}
+                  className={`nav-item${currentScene === item.scene ? ' active' : ''}`}
+                  onClick={() => handleClick(item)}
+                  type="button"
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-      </div>
+        </div>,
+        document.body
+      )
+    : null;
+
+  return (
+    <>
+      {exploreButton}
+      {navMenu}
     </>
   );
 };
