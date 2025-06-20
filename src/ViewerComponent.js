@@ -55,7 +55,7 @@ const scenes = {
     panorama: './office-12.jpg',
     markers: [
       { id: 'NEW-OFFICE-INSIDE-BACK', image: './office-11.jpg', tooltip: 'Back to Office', position: { yaw: -3.55, pitch: -0.1 }, target: 'NEW-OFFICE' },
-    ],
+    ], 
   },
   'STUDIO-OUTSIDE': {
     panorama: './office-6.jpg',

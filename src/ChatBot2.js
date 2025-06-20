@@ -31,7 +31,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
   const inputRef = useRef(null);
   const currentUtteranceRef = useRef(null); // Track current speech utterance
 
-  const API_BASE = 'https://chat-bot-nissa.onrender.com';
+  const API_BASE = 'https://m-touch-labs.onrender.com/';
 
   // Test API connection
   const testAPIConnection = useCallback(() => {
