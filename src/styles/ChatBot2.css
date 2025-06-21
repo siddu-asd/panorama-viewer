@@ -202,6 +202,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: relative;
 }
 
 .campus-image {
@@ -554,4 +555,105 @@
     border-radius: 12px;
     font-size: 18px;
   }
+}
+
+/* Language button and dropdown next to speaker icon */
+.bot-lang-dropdown-container {
+  position: relative;
+  display: inline-block;
+  margin-left: 4px;
+}
+
+.bot-lang-btn {
+  font-size: 13px;
+  border-radius: 6px;
+  padding: 2px 12px 2px 10px;
+  cursor: pointer;
+  border: 1.5px solid #a78bfa;
+  background: linear-gradient(90deg, #f3e8ff 0%, #ede9fe 100%);
+  min-width: 38px;
+  max-width: 56px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  color: #6B46C1;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(107, 70, 193, 0.08);
+  margin-left: 4px;
+  transition: background 0.2s, color 0.2s, border 0.2s, box-shadow 0.2s;
+  position: relative;
+  outline: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bot-lang-btn:hover,
+.bot-lang-btn:focus {
+  background: linear-gradient(90deg, #ede9fe 0%, #f3e8ff 100%);
+  color: #4C2880;
+  border: 1.5px solid #6B46C1;
+  box-shadow: 0 4px 16px rgba(107, 70, 193, 0.15);
+}
+
+.bot-lang-btn::after {
+  content: '\25BC';
+  font-size: 10px;
+  margin-left: 6px;
+  color: #a78bfa;
+  transition: color 0.2s;
+}
+
+.bot-lang-dropdown {
+  position: absolute;
+  z-index: 100;
+  background: #fff;
+  border: 1.5px solid #a78bfa;
+  border-radius: 8px;
+  margin-top: 6px;
+  min-width: 120px;
+  width: 150px;
+  box-shadow: 0 8px 32px rgba(107, 70, 193, 0.15);
+  right: 0;
+  padding: 4px 0;
+  animation: fadeInLangDropdown 0.18s ease;
+}
+
+@keyframes fadeInLangDropdown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bot-lang-option {
+  padding: 8px 18px 8px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #4C2880;
+  background: transparent;
+  border: none;
+  text-align: left;
+  transition: background 0.18s, color 0.18s, font-weight 0.18s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.bot-lang-option.selected,
+.bot-lang-option:hover {
+  background: linear-gradient(90deg, #ede9fe 0%, #f3e8ff 100%);
+  color: #6B46C1;
+  font-weight: 700;
+}
+
+.bot-lang-option.selected::before {
+  content: '\2713';
+  color: #22c55e;
+  font-size: 15px;
+  margin-right: 6px;
+  display: inline-block;
+}
+
+.bot-content {
+  position: relative;
 }
