@@ -6,39 +6,10 @@ const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecogni
 const synth = window.speechSynthesis;
 
 const supportedLanguages = {
-  english: { code: 'en-US', name: 'English', keywords: ['english', 'speak in english', 'अंग्रेजी', 'हिंदी', 'தமிழ்', 'తెలుగు', 'ಕನ್ನಡ'] },
-  hindi: { code: 'hi-IN', name: 'हिंदी (Hindi)', keywords: ['hindi', 'speak in hindi', 'हिंदी में बोलो'] },
-  tamil: { code: 'ta-IN', name: 'தமிழ் (Tamil)', keywords: ['tamil', 'speak in tamil', 'தமிழில் பேசு'] },
-  telugu: { code: 'te-IN', name: 'తెలుగు (Telugu)', keywords: ['telugu', 'speak in telugu', 'తెలుగులో మాట్లాడు'] },
-  kannada: { code: 'kn-IN', name: 'ಕನ್ನಡ (Kannada)', keywords: ['kannada', 'speak in kannada', 'ಕನ್ನಡದಲ್ಲಿ ಮಾತನಾಡಿ'] },
-  bengali: { code: 'bn-IN', name: 'বাংলা (Bengali)', keywords: ['bengali', 'speak in bengali', 'বাংলায় কথা বলুন'] },
-};
-
-// Language detection patterns
-const languagePatterns = {
-  hindi: /[\u0900-\u097F]/,
-  tamil: /[\u0B80-\u0BFF]/,
-  telugu: /[\u0C00-\u0C7F]/,
-  kannada: /[\u0C80-\u0CFF]/,
-  bengali: /[\u0980-\u09FF]/,
-  english: /^[a-zA-Z\s.,!?;:'"()-]+$/
-};
-
-// Function to detect language from text
-const detectLanguage = (text) => {
-  if (!text || text.trim().length === 0) return 'english';
-  
-  const cleanText = text.trim();
-  
-  // Check for specific language patterns
-  for (const [lang, pattern] of Object.entries(languagePatterns)) {
-    if (pattern.test(cleanText)) {
-      return lang;
-    }
-  }
-  
-  // Default to English if no pattern matches
-  return 'english';
+  english: { code: 'en-US', keywords: ['english', 'speak in english'] },
+  hindi: { code: 'hi-IN', keywords: ['hindi', 'speak in hindi'] },
+  spanish: { code: 'es-ES', keywords: ['spanish', 'speak in spanish'] },
+  french: { code: 'fr-FR', keywords: ['french', 'speak in french'] },
 };
 
 const ChatBot2 = ({ isVisible, toggleChatBot }) => {
@@ -54,9 +25,6 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
   const [inputMode, setInputMode] = useState('text'); // 'text' or 'voice'
   const [isSpeaking, setIsSpeaking] = useState(false); // Track if chatbot is currently speaking
   const [mutedMessages, setMutedMessages] = useState(new Set()); // Track which messages are muted
-  const [showLanguageSelector, setShowLanguageSelector] = useState(false); // Language selector visibility
-  const [selectedLanguage, setSelectedLanguage] = useState('english'); // Current selected language
-  const [messageOutputLanguages, setMessageOutputLanguages] = useState({}); // { [messageId]: langKey }
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -187,64 +155,67 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
     };
   }, []);
 
-  const speak = useCallback((text, messageId = null, overrideLangKey = null) => {
+  const speak = useCallback((text, messageId = null) => {
     if (!synth) {
       console.log('Speech synthesis not available');
       return;
     }
+    
     // Don't speak if this specific message is muted
     if (messageId && mutedMessages.has(messageId)) {
       console.log('Message is muted, not speaking:', messageId);
       return;
     }
-    // Determine language code
-    let langKey = overrideLangKey;
-    if (!langKey && messageId && messageOutputLanguages[messageId]) {
-      langKey = messageOutputLanguages[messageId];
-    }
-    if (!langKey) langKey = selectedLanguage;
-    const langCode = supportedLanguages[langKey]?.code || 'en-US';
-    console.log('Speaking message:', text, 'Message ID:', messageId, 'Lang:', langKey, langCode);
+    
+    console.log('Speaking message:', text, 'Message ID:', messageId);
+    
     // Stop any current speech
     synth.cancel();
     setIsSpeaking(false);
+    
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = langCode;
+    utterance.lang = language;
+
     const allVoices = voices.length > 0 ? voices : synth.getVoices();
-    console.log('All available voices:', allVoices.map(v => ({ name: v.name, lang: v.lang })));
-    const langPrefix = langCode.split('-')[0].toLowerCase();
+    const langPrefix = language.split('-')[0].toLowerCase();
     const langVoices = allVoices.filter(v => v.lang.toLowerCase().startsWith(langPrefix));
     const preferredKeywords = ['female', 'woman', 'google'];
     const femaleVoice = langVoices.find(v => preferredKeywords.some(k => v.name.toLowerCase().includes(k)));
     const fallbackVoice = langVoices[0] || allVoices[0];
     utterance.voice = femaleVoice || fallbackVoice;
-    console.log('Selected voice:', utterance.voice ? { name: utterance.voice.name, lang: utterance.voice.lang } : null);
-    if (!langVoices.length) {
-      alert(`Sorry, your browser does not support speech synthesis for the selected language (${langCode}). It will fall back to English or another available voice.`);
-    }
+
     utterance.rate = 0.9;
     utterance.pitch = 1.15;
     utterance.volume = 1;
     utterance.text = text.replace(/([.!?])\s*/g, '$1... ');
+    
     // Track speech events
     utterance.onstart = () => {
+      console.log('Speech started');
       setIsSpeaking(true);
       currentUtteranceRef.current = utterance;
     };
+    
     utterance.onend = () => {
+      console.log('Speech ended');
       setIsSpeaking(false);
       currentUtteranceRef.current = null;
     };
+    
     utterance.onerror = (event) => {
+      console.error('Speech error:', event.error);
       setIsSpeaking(false);
       currentUtteranceRef.current = null;
     };
+    
     try {
-      synth.speak(utterance);
+    synth.speak(utterance);
+      console.log('Speech synthesis initiated');
     } catch (error) {
+      console.error('Error starting speech synthesis:', error);
       setIsSpeaking(false);
     }
-  }, [selectedLanguage, voices, mutedMessages, messageOutputLanguages]);
+  }, [language, voices, mutedMessages]);
 
   // Stop current speech
   const stopSpeaking = useCallback(() => {
@@ -283,11 +254,11 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
     
     if (message && !mutedMessages.has(messageId)) {
       console.log('Speaking message:', messageId);
-      speak(message.content, messageId, messageOutputLanguages[messageId] || selectedLanguage);
+      speak(message.content, messageId);
     } else {
       console.log('Cannot speak message:', messageId, 'Muted:', mutedMessages.has(messageId));
     }
-  }, [messages, mutedMessages, speak, messageOutputLanguages, selectedLanguage]);
+  }, [messages, mutedMessages, speak]);
 
   // Handle speaker button click - separate from input mode
   const handleSpeakerClick = useCallback((messageId, e) => {
@@ -332,33 +303,24 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
 
   useEffect(() => {
     if (isVisible && messages.length === 0) {
-      const welcomeMessages = {
-        english: "Welcome! I'm Nisaa, your assistant from Raising 100X.",
-        hindi: "स्वागत है! मैं निसा हूँ, Raising 100X से आपकी सहायक।",
-        tamil: "வரவேற்கிறேன்! நான் நிசா, Raising 100X இலிருந்து உங்கள் உதவியாளர்.",
-        telugu: "స్వాగతం! నేను నిసా, Raising 100X నుండి మీ సహాయకురాలు.",
-        kannada: "ಸುಸ್ವಾಗತ! ನಾನು ನಿಸಾ, Raising 100X ನಿಂದ ನಿಮ್ಮ ಸಹಾಯಕಿ.",
-        bengali: "স্বাগতম! আমি নিসা, Raising 100X থেকে আপনার সহকারী।"
-      };
-      
       const welcome = {
         id: 'welcome',
         type: 'bot',
-        content: welcomeMessages[selectedLanguage] || welcomeMessages.english,
-        displayedContent: welcomeMessages[selectedLanguage] || welcomeMessages.english,
+        content: "Welcome! I'm Nisaa, your assistant from Raising 100X.",
+        displayedContent: "Welcome! I'm Nisaa, your assistant from Raising 100X.",
         isTyping: false
       };
       setMessages([welcome]);
-      setTimeout(() => speak(welcome.content, welcome.id, messageOutputLanguages[welcome.id] || selectedLanguage), 100);
+      setTimeout(() => speak(welcome.content, welcome.id), 100);
     }
-  }, [isVisible, messages.length, speak, selectedLanguage, messageOutputLanguages]);
+  }, [isVisible, messages.length, speak]);
 
   useEffect(() => {
     const last = messages[messages.length - 1];
     if (last?.type === 'bot' && !last.isTyping) {
-      setTimeout(() => speak(last.content, last.id, messageOutputLanguages[last.id] || selectedLanguage), 100);
+      setTimeout(() => speak(last.content, last.id), 100);
     }
-  }, [messages, speak, selectedLanguage, messageOutputLanguages]);
+  }, [messages, speak]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -368,7 +330,6 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
     scrollToBottom();
   }, [messages]);
 
-  // Enhanced send message function with language support
   const handleSendMessage = useCallback(() => {
     console.log('handleSendMessage called with:', { userMessage, sessionId, inputMode });
     
@@ -392,17 +353,6 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
     const messageToSend = userMessage.trim(); // Store the message before clearing
     console.log('Sending message:', messageToSend);
     
-    // Detect language from user input
-    const detectedLanguage = detectLanguage(messageToSend);
-    console.log('Detected language from input:', detectedLanguage);
-    
-    // Update selected language if different from detected
-    if (detectedLanguage !== selectedLanguage) {
-      console.log('Auto-updating language from', selectedLanguage, 'to', detectedLanguage);
-      setSelectedLanguage(detectedLanguage);
-      setLanguage(supportedLanguages[detectedLanguage]?.code || 'en-US');
-    }
-    
     // Clear input immediately and ensure it's ready for new input
     setUserMessage('');
     
@@ -421,16 +371,10 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
     setMessages(prev => [...prev, newUserMessage]);
     setIsTyping(true);
 
-    // Enhanced API call with language information
     fetch(`${API_BASE}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        message: messageToSend, 
-        session_id: sessionId,
-        language: detectedLanguage, // Send detected language to backend
-        user_language_preference: selectedLanguage // Send user's language preference
-      })
+      body: JSON.stringify({ message: messageToSend, session_id: sessionId })
     })
       .then(res => {
         console.log('Response status:', res.status);
@@ -479,7 +423,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
         setTimeout(() => {
           // Only speak if not muted and input is not being used
           if (!mutedMessages.has(botReply.id)) {
-            speak(botReply.content, botReply.id, messageOutputLanguages[botReply.id] || selectedLanguage);
+            speak(botReply.content, botReply.id);
           }
         }, 100);
       })
@@ -518,7 +462,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
           }
         }, 50);
       });
-  }, [userMessage, sessionId, speak, mutedMessages, inputMode, isSpeaking, stopSpeaking, selectedLanguage, messageOutputLanguages]);
+  }, [userMessage, sessionId, speak, mutedMessages, inputMode, isSpeaking, stopSpeaking]);
 
   // Initialize speech recognition
   const initializeSpeechRecognition = useCallback(() => {
@@ -539,61 +483,9 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
     };
 
     recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript.toLowerCase();
+      const transcript = event.results[0][0].transcript;
       setUserMessage(transcript);
       console.log('Transcript:', transcript);
-      
-      // Check for language change keywords
-      const matchedLang = Object.entries(supportedLanguages).find(([_, langData]) =>
-        langData.keywords.some((keyword) => transcript.includes(keyword.toLowerCase()))
-      );
-
-      if (matchedLang) {
-        const langKey = matchedLang[0];
-        const langData = matchedLang[1];
-        console.log('Language change detected:', langKey);
-        
-        // Update language immediately
-        setSelectedLanguage(langKey);
-        setLanguage(langData.code);
-        
-        // Update recognition language
-        recognition.lang = langData.code;
-        
-        // Stop current speech and speak confirmation
-        stopSpeaking();
-        
-        const confirmations = {
-          english: "Language changed to English",
-          hindi: "भाषा हिंदी में बदल गई है",
-          tamil: "மொழி தமிழுக்கு மாற்றப்பட்டது",
-          telugu: "భాష తెలుగుకు మార్చబడింది",
-          kannada: "ಭಾಷೆ ಕನ್ನಡಕ್ಕೆ ಬದಲಾಯಿಸಲಾಗಿದೆ",
-          bengali: "ভাষা বাংলায় পরিবর্তন করা হয়েছে"
-        };
-        
-        const confirmation = confirmations[langKey] || confirmations.english;
-        
-        // Add language change message
-        const langChangeMessage = {
-          id: `lang-change-${Date.now()}`,
-          type: 'bot',
-          content: confirmation,
-          displayedContent: confirmation,
-          isTyping: false
-        };
-        
-        setMessages(prev => [...prev, langChangeMessage]);
-        
-        // Speak the confirmation
-        setTimeout(() => {
-          speak(confirmation, langChangeMessage.id, messageOutputLanguages[langChangeMessage.id] || selectedLanguage);
-        }, 100);
-        
-        // Clear the input since it was a language command
-        setUserMessage('');
-        return;
-      }
     };
 
     recognition.onerror = (event) => {
@@ -707,17 +599,6 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
         const messageToSend = userMessage.trim();
         setUserMessage(''); // Clear input immediately
         
-        // Detect language from voice input
-        const detectedLanguage = detectLanguage(messageToSend);
-        console.log('Detected language from voice input:', detectedLanguage);
-        
-        // Update selected language if different from detected
-        if (detectedLanguage !== selectedLanguage) {
-          console.log('Auto-updating language from', selectedLanguage, 'to', detectedLanguage);
-          setSelectedLanguage(detectedLanguage);
-          setLanguage(supportedLanguages[detectedLanguage]?.code || 'en-US');
-        }
-        
         const newUserMessage = { 
           id: `user-${Date.now()}`,
           type: 'user', 
@@ -726,17 +607,10 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
         setMessages(prev => [...prev, newUserMessage]);
         setIsTyping(true);
 
-        // Enhanced API call with language information for voice input
         fetch(`${API_BASE}/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            message: messageToSend, 
-            session_id: sessionId,
-            language: detectedLanguage, // Send detected language to backend
-            user_language_preference: selectedLanguage, // Send user's language preference
-            input_type: 'voice' // Indicate this is voice input
-          })
+          body: JSON.stringify({ message: messageToSend, session_id: sessionId })
         })
           .then(res => {
             console.log('Response status:', res.status);
@@ -785,7 +659,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
             setTimeout(() => {
               // Only speak if not muted and input is not being used
               if (!mutedMessages.has(botReply.id)) {
-                speak(botReply.content, botReply.id, messageOutputLanguages[botReply.id] || selectedLanguage);
+                speak(botReply.content, botReply.id);
               }
             }, 100);
           })
@@ -831,7 +705,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [userMessage, isListening, inputMode, sessionId, speak, mutedMessages, selectedLanguage]);
+  }, [userMessage, isListening, inputMode, sessionId, speak, mutedMessages]);
 
   useEffect(() => {
     if (currentTypingIndex >= 0 && messages[currentTypingIndex]?.isTyping) {
@@ -878,76 +752,6 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
     };
   }, []);
 
-  // Handle clicking outside language selector
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (showLanguageSelector && !event.target.closest('.language-selector-container')) {
-        setShowLanguageSelector(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showLanguageSelector]);
-
-  // Handle language change
-  const handleLanguageChange = useCallback((langKey) => {
-    const langData = supportedLanguages[langKey];
-    if (langData) {
-      setSelectedLanguage(langKey);
-      setLanguage(langData.code);
-      
-      // Update speech recognition language if active
-      if (recognitionRef.current) {
-        recognitionRef.current.lang = langData.code;
-      }
-      
-      // Stop current speech and speak confirmation in new language
-      stopSpeaking();
-      
-      const confirmations = {
-        english: "Language changed to English",
-        hindi: "भाषा हिंदी में बदल गई है",
-        tamil: "மொழி தமிழுக்கு மாற்றப்பட்டது",
-        telugu: "భాష తెలుగుకు మార్చబడింది",
-        kannada: "ಭಾಷೆ ಕನ್ನಡಕ್ಕೆ ಬದಲಾಯಿಸಲಾಗಿದೆ",
-        bengali: "ভাষা বাংলায় পরিবর্তন করা হয়েছে"
-      };
-      
-      const confirmation = confirmations[langKey] || confirmations.english;
-      
-      // Add language change message
-      const langChangeMessage = {
-        id: `lang-change-${Date.now()}`,
-        type: 'bot',
-        content: confirmation,
-        displayedContent: confirmation,
-        isTyping: false
-      };
-      
-      setMessages(prev => [...prev, langChangeMessage]);
-      
-      // Speak the confirmation
-      setTimeout(() => {
-        speak(confirmation, langChangeMessage.id, messageOutputLanguages[langChangeMessage.id] || selectedLanguage);
-      }, 100);
-      
-      setShowLanguageSelector(false);
-    }
-  }, [stopSpeaking, speak, selectedLanguage, messageOutputLanguages]);
-
-  // Handler for changing output language for a message
-  const handleMessageOutputLanguageChange = useCallback((messageId, langKey) => {
-    setMessageOutputLanguages(prev => ({ ...prev, [messageId]: langKey }));
-    // Optionally, speak immediately in new language
-    const message = messages.find(msg => msg.id === messageId);
-    if (message) {
-      speak(message.content, messageId, langKey);
-    }
-  }, [messages, speak]);
-
   return (
     isVisible && (
       <div className="chatbot-container">
@@ -964,70 +768,23 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
                 <div className="bot-message-container">
                   <div className="bot-avatar"><img src="/nisaa.png" alt="Bot" /></div>
                   <div className="bot-content">
-                    <div className="message bot" style={{ position: 'relative' }}>
-                      <BotResponse content={msg.displayedContent} />
-                      <span style={{ display: 'inline-flex', alignItems: 'center', marginLeft: 8 }}>
-                        <button 
-                          className={`speak-button ${mutedMessages.has(msg.id) ? 'muted' : ''}`} 
-                          onClick={(e) => handleSpeakerClick(msg.id, e)} 
-                          title={
-                            mutedMessages.has(msg.id) ? 
-                              (selectedLanguage === 'hindi' ? 'अनम्यूट करें और यह संदेश सुनें' :
-                               selectedLanguage === 'tamil' ? 'அன்மியூட் செய்து இந்த செய்தியைக் கேள்விப்படுத்துங்கள்' :
-                               selectedLanguage === 'telugu' ? 'అన్మ్యూట్ చేసి ఈ సందేశాన్ని వినండి' :
-                               selectedLanguage === 'kannada' ? 'ಅನ್‌ಮ್ಯೂಟ್ ಮಾಡಿ ಮತ್ತು ಈ ಸಂದೇಶವನ್ನು ಕೇಳಿ' :
-                               selectedLanguage === 'bengali' ? 'আনমিউট করুন এবং এই বার্তাটি শুনুন' :
-                               "Unmute and speak this message") 
-                              : 
-                              (selectedLanguage === 'hindi' ? 'इस संदेश को सुनने के लिए क्लिक करें' :
-                               selectedLanguage === 'tamil' ? 'இந்த செய்தியைக் கேட்க கிளிக் செய்யவும்' :
-                               selectedLanguage === 'telugu' ? 'ఈ సందేశాన్ని వినడానికి క్లిక్ చేయండి' :
-                               selectedLanguage === 'kannada' ? 'ಈ ಸಂದೇಶವನ್ನು ಕೇಳಲು ಕ್ಲಿಕ್ ಮಾಡಿ' :
-                               selectedLanguage === 'bengali' ? 'এই বার্তাটি শুনতে ক্লিক করুন' :
-                               "Click to hear this message")
-                          }
-                        >
-                          {mutedMessages.has(msg.id) ? (
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
-                            </svg>
-                          ) : (
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-                            </svg>
-                          )}
-                        </button>
-                      </span>
-                      <div className="bot-lang-dropdown-container" style={{ position: 'absolute', bottom: 8, right: 8 }}>
-                        <button
-                          className="bot-lang-btn"
-                          onClick={e => {
-                            e.stopPropagation();
-                            setMessageOutputLanguages(prev => ({ ...prev, [`show_${msg.id}`]: !prev[`show_${msg.id}`] }));
-                          }}
-                          title="Select output language for this message"
-                        >
-                          {(messageOutputLanguages[msg.id] || selectedLanguage).toUpperCase().slice(0,2)}
-                        </button>
-                        {messageOutputLanguages[`show_${msg.id}`] && (
-                          <div className="bot-lang-dropdown">
-                            {Object.entries(supportedLanguages).map(([key, lang]) => (
-                              <div
-                                key={key}
-                                className={`bot-lang-option${(messageOutputLanguages[msg.id] || selectedLanguage) === key ? ' selected' : ''}`}
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  setMessageOutputLanguages(prev => ({ ...prev, [msg.id]: key, [`show_${msg.id}`]: false }));
-                                  const message = messages.find(m => m.id === msg.id);
-                                  if (message) speak(message.content, msg.id, key);
-                                }}
-                              >
-                                {lang.name}
-                              </div>
-                            ))}
-                          </div>
+                    <div className="message bot">
+                    <BotResponse content={msg.displayedContent} />
+                      <button 
+                        className={`speak-button ${mutedMessages.has(msg.id) ? 'muted' : ''}`} 
+                        onClick={(e) => handleSpeakerClick(msg.id, e)} 
+                        title={mutedMessages.has(msg.id) ? "Unmute and speak this message" : "Click to hear this message"}
+                      >
+                        {mutedMessages.has(msg.id) ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                          </svg>
+                        ) : (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                        </svg>
                         )}
-                      </div>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1070,14 +827,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
                   inputRef.current.focus();
                 }
               }}
-            placeholder={
-              selectedLanguage === 'hindi' ? 'अपना संदेश लिखें...' :
-              selectedLanguage === 'tamil' ? 'உங்கள் செய்தியை தட்டச்சு செய்யவும்...' :
-              selectedLanguage === 'telugu' ? 'మీ సందేశాన్ని టైప్ చేయండి...' :
-              selectedLanguage === 'kannada' ? 'ನಿಮ್ಮ ಸಂದೇಶವನ್ನು ಟೈಪ್ ಮಾಡಿ...' :
-              selectedLanguage === 'bengali' ? 'আপনার বার্তা টাইপ করুন...' :
-              'Type your message...'
-            }
+            placeholder="Type your message..."
               onKeyPress={(e) => {
                 console.log('Key pressed:', e.key);
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -1092,20 +842,14 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
           ) : (
             <div className="voice-input-display">
               <span className="voice-status">
-                {isListening ? (
-                  selectedLanguage === 'hindi' ? 'सुन रहा हूँ...' :
-                  selectedLanguage === 'tamil' ? 'கேட்கிறேன்...' :
-                  selectedLanguage === 'telugu' ? 'వింటున్నాను...' :
-                  selectedLanguage === 'kannada' ? 'ಕೇಳುತ್ತಿದ್ದೇನೆ...' :
-                  selectedLanguage === 'bengali' ? 'শুনছি...' :
-                  'Listening...'
-                ) : ''}
+                {isListening ? 'Listening...' : ''}
               </span>
               {userMessage && <span className="voice-transcript">"{userMessage}"</span>}
             </div>
           )}
           
-          <button             className={`send-button ${userMessage.trim() ? 'ready' : ''}`} 
+          <button 
+            className={`send-button ${userMessage.trim() ? 'ready' : ''}`} 
             onClick={(e) => {
               console.log('Send button clicked!', { userMessage, sessionId, inputMode });
               e.stopPropagation(); // Prevent triggering the container click
@@ -1113,14 +857,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
               handleSendMessage();
             }} 
             disabled={!userMessage.trim()}
-            title={
-              selectedLanguage === 'hindi' ? 'संदेश भेजें' :
-              selectedLanguage === 'tamil' ? 'செய்தியை அனுப்பு' :
-              selectedLanguage === 'telugu' ? 'సందేశాన్ని పంపండి' :
-              selectedLanguage === 'kannada' ? 'ಸಂದೇಶ ಕಳುಹಿಸಿ' :
-              selectedLanguage === 'bengali' ? 'বার্তা পাঠান' :
-              "Send message"
-            }
+            title="Send message"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
               <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
@@ -1136,33 +873,10 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
             }} 
             title={
               isSpeaking 
-                ? (selectedLanguage === 'hindi' ? 'चैटबॉट बोलना बंद करें' :
-                   selectedLanguage === 'tamil' ? 'சாட்போட் பேச்சை நிறுத்து' :
-                   selectedLanguage === 'telugu' ? 'చాట్‌బాట్ మాట్లాడటం ఆపండి' :
-                   selectedLanguage === 'kannada' ? 'ಚಾಟ್‌ಬಾಟ್ ಮಾತನಾಡುವುದನ್ನು ನಿಲ್ಲಿಸಿ' :
-                   selectedLanguage === 'bengali' ? 'চ্যাটবট কথা বলা বন্ধ করুন' :
-                   "Stop chatbot speech")
+                ? "Stop chatbot speech" 
                 : inputMode === 'voice' 
-                  ? (isListening ? 
-                      (selectedLanguage === 'hindi' ? 'सुनना बंद करें' :
-                       selectedLanguage === 'tamil' ? 'கேட்பதை நிறுத்து' :
-                       selectedLanguage === 'telugu' ? 'వింటున్నది ఆపండి' :
-                       selectedLanguage === 'kannada' ? 'ಕೇಳುವುದನ್ನು ನಿಲ್ಲಿಸಿ' :
-                       selectedLanguage === 'bengali' ? 'শোনা বন্ধ করুন' :
-                       "Stop listening") 
-                      : 
-                      (selectedLanguage === 'hindi' ? 'सुनना शुरू करें' :
-                       selectedLanguage === 'tamil' ? 'கேட்பதைத் தொடங்கு' :
-                       selectedLanguage === 'telugu' ? 'వింటున్నది ప్రారంభించండి' :
-                       selectedLanguage === 'kannada' ? 'ಕೇಳುವುದನ್ನು ಪ್ರಾರಂಭಿಸಿ' :
-                       selectedLanguage === 'bengali' ? 'শোনা শুরু করুন' :
-                       "Start listening"))
-                  : (selectedLanguage === 'hindi' ? 'आवाज मोड में बदलें' :
-                     selectedLanguage === 'tamil' ? 'குரல் பயன்முறைக்கு மாற்று' :
-                     selectedLanguage === 'telugu' ? 'వాయిస్ మోడ్‌కి మార్చండి' :
-                     selectedLanguage === 'kannada' ? 'ಧ್ವನಿ ಮೋಡ್‌ಗೆ ಬದಲಾಯಿಸಿ' :
-                     selectedLanguage === 'bengali' ? 'ভয়েস মোডে পরিবর্তন করুন' :
-                     "Switch to voice mode")
+                  ? (isListening ? "Stop listening" : "Start listening") 
+                  : "Switch to voice mode"
             }
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -1177,4 +891,3 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
 };
 
 export default ChatBot2;
-
