@@ -4,6 +4,7 @@ import { useChatBot } from './useChatBot';
 import BotMessage from './BotMessage';
 import UserMessage from './UserMessage';
 import InputContainer from './InputContainer';
+import { playVoice } from './elevenTTS';
 
 const ChatBot2 = ({ isVisible, toggleChatBot }) => {
   const {
@@ -21,6 +22,16 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
     inputRef,
     isSpeaking,
   } = useChatBot(isVisible);
+
+  React.useEffect(() => {
+    // Automatically play voice for new bot messages
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.type === 'bot' && lastMessage.content) {
+        playVoice(lastMessage.content);
+      }
+    }
+  }, [messages]);
 
   if (!isVisible) return null;
 
