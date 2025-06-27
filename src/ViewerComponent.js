@@ -337,7 +337,7 @@ const ViewerComponent = ({ toggleChatBot }) => {
 
       {portalContainer &&
         ReactDOM.createPortal(
-          <VerticalNav onNavigate={handleNavigation} currentScene={currentScene} />,
+          <VerticalNav onNavigate={handleNavigation} currentScene={currentScene} scenes={scenes} />,
           portalContainer
         )}
     </div>

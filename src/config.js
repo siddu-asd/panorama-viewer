@@ -1,2 +1,2 @@
 export const ELEVENLABS_API_KEY = 'sk_451e628d439838f1b2aa2f053a04036e0aaf90f7273f5052'; // Replace with your real API key
-export const AMELIA_VOICE_ID = 'ZF6FPAbjXT4488VcRRnw'; // Replace with your Amelia voice ID
+export const AMELIA_VOICE_ID = '90ipbRoKi4CpHXvKVtl'; // Replace with your Amelia voice ID

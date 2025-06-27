@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import './VerticalNav.css';
 
-const VerticalNav = ({ onNavigate, currentScene }) => {
+const VerticalNav = ({ onNavigate, currentScene, scenes }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -39,6 +39,9 @@ const VerticalNav = ({ onNavigate, currentScene }) => {
       aria-expanded={isMenuOpen}
       type="button"
     >
+      <span className="explore-btn-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </span>
       Explore
     </button>,
     document.body
@@ -47,29 +50,37 @@ const VerticalNav = ({ onNavigate, currentScene }) => {
   // Portal the nav menu to document.body when open
   const navMenu = isMenuOpen
     ? ReactDOM.createPortal(
-        <div className={`nav-container open`}>
-          <div className="nav-content">
-            <div className="vertical-nav">
-              {/* Exit Button */}
+        <div className="nav-modal-overlay">
+          <div className="nav-modal-blur-bg">
+            <div className="nav-modal animated-fade-in">
               <button
-                className="nav-item exit-item"
+                className="modal-close-btn"
                 onClick={() => setIsMenuOpen(false)}
+                aria-label="Close navigation"
                 type="button"
               >
-                Exit
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
-
-              {/* Navigation Items */}
-              {navigationItems.map((item) => (
-                <button
-                  key={item.id}
-                  className={`nav-item${currentScene === item.scene ? ' active' : ''}`}
-                  onClick={() => handleClick(item)}
-                  type="button"
-                >
-                  {item.label}
-                </button>
-              ))}
+              <div className="nav-modal-grid">
+                {navigationItems.map((item) => {
+                  const sceneData = scenes?.[item.scene];
+                  const image = sceneData?.panorama || '';
+                  return (
+                    <div key={item.id} className="nav-modal-card">
+                      <div className="nav-modal-img-wrap">
+                        {image && <img src={image.replace('./', '/')} alt={item.label} />}
+                      </div>
+                      <button
+                        className={`nav-modal-btn${currentScene === item.scene ? ' active' : ''}`}
+                        onClick={() => handleClick(item)}
+                        type="button"
+                      >
+                        {item.label}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>,
