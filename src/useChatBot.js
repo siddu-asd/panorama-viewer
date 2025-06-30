@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { initializeSpeechRecognition, testAPIConnection, supportedLanguages } from './chatUtils';
+import { playVoice } from './elevenTTS';
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
 const API_BASE = 'https://m-touch-labs.onrender.com/';
 
 export const useChatBot = (isVisible) => {
@@ -21,47 +21,32 @@ export const useChatBot = (isVisible) => {
   const typingTimeoutRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Generate session ID
   useEffect(() => {
     if (!isVisible) return;
     testAPIConnection();
     fetch(`${API_BASE}/generate_session`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`Session generation failed! status: ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        if (data && data.session_id) {
-          setSessionId(data.session_id);
-        } else {
-          setSessionId(`fallback-${Date.now()}`);
-        }
-      })
-      .catch(() => {
-        setSessionId(`fallback-${Date.now()}`);
-      });
+      .then(res => res.ok ? res.json() : Promise.reject(res))
+      .then(data => setSessionId(data.session_id || `fallback-${Date.now()}`))
+      .catch(() => setSessionId(`fallback-${Date.now()}`));
   }, [isVisible]);
 
-  // Welcome message
   useEffect(() => {
     if (isVisible && messages.length === 0) {
       const welcome = {
         id: 'welcome',
         type: 'bot',
-        content: "Welcome! I'm Nisaa, your assistant from Raising 100X. Say or type 'change language to [language]' to switch languages.",
-        displayedContent: "Welcome! I'm Nisaa, your assistant from Raising 100X. Say or type 'change language to [language]' to switch languages.",
+        content: "Welcome! I'm Nisaa, your assistant from Raising 100X.",
+        displayedContent: "Welcome! I'm Nisaa, your assistant from Raising 100X.",
         isTyping: false,
       };
       setMessages([welcome]);
     }
   }, [isVisible, messages.length]);
 
-  // Scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Typing effect
   useEffect(() => {
     if (currentTypingIndex >= 0 && messages[currentTypingIndex]?.isTyping) {
       const message = messages[currentTypingIndex];
@@ -70,21 +55,17 @@ export const useChatBot = (isVisible) => {
       const typeNextChar = () => {
         if (currentIndex <= fullText.length) {
           const nextIndex = Math.min(currentIndex + 3, fullText.length);
-          setMessages((prev) =>
+          setMessages(prev =>
             prev.map((msg, idx) =>
               idx === currentTypingIndex
-                ? {
-                    ...msg,
-                    displayedContent: fullText.slice(0, nextIndex),
-                    isTyping: nextIndex < fullText.length,
-                  }
+                ? { ...msg, displayedContent: fullText.slice(0, nextIndex), isTyping: nextIndex < fullText.length }
                 : msg
             )
           );
           currentIndex = nextIndex;
           typingTimeoutRef.current = setTimeout(typeNextChar, 15);
         } else {
-          setMessages((prev) =>
+          setMessages(prev =>
             prev.map((msg, idx) =>
               idx === currentTypingIndex
                 ? { ...msg, isTyping: false, displayedContent: fullText }
@@ -99,64 +80,53 @@ export const useChatBot = (isVisible) => {
     }
   }, [currentTypingIndex, messages]);
 
-  // Auto-focus input
   useEffect(() => {
     if (isVisible && inputMode === 'text' && !isTyping && !isListening) {
       setTimeout(() => inputRef.current?.focus(), 200);
     }
   }, [isVisible, inputMode, isTyping, isListening]);
 
-  // Reinitialize speech recognition when language changes
   useEffect(() => {
     if (inputMode === 'voice') {
       recognitionRef.current = initializeSpeechRecognition(language, setIsListening, setUserMessage);
     }
   }, [language, inputMode]);
 
-  const detectLanguageChange = useCallback((message) => {
-    const lowerMessage = message.toLowerCase().trim();
-    const langKey = Object.keys(supportedLanguages).find((key) =>
-      supportedLanguages[key].keywords.some((kw) => lowerMessage.includes(kw.toLowerCase()))
-    );
-    return langKey ? supportedLanguages[langKey].code : null;
-  }, []);
-
   const handleSendMessage = useCallback(() => {
     if (!userMessage.trim() || !sessionId) return;
+
     const messageToSend = userMessage.trim();
     setUserMessage('');
-    const newLanguage = detectLanguageChange(messageToSend);
-
-    if (newLanguage) {
-      setLanguage(newLanguage);
-      const langName = Object.keys(supportedLanguages).find(
-        (key) => supportedLanguages[key].code === newLanguage
-      );
-      const botReply = {
-        id: `bot-${Date.now()}`,
-        type: 'bot',
-        content: `Language changed to ${langName.charAt(0).toUpperCase() + langName.slice(1)}.`,
-        displayedContent: `Language changed to ${langName.charAt(0).toUpperCase() + langName.slice(1)}.`,
-        isTyping: false,
-      };
-      setMessages((prev) => [...prev, { id: `user-${Date.now()}`, type: 'user', content: messageToSend }, botReply]);
-      return;
-    }
-
     const newUserMessage = { id: `user-${Date.now()}`, type: 'user', content: messageToSend };
-    setMessages((prev) => [...prev, newUserMessage]);
+    setMessages(prev => [...prev, newUserMessage]);
     setIsTyping(true);
+
+    const languagePrefix = {
+      'en': '',
+      'hi': 'Respond in Hindi. ',
+      'te': 'Respond in Telugu. ',
+      'ta': 'Respond in Tamil. ',
+      'bn': 'Respond in Bengali. ',
+      'mr': 'Respond in Marathi. ',
+      'kn': 'Respond in Kannada. ',
+      'ml': 'Respond in Malayalam. ',
+    };
+
+    const baseLang = language.split('-')[0];
+    const langInstruction = languagePrefix[baseLang] || '';
+    const fullPrompt = langInstruction + messageToSend;
 
     fetch(`${API_BASE}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: messageToSend, session_id: sessionId }),
+      body: JSON.stringify({
+        message: fullPrompt,
+        session_id: sessionId,
+        language: baseLang,
+      }),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
+      .then(res => res.ok ? res.json() : Promise.reject(res))
+      .then(data => {
         const botResponse = data.response || data.message || data.text || data.content || "Sorry, I didn't understand that.";
         const botReply = {
           id: `bot-${Date.now()}`,
@@ -165,32 +135,29 @@ export const useChatBot = (isVisible) => {
           displayedContent: botResponse,
           isTyping: false,
         };
-        setMessages((prev) => [...prev, botReply]);
+        setMessages(prev => [...prev, botReply]);
+        playVoice(botResponse, baseLang);
       })
-      .catch((err) => {
-        let errorMessage = "Oops! Something went wrong. Please try again later.";
-        if (err.message.includes('Failed to fetch')) {
-          errorMessage = "Network error. Please check your internet connection.";
-        } else if (err.message.includes('HTTP error')) {
-          errorMessage = "Server error. Please try again in a moment.";
-        } else if (err.message.includes('JSON')) {
-          errorMessage = "Invalid response from server. Please try again.";
-        }
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `bot-error-${Date.now()}`,
-            type: 'bot',
-            content: errorMessage,
-            displayedContent: errorMessage,
-            isTyping: false,
-          },
-        ]);
+      .catch(err => {
+        const errorMessage = err.message.includes('Failed to fetch')
+          ? "Network error. Please check your internet connection."
+          : err.message.includes('HTTP error')
+          ? "Server error. Please try again in a moment."
+          : err.message.includes('JSON')
+          ? "Invalid response from server. Please try again."
+          : "Oops! Something went wrong. Please try again later.";
+        setMessages(prev => [...prev, {
+          id: `bot-error-${Date.now()}`,
+          type: 'bot',
+          content: errorMessage,
+          displayedContent: errorMessage,
+          isTyping: false,
+        }]);
       })
       .finally(() => {
         setIsTyping(false);
       });
-  }, [userMessage, sessionId, inputMode, detectLanguageChange]);
+  }, [userMessage, sessionId, language]);
 
   const handleVoiceButtonClick = useCallback(() => {
     if (inputMode === 'text') {
@@ -237,7 +204,7 @@ export const useChatBot = (isVisible) => {
     setSessionId,
     inputMode,
     setInputMode,
-    mutedMessages,
+    mutedMessages,  
     setMutedMessages,
     recognitionRef,
     messagesEndRef,

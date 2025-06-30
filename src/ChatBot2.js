@@ -24,7 +24,6 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
   } = useChatBot(isVisible);
 
   React.useEffect(() => {
-    // Automatically play voice for new bot messages
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
       if (lastMessage.type === 'bot' && lastMessage.content) {
