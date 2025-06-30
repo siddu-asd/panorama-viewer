@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { initializeSpeechRecognition, testAPIConnection, supportedLanguages } from './chatUtils';
-import { playVoice } from './elevenTTS';
+import { initializeSpeechRecognition, testAPIConnection } from './chatUtils';
 
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const API_BASE = 'https://m-touch-labs.onrender.com/';
 
 export const useChatBot = (isVisible) => {
@@ -16,6 +14,7 @@ export const useChatBot = (isVisible) => {
   const [sessionId, setSessionId] = useState('');
   const [inputMode, setInputMode] = useState('text');
   const [mutedMessages, setMutedMessages] = useState(new Set());
+
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -136,7 +135,6 @@ export const useChatBot = (isVisible) => {
           isTyping: false,
         };
         setMessages(prev => [...prev, botReply]);
-        playVoice(botResponse, baseLang);
       })
       .catch(err => {
         const errorMessage = err.message.includes('Failed to fetch')
@@ -204,7 +202,7 @@ export const useChatBot = (isVisible) => {
     setSessionId,
     inputMode,
     setInputMode,
-    mutedMessages,  
+    mutedMessages,
     setMutedMessages,
     recognitionRef,
     messagesEndRef,

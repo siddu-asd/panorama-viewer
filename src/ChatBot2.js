@@ -4,15 +4,12 @@ import { useChatBot } from './useChatBot';
 import BotMessage from './BotMessage';
 import UserMessage from './UserMessage';
 import InputContainer from './InputContainer';
-import { playVoice } from './elevenTTS';
 
 const ChatBot2 = ({ isVisible, toggleChatBot }) => {
   const {
     messages,
     isTyping,
     messagesEndRef,
-    handleSpeakerClick,
-    mutedMessages,
     inputMode,
     userMessage,
     setUserMessage,
@@ -20,17 +17,8 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
     handleSendMessage,
     handleVoiceButtonClick,
     inputRef,
-    isSpeaking,
+    mutedMessages,
   } = useChatBot(isVisible);
-
-  React.useEffect(() => {
-    if (messages.length > 0) {
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage.type === 'bot' && lastMessage.content) {
-        playVoice(lastMessage.content);
-      }
-    }
-  }, [messages]);
 
   if (!isVisible) return null;
 
@@ -54,7 +42,6 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
             <BotMessage
               key={index}
               message={msg}
-              handleSpeakerClick={handleSpeakerClick}
               isMuted={mutedMessages.has(msg.id)}
             />
           ) : (
@@ -86,7 +73,6 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
         handleSendMessage={handleSendMessage}
         handleVoiceButtonClick={handleVoiceButtonClick}
         inputRef={inputRef}
-        isSpeaking={isSpeaking}
       />
     </div>
   );
