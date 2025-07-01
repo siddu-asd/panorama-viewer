@@ -86,8 +86,12 @@ const ViewerComponent = ({ toggleChatBot }) => {
       plugin.addMarker({
         id,
         position,
-        tooltip,
-        html: `<div class="custom-marker" style="background-image: url('${image}');"></div>`,
+        html: `
+          <div class="custom-marker-card">
+            <div class="custom-marker-img" style="background-image: url('${image}');"></div>
+            <div class="custom-marker-label">${tooltip}</div>
+          </div>
+        `,
         anchor: 'center center',
       });
     });
@@ -119,7 +123,7 @@ const ViewerComponent = ({ toggleChatBot }) => {
       container,
       panorama: scenes.ENTRY.panorama,
       defaultZoomLvl: 30,
-      navbar: ['fullscreen', 'autorotate'],
+      navbar: ['autorotate','fullscreen'],
       plugins: [MarkersPlugin, [AutorotatePlugin, { autorotateSpeed: 0.1 }]],
     });
 
@@ -141,17 +145,86 @@ const ViewerComponent = ({ toggleChatBot }) => {
     const style = document.createElement('style');
     style.textContent = `
       .psv-navbar {
-        display: flex !important;
-        flex-direction: row !important;
-        justify-content: flex-start !important;
-        align-items: center !important;
-        left: 10px !important;
+        position: fixed !important;
+        left: 24px !important;
+        bottom: 32px !important;
+        top: auto !important;
         right: auto !important;
-        gap: 10px !important;
-        background: rgba(255, 255, 255, 0.1) !important;
-        backdrop-filter: blur(0px) !important;
-        pointer-events: auto !important;
+        transform: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-end !important;
+        align-items: flex-start !important;
+        gap: 18px !important;
+        background: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 0 !important;
         z-index: 2147483647 !important;
+        pointer-events: auto !important;
+      }
+      .psv-button {
+        width: 48px !important;
+        height: 48px !important;
+        border-radius: 50% !important;
+        background: rgba(255,255,255,0.18) !important;
+        box-shadow: 0 2px 12px rgba(107, 70, 193, 0.12);
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        border: none !important;
+        margin: 0 0 12px 0 !important;
+        transition: background 0.18s, box-shadow 0.18s, transform 0.14s;
+        color: #6B46C1 !important;
+        font-size: 22px !important;
+        filter: none !important;
+      }
+      .psv-button:last-child {
+        margin-bottom: 0 !important;
+      }
+      .psv-button svg {
+        width: 28px !important;
+        height: 28px !important;
+      }
+      .psv-button:hover {
+        background: #6B46C1 !important;
+        color: #fff !important;
+        box-shadow: 0 4px 24px rgba(107, 70, 193, 0.22);
+        transform: scale(1.08);
+      }
+      /* Hide menu button if present */
+      .psv-menu-button {
+        display: none !important;
+      }
+      @media (max-width: 768px) {
+        .psv-navbar {
+          left: 4px !important;
+          bottom: 4px !important;
+          gap: 10px !important;
+        }
+        .psv-button {
+          width: 40px !important;
+          height: 40px !important;
+        }
+        .psv-button svg {
+          width: 22px !important;
+          height: 22px !important;
+        }
+      }
+      @media (max-width: 480px) {
+        .psv-navbar {
+          left: 2vw !important;
+          bottom: 2vw !important;
+          gap: 8px !important;
+        }
+        .psv-button {
+          width: 32px !important;
+          height: 32px !important;
+        }
+        .psv-button svg {
+          width: 16px !important;
+          height: 16px !important;
+        }
       }
       .psv-logo-overlay {
         position: absolute;
@@ -191,39 +264,54 @@ const ViewerComponent = ({ toggleChatBot }) => {
         object-fit: contain;
         display: block;
       }
-      @media (max-width: 768px) {
-        .responsive-logo {
-          height: 36px;
-        }
-        .psv-chatbot-overlay {
-          bottom: 10px !important;
-          right: 10px !important;
-        }
-        .psv-chatbot-overlay img {
-          width: 160px !important;
-          height: 160px !important;
-        }
-      }
-      @media (max-width: 480px) {
-        .responsive-logo {
-          height: 28px;
-        }
-        .psv-chatbot-overlay {
-          bottom: 4vw !important;
-          right: 4vw !important;
-          pointer-events: none !important;
-          z-index: 1 !important;
-        }
-        .psv-chatbot-overlay img {
-          width: 180px !important;
-          height: 180px !important;
-          pointer-events: auto !important;
-        }
-      }
       .psv--fullscreen .psv-logo-overlay,
       .psv--fullscreen .psv-chatbot-overlay {
         position: fixed !important;
         z-index: 100000 !important;
+      }
+      .custom-marker-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 120px;
+        max-width: 180px;
+        background: rgba(255,255,255,0.55);
+        backdrop-filter: blur(6px) saturate(120%);
+        border-radius: 18px;
+        box-shadow: 0 4px 24px rgba(107,70,193,0.13), 0 1.5px 6px rgba(0,0,0,0.08);
+        border: 2.5px solid #e5e7eb;
+        padding: 10px 10px 8px 10px;
+        transition: transform 0.25s, box-shadow 0.25s, border 0.25s;
+        cursor: pointer;
+        position: relative;
+        z-index: 10;
+      }
+      .custom-marker-img {
+        width: 100px;
+        height: 60px;
+        border-radius: 12px;
+        background-size: cover;
+        background-position: center;
+        margin-bottom: 8px;
+        box-shadow: 0 2px 8px rgba(107,70,193,0.10);
+        border: 1.5px solid #bfa6ff;
+      }
+      .custom-marker-label {
+        font-size: 15px;
+        font-weight: 700;
+        color: #6B46C1;
+        text-align: center;
+        padding: 2px 0 0 0;
+        letter-spacing: 0.5px;
+        text-shadow: 0 1px 4px rgba(107,70,193,0.08);
+        background: none;
+        border-radius: 8px;
+      }
+      .custom-marker-card:hover {
+        transform: scale(1.08) translateY(-2px);
+        box-shadow: 0 8px 32px rgba(107,70,193,0.18), 0 2px 8px rgba(0,0,0,0.10);
+        border: 2.5px solid #6B46C1;
+        z-index: 20;
       }
     `;
     document.head.appendChild(style);
@@ -259,64 +347,49 @@ const ViewerComponent = ({ toggleChatBot }) => {
   return (
     <div>
       <style>{`
-        .custom-marker {
-          pointer-events: auto;
+        .custom-marker-card {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          min-width: 120px;
+          max-width: 180px;
+          background: rgba(255,255,255,0.55);
+          backdrop-filter: blur(6px) saturate(120%);
+          border-radius: 18px;
+          box-shadow: 0 4px 24px rgba(107,70,193,0.13), 0 1.5px 6px rgba(0,0,0,0.08);
+          border: 2.5px solid #e5e7eb;
+          padding: 10px 10px 8px 10px;
+          transition: transform 0.25s, box-shadow 0.25s, border 0.25s;
           cursor: pointer;
-          padding:16px;
-          width: 70px;
-          height: 40px;
-          border-radius: 4px;
+          position: relative;
+          z-index: 10;
+        }
+        .custom-marker-img {
+          width: 100px;
+          height: 60px;
+          border-radius: 12px;
           background-size: cover;
           background-position: center;
-          background-color: white;
-          border: 2px solid white;
-          box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-          position: relative;
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-          animation: pulseGlow 2s infinite;
+          margin-bottom: 8px;
+          box-shadow: 0 2px 8px rgba(107,70,193,0.10);
+          border: 1.5px solid #bfa6ff;
         }
-        .custom-marker::after {
-          content: '';
-          position: absolute;
-          top: 0px;
-          left: 0px;
-          right: 0px;
-          bottom: 0px;
-          border: 0 solid transparent;
-          border-radius: 4px;
-          transition: all 0.3s ease;
-          pointer-events: none;
+        .custom-marker-label {
+          font-size: 15px;
+          font-weight: 700;
+          color: #6B46C1;
+          text-align: center;
+          padding: 2px 0 0 0;
+          letter-spacing: 0.5px;
+          text-shadow: 0 1px 4px rgba(107,70,193,0.08);
+          background: none;
+          border-radius: 8px;
         }
-        .custom-marker:hover::after {
-          top: -10px;
-          left: -10px;
-          right: -10px;
-          bottom: -10px;
-          border: 4px solid rgba(109, 34, 44, 0.6);
-          border-radius: 10px;
-        }
-        .custom-marker:hover {
-          transform: scale(1.4);
-          box-shadow: 0 0 14px rgba(109, 34, 44, 0.4);
-        }
-        @keyframes pulseGlow {
-          0% { box-shadow: 0 0 10px rgba(255,255,255,0.4); }
-          50% { box-shadow: 0 0 16px rgba(109, 34, 44, 0.4); }
-          100% { box-shadow: 0 0 10px rgba(255,255,255,0.4); }
-        }
-        .custom-marker.selected-marker::before {
-          content: '';
-          position: absolute;
-          top: -16px;
-          left: -16px;
-          right: -16px;
-          bottom: -16px;
-          border: 3px solid rgba(109, 34, 44, 0.6);
-          border-radius: 12px;
-          box-shadow: 0 0 12px rgba(109, 34, 44, 0.4);
-          transition: all 0.4s ease;
-          pointer-events: none;
-          z-index: -1;
+        .custom-marker-card:hover {
+          transform: scale(1.08) translateY(-2px);
+          box-shadow: 0 8px 32px rgba(107,70,193,0.18), 0 2px 8px rgba(0,0,0,0.10);
+          border: 2.5px solid #6B46C1;
+          z-index: 20;
         }
       `}</style>
 

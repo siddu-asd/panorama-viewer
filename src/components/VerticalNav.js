@@ -27,26 +27,6 @@ const VerticalNav = ({ onNavigate, currentScene, scenes }) => {
     setIsMenuOpen(false); // Auto close menu on navigation
   };
 
-  // Portal the Explore button to document.body so it's always on top
-  const exploreButton = !isMenuOpen && ReactDOM.createPortal(
-    <button
-      className="main-button"
-      onClick={(e) => {
-        e.stopPropagation();
-        setIsMenuOpen(true);
-      }}
-      aria-label="Open navigation"
-      aria-expanded={isMenuOpen}
-      type="button"
-    >
-      <span className="explore-btn-icon">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      </span>
-      Explore
-    </button>,
-    document.body
-  );
-
   // Portal the nav menu to document.body when open
   const navMenu = isMenuOpen
     ? ReactDOM.createPortal(
@@ -87,6 +67,26 @@ const VerticalNav = ({ onNavigate, currentScene, scenes }) => {
         document.body
       )
     : null;
+
+  // Portal the Explore button to document.body so it's always on top
+  const exploreButton = !isMenuOpen && ReactDOM.createPortal(
+    <button
+      className="main-button"
+      onClick={(e) => {
+        e.stopPropagation();
+        setIsMenuOpen(true);
+      }}
+      aria-label="Open navigation"
+      aria-expanded={isMenuOpen}
+      type="button"
+    >
+      <span className="explore-btn-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </span>
+      Explore
+    </button>,
+    document.body
+  );
 
   return (
     <>

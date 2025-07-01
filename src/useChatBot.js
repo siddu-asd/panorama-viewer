@@ -93,8 +93,9 @@ export const useChatBot = (isVisible) => {
   }, [sessionId, mutedMessages]);
 
   const handleTranscript = useCallback((transcript) => {
-    setUserMessage(transcript);
     sendToServer(transcript);
+    setUserMessage('');
+    setInputMode('text');
   }, [sendToServer]);
 
   const handleSendMessage = useCallback(() => {
