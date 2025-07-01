@@ -6,19 +6,146 @@ const API_BASE = 'https://m-touch-labs.onrender.com/';
 export const useChatBot = (isVisible) => {
   const [userMessage, setUserMessage] = useState('');
   const [messages, setMessages] = useState([]);
-  const [micPermission, setMicPermission] = useState(null);
-  const [language, setLanguage] = useState('en-IN');
   const [isListening, setIsListening] = useState(false);
-  const [currentTypingIndex, setCurrentTypingIndex] = useState(-1);
   const [isTyping, setIsTyping] = useState(false);
   const [sessionId, setSessionId] = useState('');
   const [inputMode, setInputMode] = useState('text');
+  const [currentTypingIndex, setCurrentTypingIndex] = useState(-1);
   const [mutedMessages, setMutedMessages] = useState(new Set());
 
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const inputRef = useRef(null);
+  const audioRef = useRef(null); // 👈 For stopping audio
+
+  const playAudioFromURL = (url, messageId) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+
+    if (mutedMessages.has(messageId)) return;
+
+    const audio = new Audio(url);
+    audio.crossOrigin = 'anonymous';
+    audioRef.current = audio;
+    audio.play().catch(err => {
+      console.error('Audio playback failed:', err.message);
+    });
+  };
+
+  const sendToServer = useCallback((messageToSend) => {
+    if (!messageToSend.trim() || !sessionId) return;
+
+    const newUserMessage = { id: `user-${Date.now()}`, type: 'user', content: messageToSend };
+    setMessages(prev => [...prev, newUserMessage]);
+    setIsTyping(true);
+
+    fetch(`${API_BASE}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: messageToSend,
+        session_id: sessionId,
+      }),
+    })
+      .then(res => res.ok ? res.json() : Promise.reject(res))
+      .then(data => {
+        const botResponse = data.response || "Sorry, I didn't understand that.";
+        const audioUrl = data.audio_url || null;
+        const botId = `bot-${Date.now()}`;
+
+        const botReply = {
+          id: botId,
+          type: 'bot',
+          content: botResponse,
+          displayedContent: botResponse,
+          isTyping: false,
+        };
+
+        setMessages(prev => [...prev, botReply]);
+
+        if (audioUrl) {
+          playAudioFromURL(audioUrl, botId);
+        }
+      })
+      .catch(err => {
+        const errorMessage = err.message.includes('Failed to fetch')
+          ? "Network error. Please check your internet connection."
+          : err.message.includes('HTTP error')
+            ? "Server error. Please try again in a moment."
+            : err.message.includes('JSON')
+              ? "Invalid response from server. Please try again."
+              : "Oops! Something went wrong. Please try again later.";
+
+        setMessages(prev => [...prev, {
+          id: `bot-error-${Date.now()}`,
+          type: 'bot',
+          content: errorMessage,
+          displayedContent: errorMessage,
+          isTyping: false,
+        }]);
+      })
+      .finally(() => {
+        setIsTyping(false);
+      });
+  }, [sessionId, mutedMessages]);
+
+  const handleTranscript = useCallback((transcript) => {
+    setUserMessage(transcript);
+    sendToServer(transcript);
+  }, [sendToServer]);
+
+  const handleSendMessage = useCallback(() => {
+    if (!userMessage.trim()) return;
+    sendToServer(userMessage.trim());
+    setUserMessage('');
+  }, [userMessage, sendToServer]);
+
+  const handleVoiceButtonClick = useCallback(() => {
+    if (inputMode === 'text') {
+      setInputMode('voice');
+      recognitionRef.current = initializeSpeechRecognition('en-IN', setIsListening, handleTranscript);
+      try {
+        recognitionRef.current.start();
+      } catch (error) {
+        console.error('Error starting speech recognition:', error);
+        setInputMode('text');
+      }
+    } else {
+      if (isListening) {
+        recognitionRef.current?.stop();
+        setTimeout(() => setInputMode('text'), 200);
+      } else {
+        recognitionRef.current = initializeSpeechRecognition('en-IN', setIsListening, handleTranscript);
+        try {
+          recognitionRef.current.start();
+        } catch (error) {
+          console.error('Error starting speech recognition:', error);
+          setInputMode('text');
+        }
+      }
+    }
+  }, [inputMode, isListening, handleTranscript]);
+
+  const handleSpeakerClick = useCallback((messageId) => {
+    const message = messages.find(m => m.id === messageId);
+    if (!message) return;
+
+    const isMutedNow = mutedMessages.has(messageId);
+    const updatedMuted = new Set(mutedMessages);
+
+    if (isMutedNow) {
+      updatedMuted.delete(messageId);
+      if (message.audioUrl) playAudioFromURL(message.audioUrl, messageId);
+    } else {
+      updatedMuted.add(messageId);
+      if (audioRef.current) audioRef.current.pause();
+    }
+
+    setMutedMessages(updatedMuted);
+  }, [messages, mutedMessages]);
 
   useEffect(() => {
     if (!isVisible) return;
@@ -47,39 +174,6 @@ export const useChatBot = (isVisible) => {
   }, [messages]);
 
   useEffect(() => {
-    if (currentTypingIndex >= 0 && messages[currentTypingIndex]?.isTyping) {
-      const message = messages[currentTypingIndex];
-      const fullText = message.content;
-      let currentIndex = 0;
-      const typeNextChar = () => {
-        if (currentIndex <= fullText.length) {
-          const nextIndex = Math.min(currentIndex + 3, fullText.length);
-          setMessages(prev =>
-            prev.map((msg, idx) =>
-              idx === currentTypingIndex
-                ? { ...msg, displayedContent: fullText.slice(0, nextIndex), isTyping: nextIndex < fullText.length }
-                : msg
-            )
-          );
-          currentIndex = nextIndex;
-          typingTimeoutRef.current = setTimeout(typeNextChar, 15);
-        } else {
-          setMessages(prev =>
-            prev.map((msg, idx) =>
-              idx === currentTypingIndex
-                ? { ...msg, isTyping: false, displayedContent: fullText }
-                : msg
-            )
-          );
-          setCurrentTypingIndex(-1);
-        }
-      };
-      typeNextChar();
-      return () => clearTimeout(typingTimeoutRef.current);
-    }
-  }, [currentTypingIndex, messages]);
-
-  useEffect(() => {
     if (isVisible && inputMode === 'text' && !isTyping && !isListening) {
       setTimeout(() => inputRef.current?.focus(), 200);
     }
@@ -87,128 +181,22 @@ export const useChatBot = (isVisible) => {
 
   useEffect(() => {
     if (inputMode === 'voice') {
-      recognitionRef.current = initializeSpeechRecognition(language, setIsListening, setUserMessage);
+      recognitionRef.current = initializeSpeechRecognition('en-IN', setIsListening, handleTranscript);
     }
-  }, [language, inputMode]);
-
-  const handleSendMessage = useCallback(() => {
-    if (!userMessage.trim() || !sessionId) return;
-
-    const messageToSend = userMessage.trim();
-    setUserMessage('');
-    const newUserMessage = { id: `user-${Date.now()}`, type: 'user', content: messageToSend };
-    setMessages(prev => [...prev, newUserMessage]);
-    setIsTyping(true);
-
-    const languagePrefix = {
-      'en': '',
-      'hi': 'Respond in Hindi. ',
-      'te': 'Respond in Telugu. ',
-      'ta': 'Respond in Tamil. ',
-      'bn': 'Respond in Bengali. ',
-      'mr': 'Respond in Marathi. ',
-      'kn': 'Respond in Kannada. ',
-      'ml': 'Respond in Malayalam. ',
-    };
-
-    const baseLang = language.split('-')[0];
-    const langInstruction = languagePrefix[baseLang] || '';
-    const fullPrompt = langInstruction + messageToSend;
-
-    fetch(`${API_BASE}/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: fullPrompt,
-        session_id: sessionId,
-        language: baseLang,
-      }),
-    })
-      .then(res => res.ok ? res.json() : Promise.reject(res))
-      .then(data => {
-        const botResponse = data.response || data.message || data.text || data.content || "Sorry, I didn't understand that.";
-        const botReply = {
-          id: `bot-${Date.now()}`,
-          type: 'bot',
-          content: botResponse,
-          displayedContent: botResponse,
-          isTyping: false,
-        };
-        setMessages(prev => [...prev, botReply]);
-      })
-      .catch(err => {
-        const errorMessage = err.message.includes('Failed to fetch')
-          ? "Network error. Please check your internet connection."
-          : err.message.includes('HTTP error')
-          ? "Server error. Please try again in a moment."
-          : err.message.includes('JSON')
-          ? "Invalid response from server. Please try again."
-          : "Oops! Something went wrong. Please try again later.";
-        setMessages(prev => [...prev, {
-          id: `bot-error-${Date.now()}`,
-          type: 'bot',
-          content: errorMessage,
-          displayedContent: errorMessage,
-          isTyping: false,
-        }]);
-      })
-      .finally(() => {
-        setIsTyping(false);
-      });
-  }, [userMessage, sessionId, language]);
-
-  const handleVoiceButtonClick = useCallback(() => {
-    if (inputMode === 'text') {
-      setInputMode('voice');
-      recognitionRef.current = initializeSpeechRecognition(language, setIsListening, setUserMessage);
-      try {
-        recognitionRef.current.start();
-      } catch (error) {
-        console.error('Error starting speech recognition:', error);
-        setInputMode('text');
-      }
-    } else {
-      if (isListening) {
-        recognitionRef.current?.stop();
-        setTimeout(() => setInputMode('text'), 200);
-      } else {
-        recognitionRef.current = initializeSpeechRecognition(language, setIsListening, setUserMessage);
-        try {
-          recognitionRef.current.start();
-        } catch (error) {
-          console.error('Error starting speech recognition:', error);
-          setInputMode('text');
-        }
-      }
-    }
-  }, [inputMode, isListening, language]);
+  }, [inputMode, handleTranscript]);
 
   return {
     userMessage,
     setUserMessage,
     messages,
-    setMessages,
-    micPermission,
-    setMicPermission,
-    language,
-    setLanguage,
     isListening,
-    setIsListening,
-    currentTypingIndex,
-    setCurrentTypingIndex,
     isTyping,
-    setIsTyping,
-    sessionId,
-    setSessionId,
     inputMode,
-    setInputMode,
     mutedMessages,
-    setMutedMessages,
-    recognitionRef,
-    messagesEndRef,
-    typingTimeoutRef,
-    inputRef,
     handleSendMessage,
     handleVoiceButtonClick,
+    handleSpeakerClick,
+    inputRef,
+    messagesEndRef
   };
 };
