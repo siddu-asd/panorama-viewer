@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { initializeSpeechRecognition, testAPIConnection } from './chatUtils';
 
-const API_BASE = 'https://m-touch-labs.onrender.com/';
+const API_BASE = 'http://localhost:5000';
 
-export const useChatBot = (isVisible) => {
+export const useChatBot = (isVisible, selectedLanguage = 'en') => {
   const [userMessage, setUserMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [isListening, setIsListening] = useState(false);
@@ -48,6 +48,7 @@ export const useChatBot = (isVisible) => {
       body: JSON.stringify({
         message: messageToSend,
         session_id: sessionId,
+        language: selectedLanguage,
       }),
     })
       .then(res => res.ok ? res.json() : Promise.reject(res))
@@ -90,7 +91,7 @@ export const useChatBot = (isVisible) => {
       .finally(() => {
         setIsTyping(false);
       });
-  }, [sessionId, mutedMessages]);
+  }, [sessionId, mutedMessages, selectedLanguage]);
 
   const handleTranscript = useCallback((transcript) => {
     sendToServer(transcript);

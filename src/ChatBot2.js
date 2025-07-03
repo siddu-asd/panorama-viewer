@@ -1,9 +1,29 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import './styles/ChatBot2.css';
 import { useChatBot } from './useChatBot';
 import BotMessage from './BotMessage';
 import UserMessage from './UserMessage';
 import InputContainer from './InputContainer';
+import { useTranslation } from 'react-i18next';
+
+// Audio playback function
+async function playBotAudio(text, language = 'en') {
+  try {
+    const response = await fetch('http://localhost:5000/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, language }),
+    });
+    if (!response.ok) throw new Error('TTS failed');
+    const audioData = await response.arrayBuffer();
+    const blob = new Blob([audioData], { type: 'audio/mpeg' });
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    audio.play();
+  } catch (err) {
+    console.error('Audio playback error:', err);
+  }
+}
 
 const ChatBot2 = ({ isVisible, toggleChatBot }) => {
   const {
@@ -18,7 +38,26 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
     handleVoiceButtonClick,
     inputRef,
     mutedMessages,
+    handleSpeakerClick,
   } = useChatBot(isVisible);
+
+  const { t, i18n } = useTranslation();
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+  };
+
+  // Track last played bot message to avoid replaying on every render
+  const lastBotMsgRef = useRef(null);
+
+  useEffect(() => {
+    if (messages && messages.length > 0) {
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg.type === 'bot' && lastBotMsgRef.current !== lastMsg.content) {
+        playBotAudio(lastMsg.content, i18n.language);
+        lastBotMsgRef.current = lastMsg.content;
+      }
+    }
+  }, [messages, i18n.language]);
 
   if (!isVisible) return null;
 
@@ -36,6 +75,37 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
         </div>
       </div>
 
+      {/* Language Dropdown inside chatbot */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        padding: '8px 16px 0 16px',
+        background: 'transparent',
+        zIndex: 10
+      }}>
+        <label style={{ marginRight: 8, fontWeight: 500 }}>{t('language')}:</label>
+        <select
+          onChange={e => changeLanguage(e.target.value)}
+          value={i18n.language}
+          style={{
+            borderRadius: 6,
+            border: '1px solid #ccc',
+            padding: '4px 8px',
+            fontSize: 14,
+            background: '#fff',
+            color: '#333',
+            outline: 'none',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
+          }}
+        >
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="hi">हिन्दी</option>
+          <option value="te">తెలుగు</option>
+        </select>
+      </div>
+
       <div className="messages-container">
         {messages.map((msg, index) =>
           msg.type === 'bot' ? (
@@ -43,6 +113,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
               key={index}
               message={msg}
               isMuted={mutedMessages.has(msg.id)}
+              handleSpeakerClick={handleSpeakerClick}
             />
           ) : (
             <UserMessage key={index} content={msg.content} />
