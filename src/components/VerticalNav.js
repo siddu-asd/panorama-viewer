@@ -4,6 +4,7 @@ import './VerticalNav.css';
 
 const VerticalNav = ({ onNavigate, currentScene, scenes }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [selectedScene, setSelectedScene] = useState(null); // Track selected scene for detail view
 
   useEffect(() => {
     document.body.classList.toggle('nav-open', isMenuOpen);
@@ -21,11 +22,63 @@ const VerticalNav = ({ onNavigate, currentScene, scenes }) => {
   ];
 
   const handleClick = (item) => {
-    if (typeof onNavigate === 'function') {
-      onNavigate(item.scene);
-    }
-    setIsMenuOpen(false); // Auto close menu on navigation
+    setSelectedScene(item.scene); // Show detail view for this scene
   };
+
+  const handleBack = () => {
+    setSelectedScene(null); // Return to main navigation list
+  };
+
+  const handleSceneNavigate = (scene) => {
+    if (typeof onNavigate === 'function') {
+      onNavigate(scene);
+    }
+    setIsMenuOpen(false);
+    setSelectedScene(null);
+  };
+
+  // Modal content: either nav list (text only) or scene images/markers
+  let modalContent;
+  if (selectedScene) {
+    // Show all markers/images for the selected scene
+    const sceneData = scenes[selectedScene];
+    modalContent = (
+      <div style={{ width: '100%' }}>
+         <button className="nav-modal-btn back-btn" style={{ marginBottom: 16 }} onClick={handleBack}>Back</button>
+        <div className="nav-modal-grid">
+          {sceneData?.markers?.map((marker) => (
+            <div
+              key={marker.id}
+              className="nav-modal-card"
+              style={{ cursor: 'pointer' }}
+              onClick={() => handleSceneNavigate(marker.target)}
+            >
+              <div className="nav-modal-img-wrap">
+                {marker.image && <img src={marker.image.replace('./', '/')} alt={marker.tooltip} />}
+              </div>
+              <div className="nav-modal-marker-label">{marker.tooltip}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  } else {
+    // Show nav item buttons only
+    modalContent = (
+      <div className="nav-modal-grid">
+        {navigationItems.map((item) => (
+          <button
+            key={item.id}
+            className="nav-modal-btn"
+            onClick={() => handleClick(item)}
+            type="button"
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+    );
+  }
 
   // Portal the nav menu to document.body when open
   const navMenu = isMenuOpen
@@ -35,32 +88,13 @@ const VerticalNav = ({ onNavigate, currentScene, scenes }) => {
             <div className="nav-modal animated-fade-in">
               <button
                 className="modal-close-btn"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => { setIsMenuOpen(false); setSelectedScene(null); }}
                 aria-label="Close navigation"
                 type="button"
               >
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
-              <div className="nav-modal-grid">
-                {navigationItems.map((item) => {
-                  const sceneData = scenes?.[item.scene];
-                  const image = sceneData?.panorama || '';
-                  return (
-                    <div key={item.id} className="nav-modal-card">
-                      <div className="nav-modal-img-wrap">
-                        {image && <img src={image.replace('./', '/')} alt={item.label} />}
-                      </div>
-                      <button
-                        className={`nav-modal-btn${currentScene === item.scene ? ' active' : ''}`}
-                        onClick={() => handleClick(item)}
-                        type="button"
-                      >
-                        {item.label}
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
+              {modalContent}
             </div>
           </div>
         </div>,
@@ -75,6 +109,7 @@ const VerticalNav = ({ onNavigate, currentScene, scenes }) => {
       onClick={(e) => {
         e.stopPropagation();
         setIsMenuOpen(true);
+        setSelectedScene(null);
       }}
       aria-label="Open navigation"
       aria-expanded={isMenuOpen}

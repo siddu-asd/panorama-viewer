@@ -12,24 +12,24 @@ const scenes = {
   ENTRY: {
     panorama: './office-15.jpg',
     markers: [
-      { id: 'TO-ROOM1', image: './office-10.jpg', tooltip: 'Enter into the office', position: { yaw: -3.0, pitch: -0.15 }, target: 'ROOM1' },
-      { id: 'TO-STUDIO-OUTSIDE', image: './office-6.jpg', tooltip: 'Go to Studio', position: { yaw: -2.0, pitch: -0.1 }, target: 'STUDIO-OUTSIDE' },
-      { id: 'TO-NEW-OFFICE', image: './office-11.jpg', tooltip: 'Enter New Office', position: { yaw: 1.5, pitch: 0.2 }, target: 'NEW-OFFICE' },
+      { id: 'TO-ROOM1', image: './office-10.jpg', tooltip: 'Go to Office Room', position: { yaw: -3.0, pitch: -0.15 }, target: 'ROOM1' },
+      { id: 'TO-STUDIO-OUTSIDE', image: './office-6.jpg', tooltip: 'Go to Studio Entrance', position: { yaw: -2.0, pitch: -0.1 }, target: 'STUDIO-OUTSIDE' },
+      { id: 'TO-NEW-OFFICE', image: './office-11.jpg', tooltip: 'Go to New Office', position: { yaw: 1.5, pitch: 0.2 }, target: 'NEW-OFFICE' },
     ],
   },
   ROOM1: {
     panorama: './office-10.jpg',
     markers: [
-      { id: 'TO-ADMIN-BLOCK', image: './office-14.jpg', tooltip: 'See Workspace', position: { yaw: 2.5, pitch: -0.1 }, target: 'ADMIN-BLOCK' },
-      { id: 'ROOM1-BACK', image: './office-15.jpg', tooltip: 'Back', position: { yaw: -0.6, pitch: 0.1 }, target: 'ENTRY' },
+      { id: 'TO-ADMIN-BLOCK', image: './office-14.jpg', tooltip: 'Go to Admin Block', position: { yaw: 2.5, pitch: -0.1 }, target: 'ADMIN-BLOCK' },
+      { id: 'ROOM1-BACK', image: './office-15.jpg', tooltip: 'Back to Main Entry', position: { yaw: -0.6, pitch: 0.1 }, target: 'ENTRY' },
     ],
   },
   'ADMIN-BLOCK': {
     panorama: './office-14.jpg',
     markers: [
-      { id: 'TO-MEETING-ROOM', image: './office-7.jpg', tooltip: 'Meeting Room', position: { yaw: -0.7, pitch: -0.1 }, target: 'MEETING-ROOM' },
-      { id: 'TO-WORKSPACE-FROM-ADMIN', image: './office-7.jpg', tooltip: 'Work-space', position: { yaw: -0.4, pitch: 0.1 }, target: 'WORKSPACE' },
-      { id: 'ADMIN-BLOCK-BACK', image: './office-10.jpg', tooltip: 'Back', position: { yaw: 2.6, pitch: -0.1 }, target: 'ROOM1' },
+      { id: 'TO-MEETING-ROOM', image: './office-7.jpg', tooltip: 'Go to Meeting Room', position: { yaw: -0.7, pitch: -0.1 }, target: 'MEETING-ROOM' },
+      { id: 'TO-WORKSPACE-FROM-ADMIN', image: './office-7.jpg', tooltip: 'Go to Workspace', position: { yaw: -0.4, pitch: 0.1 }, target: 'WORKSPACE' },
+      { id: 'ADMIN-BLOCK-BACK', image: './office-10.jpg', tooltip: 'Back to Office Room', position: { yaw: 2.6, pitch: -0.1 }, target: 'ROOM1' },
     ],
   },
   'MEETING-ROOM': {
@@ -47,27 +47,27 @@ const scenes = {
   'NEW-OFFICE': {
     panorama: './office-11.jpg',
     markers: [
-      { id: 'TO-NEW-OFFICE-INSIDE', image: './office-12.jpg', tooltip: 'See New Office', position: { yaw: -0.2, pitch: 0.1 }, target: 'NEW-OFFICE-INSIDE' },
-      { id: 'NEW-OFFICE-BACK', image: './office-15.jpg', tooltip: 'Back', position: { yaw: 1.5, pitch: 0.1 }, target: 'ENTRY' },
+      { id: 'TO-NEW-OFFICE-INSIDE', image: './office-12.jpg', tooltip: 'Go to New Office Interior', position: { yaw: -0.2, pitch: 0.1 }, target: 'NEW-OFFICE-INSIDE' },
+      { id: 'NEW-OFFICE-BACK', image: './office-15.jpg', tooltip: 'Back to Main Entry', position: { yaw: 1.5, pitch: 0.1 }, target: 'ENTRY' },
     ],
   },
   'NEW-OFFICE-INSIDE': {
     panorama: './office-12.jpg',
     markers: [
-      { id: 'NEW-OFFICE-INSIDE-BACK', image: './office-11.jpg', tooltip: 'Back to Office', position: { yaw: -3.55, pitch: -0.1 }, target: 'NEW-OFFICE' },
+      { id: 'NEW-OFFICE-INSIDE-BACK', image: './office-11.jpg', tooltip: 'Back to New Office', position: { yaw: -3.55, pitch: -0.1 }, target: 'NEW-OFFICE' },
     ],
   },
   'STUDIO-OUTSIDE': {
     panorama: './office-6.jpg',
     markers: [
-      { id: 'TO-STUDIO', image: './office-1.jpg', tooltip: 'Enter Studio', position: { yaw: 1.9, pitch: 0.05 }, target: 'STUDIO' },
-      { id: 'STUDIO-OUTSIDE-BACK', image: './office-15.jpg', tooltip: 'Back to Entry', position: { yaw: -0.6, pitch: 0.05 }, target: 'ENTRY' },
+      { id: 'TO-STUDIO', image: './office-1.jpg', tooltip: 'Go to Studio', position: { yaw: 1.9, pitch: 0.05 }, target: 'STUDIO' },
+      { id: 'STUDIO-OUTSIDE-BACK', image: './office-15.jpg', tooltip: 'Back to Main Entry', position: { yaw: -0.6, pitch: 0.05 }, target: 'ENTRY' },
     ],
   },
   'STUDIO': {
     panorama: './office-16.jpg',
     markers: [
-      { id: 'STUDIO-BACK', image: './office-6.jpg', tooltip: 'Back to Studio Outside', position: { yaw: -2.19, pitch: -0.18 }, target: 'STUDIO-OUTSIDE' },
+      { id: 'STUDIO-BACK', image: './office-6.jpg', tooltip: 'Back to Studio Entrance', position: { yaw: -2.19, pitch: -0.18 }, target: 'STUDIO-OUTSIDE' },
     ],
   },
 };
@@ -127,20 +127,22 @@ const ViewerComponent = ({ toggleChatBot }) => {
       navbar: ['autorotate', 'fullscreen'],
       plugins: [MarkersPlugin, [AutorotatePlugin, { autorotateSpeed: 0.1 }]],
     });
- 
+
+    viewerRef.current = viewer;
+
+ viewer.addEventListener('ready', () => {
+  markersPluginRef.current = viewer.getPlugin(MarkersPlugin);
+  autorotateRef.current = viewer.getPlugin(AutorotatePlugin);
+  autorotateRef.current?.start();
+  setSceneMarkers(scenes.ENTRY.markers);
+});
+    // 👇 Logo overlay
     const logoOverlay = document.createElement('div');
     logoOverlay.className = 'psv-logo-overlay';
     logoOverlay.innerHTML = `<img class="responsive-logo" src="/LOGO.png" alt="Logo" />`;
     viewer.container.appendChild(logoOverlay);
 
-
-    viewerRef.current = viewer;
-    markersPluginRef.current = viewer.getPlugin(MarkersPlugin);
-    autorotateRef.current = viewer.getPlugin(AutorotatePlugin);
-    autorotateRef.current.start();
-
-    
-
+    // 👇 Chatbot overlay
     const chatbotOverlay = document.createElement('div');
     chatbotOverlay.className = 'psv-chatbot-overlay';
     chatbotOverlay.innerHTML = `<img id="psv-chatbot-img" src="/nisaa.png" alt="Bot" style="width: 320px; height: 280px; object-fit: contain; cursor: pointer;" />`;
@@ -151,10 +153,8 @@ const ViewerComponent = ({ toggleChatBot }) => {
     style.textContent = viewerCSS;
     document.head.appendChild(style);
 
-    markersPluginRef.current?.addEventListener('select-marker', (e) => {
-      const target = Object.values(scenes)
-        .flatMap((s) => s.markers)
-        .find((m) => m.id === e.marker.id)?.target;
+    viewer.getPlugin(MarkersPlugin)?.addEventListener('select-marker', (e) => {
+      const target = Object.values(scenes).flatMap((s) => s.markers).find((m) => m.id === e.marker.id)?.target;
       if (target) switchToScene(target);
     });
 
@@ -165,12 +165,6 @@ const ViewerComponent = ({ toggleChatBot }) => {
       viewer.destroy();
     };
   }, [setSceneMarkers, switchToScene, toggleChatBot]);
-
-  useEffect(() => {
-    if (markersPluginRef.current) {
-      setSceneMarkers(scenes.ENTRY.markers);
-    }
-  }, [setSceneMarkers]);
 
   return (
     <div>
@@ -242,6 +236,7 @@ const viewerCSS = `
     transform: scale(1.08);
   }
   .psv-menu-button { display: none !important; }
+
   @media (max-width: 768px) {
     .psv-navbar { left: 4px !important; bottom: 4px !important; gap: 10px !important; }
     .psv-button { width: 40px !important; height: 40px !important; }
@@ -252,6 +247,7 @@ const viewerCSS = `
     .psv-button { width: 32px !important; height: 32px !important; }
     .psv-button svg { width: 16px !important; height: 16px !important; }
   }
+
   .psv-chatbot-overlay {
     position: absolute;
     bottom: 20px;
@@ -263,12 +259,14 @@ const viewerCSS = `
     align-items: flex-end;
     justify-content: flex-end;
   }
+
   .psv-chatbot-overlay img {
     width: 220px !important;
     height: 220px !important;
     object-fit: contain;
     pointer-events: auto !important;
   }
+
   .custom-marker-card {
     display: flex;
     flex-direction: column;
@@ -286,6 +284,7 @@ const viewerCSS = `
     position: relative;
     z-index: 10;
   }
+
   .custom-marker-img {
     width: 100px;
     height: 60px;
@@ -296,6 +295,7 @@ const viewerCSS = `
     box-shadow: 0 2px 8px rgba(107,70,193,0.10);
     border: 1.5px solid #bfa6ff;
   }
+
   .custom-marker-label {
     font-size: 15px;
     font-weight: 700;
@@ -305,12 +305,14 @@ const viewerCSS = `
     letter-spacing: 0.5px;
     text-shadow: 0 1px 4px rgba(107,70,193,0.08);
   }
+
   .custom-marker-card:hover {
     transform: scale(1.08) translateY(-2px);
     box-shadow: 0 8px 32px rgba(107,70,193,0.18), 0 2px 8px rgba(0,0,0,0.10);
     border: 2.5px solid #6B46C1;
     z-index: 20;
   }
+
   .psv-logo-overlay {
     position: absolute;
     top: 10px;
@@ -318,6 +320,7 @@ const viewerCSS = `
     z-index: 100002;
     pointer-events: auto;
   }
+
   .responsive-logo {
     height: 50px;
     width: auto;
