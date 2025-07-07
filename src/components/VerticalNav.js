@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import './VerticalNav.css';
+import '../styles/VerticalNav.css';
 
-const VerticalNav = ({ onNavigate, currentScene, scenes }) => {
+const VerticalNav = ({ onNavigate, currentScene, scenes, portalContainer }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedScene, setSelectedScene] = useState(null); // Track selected scene for detail view
+  const [modalVisible, setModalVisible] = useState(false); // For animation
 
   useEffect(() => {
     document.body.classList.toggle('nav-open', isMenuOpen);
+    if (isMenuOpen) {
+      // Delay to allow animation class to apply
+      setTimeout(() => setModalVisible(true), 10);
+    } else {
+      setModalVisible(false);
+    }
   }, [isMenuOpen]);
 
   const navigationItems = [
@@ -46,11 +53,11 @@ const VerticalNav = ({ onNavigate, currentScene, scenes }) => {
       <div style={{ width: '100%' }}>
          <button className="nav-modal-btn back-btn" style={{ marginBottom: 16 }} onClick={handleBack}>Back</button>
         <div className="nav-modal-grid">
-          {sceneData?.markers?.map((marker) => (
+          {sceneData?.markers?.map((marker, idx) => (
             <div
               key={marker.id}
-              className="nav-modal-card"
-              style={{ cursor: 'pointer' }}
+              className="nav-modal-card fadeInCard"
+              style={{ cursor: 'pointer', animationDelay: `${idx * 60}ms` }}
               onClick={() => handleSceneNavigate(marker.target)}
             >
               <div className="nav-modal-img-wrap">
@@ -66,10 +73,11 @@ const VerticalNav = ({ onNavigate, currentScene, scenes }) => {
     // Show nav item buttons only
     modalContent = (
       <div className="nav-modal-grid">
-        {navigationItems.map((item) => (
+        {navigationItems.map((item, idx) => (
           <button
             key={item.id}
-            className="nav-modal-btn"
+            className="nav-modal-btn fadeInCard"
+            style={{ animationDelay: `${idx * 60}ms` }}
             onClick={() => handleClick(item)}
             type="button"
           >
@@ -80,12 +88,12 @@ const VerticalNav = ({ onNavigate, currentScene, scenes }) => {
     );
   }
 
-  // Portal the nav menu to document.body when open
-  const navMenu = isMenuOpen
+  // Portal the nav menu and Explore button to portalContainer (fullscreen-safe)
+  const navMenu = isMenuOpen && portalContainer
     ? ReactDOM.createPortal(
         <div className="nav-modal-overlay">
           <div className="nav-modal-blur-bg">
-            <div className="nav-modal animated-fade-in">
+            <div className={`nav-modal animated-fade-in${modalVisible ? ' show' : ''}`}> {/* Animation class */}
               <button
                 className="modal-close-btn"
                 onClick={() => { setIsMenuOpen(false); setSelectedScene(null); }}
@@ -98,12 +106,11 @@ const VerticalNav = ({ onNavigate, currentScene, scenes }) => {
             </div>
           </div>
         </div>,
-        document.body
+        portalContainer
       )
     : null;
 
-  // Portal the Explore button to document.body so it's always on top
-  const exploreButton = !isMenuOpen && ReactDOM.createPortal(
+  const exploreButton = !isMenuOpen && portalContainer && ReactDOM.createPortal(
     <button
       className="main-button"
       onClick={(e) => {
@@ -120,7 +127,7 @@ const VerticalNav = ({ onNavigate, currentScene, scenes }) => {
       </span>
       Explore
     </button>,
-    document.body
+    portalContainer
   );
 
   return (

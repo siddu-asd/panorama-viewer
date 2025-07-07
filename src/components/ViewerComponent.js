@@ -3,10 +3,14 @@ import ReactDOM from 'react-dom';
 import { Viewer } from '@photo-sphere-viewer/core';
 import { MarkersPlugin } from '@photo-sphere-viewer/markers-plugin';
 import { AutorotatePlugin } from '@photo-sphere-viewer/autorotate-plugin';
-import VerticalNav from './components/VerticalNav';
+import VerticalNav from './VerticalNav';
+import '../styles/ViewerComponent.css';
 
 import '@photo-sphere-viewer/core/index.css';
 import '@photo-sphere-viewer/markers-plugin/index.css';
+
+const GOOGLE_MAPS_URL =
+  'https://www.google.com/maps/search/?api=1&query=10-3-302+to+303,+Masab+Tank+Road,+NMDC+Colony,+Venkatadri+Colony,+Masab+Tank,+Hyderabad,+Telangana+500028';
 
 const scenes = {
   ENTRY: {
@@ -78,6 +82,7 @@ const ViewerComponent = ({ toggleChatBot }) => {
   const markersPluginRef = useRef(null);
   const autorotateRef = useRef(null);
   const [portalContainer, setPortalContainer] = useState(null);
+  const [navbarContainer, setNavbarContainer] = useState(null);
 
   const setSceneMarkers = useCallback((markerList) => {
     const plugin = markersPluginRef.current;
@@ -124,18 +129,28 @@ const ViewerComponent = ({ toggleChatBot }) => {
       container,
       panorama: scenes.ENTRY.panorama,
       defaultZoomLvl: 30,
-      navbar: ['autorotate', 'fullscreen'],
+      navbar: [
+        {
+          id: 'googlemaps',
+          title: 'Open in Google Maps',
+          className: 'psv-googlemaps-btn',
+          content: `<svg width="28" height="28" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="24" fill="none" stroke="currentColor" stroke-width="2"/><path d="M24 8C16.268 8 10 14.268 10 22c0 7.732 14 18 14 18s14-10.268 14-18c0-7.732-6.268-14-14-14zm0 18.5A4.5 4.5 0 1 1 24 17a4.5 4.5 0 0 1 0 9.5z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="22" r="4.5" fill="currentColor"/></svg>`,
+          onClick: () => window.open(GOOGLE_MAPS_URL, '_blank', 'noopener,noreferrer'),
+        },
+        'autorotate',
+        'fullscreen',
+      ],
       plugins: [MarkersPlugin, [AutorotatePlugin, { autorotateSpeed: 0.1 }]],
     });
 
     viewerRef.current = viewer;
 
- viewer.addEventListener('ready', () => {
-  markersPluginRef.current = viewer.getPlugin(MarkersPlugin);
-  autorotateRef.current = viewer.getPlugin(AutorotatePlugin);
-  autorotateRef.current?.start();
-  setSceneMarkers(scenes.ENTRY.markers);
-});
+    viewer.addEventListener('ready', () => {
+      markersPluginRef.current = viewer.getPlugin(MarkersPlugin);
+      autorotateRef.current = viewer.getPlugin(AutorotatePlugin);
+      autorotateRef.current?.start();
+      setSceneMarkers(scenes.ENTRY.markers);
+    });
     // 👇 Logo overlay
     const logoOverlay = document.createElement('div');
     logoOverlay.className = 'psv-logo-overlay';
@@ -149,10 +164,6 @@ const ViewerComponent = ({ toggleChatBot }) => {
     chatbotOverlay.querySelector('#psv-chatbot-img')?.addEventListener('click', toggleChatBot);
     container.appendChild(chatbotOverlay);
 
-    const style = document.createElement('style');
-    style.textContent = viewerCSS;
-    document.head.appendChild(style);
-
     viewer.getPlugin(MarkersPlugin)?.addEventListener('select-marker', (e) => {
       const target = Object.values(scenes).flatMap((s) => s.markers).find((m) => m.id === e.marker.id)?.target;
       if (target) switchToScene(target);
@@ -161,7 +172,6 @@ const ViewerComponent = ({ toggleChatBot }) => {
     setPortalContainer(container);
 
     return () => {
-      style.remove();
       viewer.destroy();
     };
   }, [setSceneMarkers, switchToScene, toggleChatBot]);
@@ -184,150 +194,11 @@ const ViewerComponent = ({ toggleChatBot }) => {
       />
       {portalContainer &&
         ReactDOM.createPortal(
-          <VerticalNav onNavigate={handleNavigation} currentScene={currentScene} scenes={scenes} />,
+          <VerticalNav onNavigate={handleNavigation} currentScene={currentScene} scenes={scenes} portalContainer={portalContainer} />,
           portalContainer
         )}
     </div>
   );
 };
-
-const viewerCSS = `
-  .psv-navbar {
-    position: fixed !important;
-    left: 24px !important;
-    bottom: 32px !important;
-    top: auto !important;
-    right: auto !important;
-    transform: none !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: flex-end !important;
-    align-items: flex-start !important;
-    gap: 18px !important;
-    background: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    z-index: 2147483647 !important;
-    pointer-events: auto !important;
-  }
-  .psv-button {
-    width: 48px !important;
-    height: 48px !important;
-    border-radius: 50% !important;
-    background: rgba(255,255,255,0.18) !important;
-    box-shadow: 0 2px 12px rgba(107, 70, 193, 0.12);
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    border: none !important;
-    margin: 0 0 12px 0 !important;
-    transition: background 0.18s, box-shadow 0.18s, transform 0.14s;
-    color: #6B46C1 !important;
-    font-size: 22px !important;
-    filter: none !important;
-  }
-  .psv-button:last-child { margin-bottom: 0 !important; }
-  .psv-button svg { width: 28px !important; height: 28px !important; }
-  .psv-button:hover {
-    background: #6B46C1 !important;
-    color: #fff !important;
-    box-shadow: 0 4px 24px rgba(107, 70, 193, 0.22);
-    transform: scale(1.08);
-  }
-  .psv-menu-button { display: none !important; }
-
-  @media (max-width: 768px) {
-    .psv-navbar { left: 4px !important; bottom: 4px !important; gap: 10px !important; }
-    .psv-button { width: 40px !important; height: 40px !important; }
-    .psv-button svg { width: 22px !important; height: 22px !important; }
-  }
-  @media (max-width: 480px) {
-    .psv-navbar { left: 2vw !important; bottom: 2vw !important; gap: 8px !important; }
-    .psv-button { width: 32px !important; height: 32px !important; }
-    .psv-button svg { width: 16px !important; height: 16px !important; }
-  }
-
-  .psv-chatbot-overlay {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    z-index: 100001;
-    background: transparent;
-    pointer-events: auto !important;
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
-  }
-
-  .psv-chatbot-overlay img {
-    width: 220px !important;
-    height: 220px !important;
-    object-fit: contain;
-    pointer-events: auto !important;
-  }
-
-  .custom-marker-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 120px;
-    max-width: 180px;
-    background: rgba(255,255,255,0.55);
-    backdrop-filter: blur(6px) saturate(120%);
-    border-radius: 18px;
-    box-shadow: 0 4px 24px rgba(107,70,193,0.13), 0 1.5px 6px rgba(0,0,0,0.08);
-    border: 2.5px solid #e5e7eb;
-    padding: 10px 10px 8px 10px;
-    transition: transform 0.25s, box-shadow 0.25s, border 0.25s;
-    cursor: pointer;
-    position: relative;
-    z-index: 10;
-  }
-
-  .custom-marker-img {
-    width: 100px;
-    height: 60px;
-    border-radius: 12px;
-    background-size: cover;
-    background-position: center;
-    margin-bottom: 8px;
-    box-shadow: 0 2px 8px rgba(107,70,193,0.10);
-    border: 1.5px solid #bfa6ff;
-  }
-
-  .custom-marker-label {
-    font-size: 15px;
-    font-weight: 700;
-    color: #6B46C1;
-    text-align: center;
-    padding: 2px 0 0 0;
-    letter-spacing: 0.5px;
-    text-shadow: 0 1px 4px rgba(107,70,193,0.08);
-  }
-
-  .custom-marker-card:hover {
-    transform: scale(1.08) translateY(-2px);
-    box-shadow: 0 8px 32px rgba(107,70,193,0.18), 0 2px 8px rgba(0,0,0,0.10);
-    border: 2.5px solid #6B46C1;
-    z-index: 20;
-  }
-
-  .psv-logo-overlay {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 100002;
-    pointer-events: auto;
-  }
-
-  .responsive-logo {
-    height: 50px;
-    width: auto;
-    padding: 10px;
-    background: none;
-    display: block;
-  }
-`;
 
 export default ViewerComponent;

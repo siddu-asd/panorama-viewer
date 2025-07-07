@@ -1,5 +1,5 @@
 import React from 'react';
-import LottieMicButton from './components/LottieMicButton';
+import LottieMicButton from './LottieMicButton';
 
 const InputContainer = ({
   inputMode,

@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import './styles/ChatBot2.css';
+   import React, { useEffect, useRef } from 'react';
+import '../styles/ChatBot2.css';
 import { useChatBot } from './useChatBot';
 import BotMessage from './BotMessage';
 import UserMessage from './UserMessage';
@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 // Audio playback function
 async function playBotAudio(text, language = 'en') {
   try {
-    const response = await fetch('http://localhost:5000/tts', {
+    const response = await fetch('http://127.0.0.1:5000/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, language }),
@@ -100,7 +100,6 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
           }}
         >
           <option value="en">English</option>
-          <option value="es">Español</option>
           <option value="hi">हिन्दी</option>
           <option value="te">తెలుగు</option>
         </select>

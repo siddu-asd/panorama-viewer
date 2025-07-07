@@ -18,6 +18,22 @@ const BotMessage = ({ message, handleSpeakerClick, isMuted }) => {
       </div>
       <div className="bot-content">
         <div className="message bot">
+          {/* Show image if present (e.g., for 360 view) */}
+          {message.image && (
+            <img
+              src={message.image}
+              alt={message.label || '360 view'}
+              style={{ maxWidth: '100%', borderRadius: 12, margin: '8px 0' }}
+            />
+          )}
+          {/* Optionally show a link if present */}
+          {message.url && (
+            <div style={{ marginBottom: 8 }}>
+              <a href={message.url} target="_blank" rel="noopener noreferrer">
+                {message.label || 'Open Virtual Tour'}
+              </a>
+            </div>
+          )}
           <BotResponse content={message.displayedContent} />
           <button
             className={`speak-button ${isMuted ? 'muted' : ''}`}

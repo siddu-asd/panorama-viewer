@@ -1,0 +1,187 @@
+/* ViewerComponent styles extracted from viewerCSS in ViewerComponent.js */
+.psv-navbar {
+  position: fixed !important;
+  left: 24px !important;
+  bottom: 32px !important;
+  top: auto !important;
+  right: auto !important;
+  transform: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-end !important;
+  align-items: flex-start !important;
+  gap: 18px !important;
+  background: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  z-index: 2147483647 !important;
+  pointer-events: auto !important;
+}
+.psv-button {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
+  background: rgba(255,255,255,0.18) !important;
+  box-shadow: 0 2px 12px rgba(107, 70, 193, 0.12);
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border: none !important;
+  margin: 0 0 12px 0 !important;
+  transition: background 0.18s, box-shadow 0.18s, transform 0.14s;
+  color: #6B46C1 !important;
+  font-size: 22px !important;
+  filter: none !important;
+}
+.psv-button:last-child { margin-bottom: 0 !important; }
+.psv-button svg { width: 28px !important; height: 28px !important; }
+.psv-button:hover {
+  background: #6B46C1 !important;
+  color: #fff !important;
+  box-shadow: 0 4px 24px rgba(107, 70, 193, 0.22);
+  transform: scale(1.08);
+}
+.psv-menu-button { display: none !important; }
+
+@media (max-width: 768px) {
+  .psv-navbar { left: 4px !important; bottom: 4px !important; gap: 10px !important; }
+  .psv-button { width: 40px !important; height: 40px !important; }
+  .psv-button svg { width: 22px !important; height: 22px !important; }
+}
+@media (max-width: 480px) {
+  .psv-navbar { left: 2vw !important; bottom: 2vw !important; gap: 8px !important; }
+  .psv-button { width: 32px !important; height: 32px !important; }
+  .psv-button svg { width: 16px !important; height: 16px !important; }
+}
+
+.psv-chatbot-overlay {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100001;
+  background: transparent;
+  pointer-events: auto !important;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.psv-chatbot-overlay img {
+  width: 220px !important;
+  height: 220px !important;
+  object-fit: contain;
+  pointer-events: auto !important;
+}
+
+.custom-marker-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120px;
+  max-width: 180px;
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(6px) saturate(120%);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(107,70,193,0.13), 0 1.5px 6px rgba(0,0,0,0.08);
+  border: 2.5px solid #e5e7eb;
+  padding: 10px 10px 8px 10px;
+  transition: transform 0.25s, box-shadow 0.25s, border 0.25s;
+  cursor: pointer;
+  position: relative;
+  z-index: 10;
+}
+
+.custom-marker-img {
+  width: 100px;
+  height: 60px;
+  border-radius: 12px;
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(107,70,193,0.10);
+  border: 1.5px solid #bfa6ff;
+}
+
+.custom-marker-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: #6B46C1;
+  text-align: center;
+  padding: 2px 0 0 0;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 4px rgba(107,70,193,0.08);
+}
+
+.custom-marker-card:hover {
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 0 8px 32px rgba(107,70,193,0.18), 0 2px 8px rgba(0,0,0,0.10);
+  border: 2.5px solid #6B46C1;
+  z-index: 20;
+}
+
+.psv-logo-overlay {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 100002;
+  pointer-events: auto;
+}
+
+.responsive-logo {
+  height: 50px;
+  width: auto;
+  padding: 10px;
+  background: none;
+  display: block;
+}
+
+/* Hide the default Photo Sphere Viewer loading spinner */
+.psv-loader {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+} 
+
+@media (max-width: 768px) {
+  .responsive-logo {
+    height: 32px;
+    width: auto;
+    padding: 4px;
+    max-width: 40vw;
+  }
+  #app-viewer-container {
+    height: 60vh !important;
+    min-height: 240px;
+  }
+}
+@media (max-width: 480px) {
+  .responsive-logo {
+    height: 22px;
+    width: auto;
+    padding: 2px;
+    max-width: 60vw;
+  }
+  #app-viewer-container {
+    width: 100vw !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    max-height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    overflow: hidden !important;
+    z-index: 0;
+  }
+} 
+
+@media (max-width: 600px) {
+  body.nav-open .psv-navbar,
+  body.nav-open .psv-chatbot-overlay {
+    display: none !important;
+  }
+} 

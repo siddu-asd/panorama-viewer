@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import ViewerComponent from './ViewerComponent';
-import ChatBot2 from './ChatBot2';
-import './i18n';
+import ViewerComponent from './components/ViewerComponent';
+import ChatBot2 from './components/ChatBot2';
+import './components/i18n';
 import { useTranslation } from 'react-i18next';
 
 const App = () => {

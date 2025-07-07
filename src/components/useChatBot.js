@@ -63,6 +63,9 @@ export const useChatBot = (isVisible, selectedLanguage = 'en') => {
           content: botResponse,
           displayedContent: botResponse,
           isTyping: false,
+          image: data.image,   // Pass image from backend
+          url: data.url,       // Pass url from backend
+          label: data.label    // Pass label from backend
         };
 
         setMessages(prev => [...prev, botReply]);
