@@ -1,4 +1,4 @@
-   import React, { useEffect, useRef } from 'react';
+   import React, { useEffect, useRef, useState } from 'react';
 import '../styles/ChatBot2.css';
 import { useChatBot } from './useChatBot';
 import BotMessage from './BotMessage';
@@ -25,6 +25,14 @@ async function playBotAudio(text, language = 'en') {
   }
 }
 
+const LANGUAGES = [
+  { code: 'en', label: 'English' },
+  { code: 'te', label: 'తెలుగు' },
+  { code: 'hi', label: 'हिन्दी' },
+  { code: 'ta', label: 'தமிழ்' },
+  { code: 'mr', label: 'मराठी' },
+];
+
 const ChatBot2 = ({ isVisible, toggleChatBot }) => {
   const {
     messages,
@@ -42,8 +50,11 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
   } = useChatBot(isVisible);
 
   const { t, i18n } = useTranslation();
+  const [languageSelected, setLanguageSelected] = useState(false);
+  const [selectedLang, setSelectedLang] = useState(i18n.language || 'en');
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
+    setSelectedLang(lng);
   };
 
   // Track last played bot message to avoid replaying on every render
@@ -60,6 +71,45 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
   }, [messages, i18n.language]);
 
   if (!isVisible) return null;
+
+  // Initial language selection UI
+  if (!languageSelected) {
+    return (
+      <div className="chatbot-container chatbot-language-select">
+        <div className="language-select-card">
+          <div className="main-bot-avatar-container">
+            <img
+              src="/nisaahalf.png"
+              alt="Bot"
+              className="main-bot-avatar"
+              onClick={toggleChatBot}
+              title="Click to close"
+            />
+          </div>
+          <div className="language-select-prompt">Choose your language to start  Conversation</div>
+          <div className="language-select-grid">
+            <div className="language-row">
+              <button className="language-btn" onClick={() => { changeLanguage('en'); setLanguageSelected(true); }}>English</button>
+              <button className="language-btn" onClick={() => { changeLanguage('te'); setLanguageSelected(true); }}>తెలుగు</button>
+              <button className="language-btn" onClick={() => { changeLanguage('hi'); setLanguageSelected(true); }}>हिन्दी</button>
+            </div>
+            <div className="language-row language-row-center">
+              <span className="language-btn-spacer" />
+              <button className="language-btn" onClick={() => { changeLanguage('ta'); setLanguageSelected(true); }}>தமிழ்</button>
+              <button className="language-btn" onClick={() => { changeLanguage('mr'); setLanguageSelected(true); }}>मराठी</button>
+              <span className="language-btn-spacer" />
+            </div>
+          </div>
+        </div>
+        <button
+          className="continue-english-btn"
+          onClick={() => { changeLanguage('en'); setLanguageSelected(true); }}
+        >
+          Start the Conversation
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="chatbot-container">
@@ -102,6 +152,8 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
           <option value="en">English</option>
           <option value="hi">हिन्दी</option>
           <option value="te">తెలుగు</option>
+          <option value="ta">தமிழ்</option>
+          <option value="mr">मराठी</option>
         </select>
       </div>
 

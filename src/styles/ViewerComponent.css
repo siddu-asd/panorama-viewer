@@ -129,11 +129,28 @@
 }
 
 .responsive-logo {
-  height: 50px;
+  height: 120px;
   width: auto;
   padding: 10px;
   background: none;
   display: block;
+}
+
+@media (max-width: 768px) {
+  .responsive-logo {
+    height: 60px;
+    width: auto;
+    padding: 4px;
+    max-width: 40vw;
+  }
+}
+@media (max-width: 480px) {
+  .responsive-logo {
+    height: 40px;
+    width: auto;
+    padding: 2px;
+    max-width: 60vw;
+  }
 }
 
 /* Hide the default Photo Sphere Viewer loading spinner */
