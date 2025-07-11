@@ -160,7 +160,7 @@ const ViewerComponent = ({ toggleChatBot }) => {
     // 👇 Chatbot overlay
     const chatbotOverlay = document.createElement('div');
     chatbotOverlay.className = 'psv-chatbot-overlay';
-    chatbotOverlay.innerHTML = `<img id="psv-chatbot-img" src="/nisaa.png" alt="Bot" style="width: 320px; height: 280px; object-fit: contain; cursor: pointer;" />`;
+    chatbotOverlay.innerHTML = `<img id="psv-chatbot-img" src="/NISAAF.png" alt="Bot" style="width: 320px; height: 280px; object-fit: contain; cursor: pointer;" />`;
     chatbotOverlay.querySelector('#psv-chatbot-img')?.addEventListener('click', toggleChatBot);
     container.appendChild(chatbotOverlay);
 

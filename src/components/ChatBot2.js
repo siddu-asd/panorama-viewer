@@ -79,7 +79,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
         <div className="language-select-card">
           <div className="main-bot-avatar-container">
             <img
-              src="/nisaahalf.png"
+              src="/NISAAF.png"
               alt="Bot"
               className="main-bot-avatar"
               onClick={toggleChatBot}
@@ -116,7 +116,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
       <div className="bot-header">
         <div className="main-bot-avatar-container">
           <img
-            src="/nisaahalf.png"
+            src="/NISAAF.png"
             alt="Bot"
             className="main-bot-avatar"
             onClick={toggleChatBot}
@@ -174,7 +174,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
           <div className="typing-indicator-wrapper">
             <div className="bot-message-container">
               <div className="bot-avatar">
-                <img src="/nisaa.png" alt="Bot" />
+                <img src="/NISAAF.png" alt="Bot" />
               </div>
               <div className="typing-indicator">
                 <span></span>

@@ -14,7 +14,7 @@ const BotMessage = ({ message, handleSpeakerClick, isMuted }) => {
   return (
     <div className="bot-message-container">
       <div className="bot-avatar">
-        <img src="/nisaa.png" alt="Bot" />
+        <img src="/NISAAF.png" alt="Bot" />
       </div>
       <div className="bot-content">
         <div className="message bot">

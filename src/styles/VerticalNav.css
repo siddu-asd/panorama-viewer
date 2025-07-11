@@ -1279,3 +1279,32 @@
     object-fit: cover;
   }
 }
+
+/* Navigation Modal Glassmorphism */
+.vertical-nav-modal {
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(16px);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(90,24,154,0.10);
+  border: 1px solid var(--secondary);
+}
+
+/* Nav Item Gradient */
+.vertical-nav-item {
+  background: linear-gradient(90deg, var(--secondary) 0%, var(--background) 100%);
+  color: var(--primary);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(240,166,202,0.10);
+  transition: background 0.2s, color 0.2s;
+}
+.vertical-nav-item:hover {
+  background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
+  color: #fff;
+}
+
+/* Nav Modal Header */
+.vertical-nav-header {
+  color: var(--primary);
+  font-weight: 700;
+}

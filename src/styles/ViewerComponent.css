@@ -23,21 +23,21 @@
   height: 48px !important;
   border-radius: 50% !important;
   background: rgba(255,255,255,0.18) !important;
-  box-shadow: 0 2px 12px rgba(107, 70, 193, 0.12);
+  box-shadow: 0 2px 12px rgba(243, 158, 193, 0.12);
   display: flex !important;
   align-items: center;
   justify-content: center;
   border: none !important;
   margin: 0 0 12px 0 !important;
   transition: background 0.18s, box-shadow 0.18s, transform 0.14s;
-  color: #6B46C1 !important;
+  color: #95caee !important;
   font-size: 22px !important;
   filter: none !important;
 }
 .psv-button:last-child { margin-bottom: 0 !important; }
 .psv-button svg { width: 28px !important; height: 28px !important; }
 .psv-button:hover {
-  background: #6B46C1 !important;
+  background: #eea1c5  !important;
   color: #fff !important;
   box-shadow: 0 4px 24px rgba(107, 70, 193, 0.22);
   transform: scale(1.08);
@@ -83,7 +83,7 @@
   background: rgba(255,255,255,0.55);
   backdrop-filter: blur(6px) saturate(120%);
   border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(107,70,193,0.13), 0 1.5px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 24px rgba(243, 153, 190, 0.13), 0 1.5px 6px rgb(233, 159, 159);
   border: 2.5px solid #e5e7eb;
   padding: 10px 10px 8px 10px;
   transition: transform 0.25s, box-shadow 0.25s, border 0.25s;
@@ -100,13 +100,13 @@
   background-position: center;
   margin-bottom: 8px;
   box-shadow: 0 2px 8px rgba(107,70,193,0.10);
-  border: 1.5px solid #bfa6ff;
+  border: 1.5px solid #ffa6b2;
 }
 
 .custom-marker-label {
   font-size: 15px;
   font-weight: 700;
-  color: #6B46C1;
+  color: #eea1c5 ;
   text-align: center;
   padding: 2px 0 0 0;
   letter-spacing: 0.5px;
@@ -116,7 +116,7 @@
 .custom-marker-card:hover {
   transform: scale(1.08) translateY(-2px);
   box-shadow: 0 8px 32px rgba(107,70,193,0.18), 0 2px 8px rgba(0,0,0,0.10);
-  border: 2.5px solid #6B46C1;
+  border: 2.5px solid #eea1c5 ;
   z-index: 20;
 }
 
@@ -201,4 +201,64 @@
   body.nav-open .psv-chatbot-overlay {
     display: none !important;
   }
+} 
+
+/* Viewer Header Gradient */
+.viewer-header {
+  background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(90,24,154,0.08);
+}
+
+/* Glassmorphic overlay for controls */
+.viewer-controls {
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(157,78,221,0.08);
+}
+
+/* Buttons with gradient */
+.viewer-btn, .autorotate-btn {
+  background: var(--button-gradient);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(90,24,154,0.10);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.viewer-btn:hover, .autorotate-btn:hover {
+  background: linear-gradient(90deg, var(--accent) 0%, var(--primary) 100%);
+  box-shadow: 0 4px 16px rgba(157,78,221,0.16);
+}
+
+/* Background for viewer */
+.viewer-background {
+  background: linear-gradient(120deg, #F8F7FF 0%, #F0A6CA 100%);
+} 
+
+/* Overlay icon gradients for viewer */
+.icon-blue {
+  background: linear-gradient(135deg, #A7C7FF 0%, #3FA9F5 100%) !important;
+}
+.icon-pink {
+  background: linear-gradient(135deg, #FFD1E3 0%, #E15CB7 100%) !important;
+}
+.icon-violet {
+  background: linear-gradient(135deg, #E0D7FF 0%, #7B3FF2 100%) !important;
+} 
+
+/* Gradient backgrounds for overlay icons by order */
+.psv-navbar .psv-button:nth-child(1) {
+  background: linear-gradient(135deg, #A7C7FF 0%, #3FA9F5 100%) !important;
+}
+.psv-navbar .psv-button:nth-child(2) {
+  background: linear-gradient(135deg, #FFD1E3 0%, #E15CB7 100%) !important;
+}
+.psv-navbar .psv-button:nth-child(3) {
+  background: linear-gradient(135deg, #E0D7FF 0%, #7B3FF2 100%) !important;
+}
+.psv-navbar .psv-button svg {
+  color: #fff !important;
+  fill: #fff !important;
 } 
