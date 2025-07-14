@@ -239,13 +239,13 @@
 
 /* Overlay icon gradients for viewer */
 .icon-blue {
-  background: linear-gradient(135deg, #A7C7FF 0%, #3FA9F5 100%) !important;
+  background: linear-gradient(135deg, #7e8ba1 0%, #145d91 100%) !important;
 }
 .icon-pink {
-  background: linear-gradient(135deg, #FFD1E3 0%, #E15CB7 100%) !important;
+  background: linear-gradient(135deg, #3d1424 0%, #a93785 100%) !important;
 }
 .icon-violet {
-  background: linear-gradient(135deg, #E0D7FF 0%, #7B3FF2 100%) !important;
+  background: linear-gradient(135deg, #1e1c23 0%, #633bb1 100%) !important;
 } 
 
 /* Gradient backgrounds for overlay icons by order */
