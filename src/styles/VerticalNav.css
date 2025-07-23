@@ -1242,6 +1242,37 @@
   margin-top: 48px !important;
 }
 
+/* Move close button further up and right */
+.modal-close-btn {
+  top: 4px;
+  right: 8px;
+  z-index: 1002;
+}
+
+/* Add extra top margin to nav-modal-grid to push nav items down */
+.nav-modal-grid {
+  margin-top: 64px !important;
+}
+
+/* Increase top padding of nav-modal for more space */
+.nav-modal {
+  padding-top: 64px !important;
+}
+
+@media (max-width: 480px) {
+  .modal-close-btn {
+    top: 2px;
+    right: 2px;
+    z-index: 1002;
+  }
+  .nav-modal-grid {
+    margin-top: 56px !important;
+  }
+  .nav-modal {
+    padding-top: 56px !important;
+  }
+}
+
 @media (max-width: 480px) {
   .nav-modal {
     width: 100vw;
@@ -1278,4 +1309,33 @@
     border-radius: 6px 6px 0 0;
     object-fit: cover;
   }
+}
+
+/* Navigation Modal Glassmorphism */
+.vertical-nav-modal {
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(16px);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(90,24,154,0.10);
+  border: 1px solid var(--secondary);
+}
+
+/* Nav Item Gradient */
+.vertical-nav-item {
+  background: linear-gradient(90deg, var(--secondary) 0%, var(--background) 100%);
+  color: var(--primary);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(240,166,202,0.10);
+  transition: background 0.2s, color 0.2s;
+}
+.vertical-nav-item:hover {
+  background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
+  color: #fff;
+}
+
+/* Nav Modal Header */
+.vertical-nav-header {
+  color: var(--primary);
+  font-weight: 700;
 }

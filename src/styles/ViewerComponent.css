@@ -22,33 +22,34 @@
   width: 48px !important;
   height: 48px !important;
   border-radius: 50% !important;
-  background: linear-gradient(120deg, rgb(246, 245, 248), #bfa6ff 100%) !important;
-  box-shadow: 0 2px 12px rgba(107, 70, 193, 0.12);
+  background: rgba(255,255,255,0.18) !important;
+  box-shadow: 0 2px 12px rgba(243, 158, 193, 0.12);
   display: flex !important;
   align-items: center;
   justify-content: center;
   border: none !important;
   margin: 0 0 12px 0 !important;
   transition: background 0.18s, box-shadow 0.18s, transform 0.14s;
-  color: #6B46C1 !important;
+  color: #95caee !important;
   font-size: 22px !important;
   filter: none !important;
 }
 .psv-button:last-child { margin-bottom: 0 !important; }
 .psv-button svg { width: 28px !important; height: 28px !important; }
 .psv-button:hover {
-  background: linear-gradient(120deg, rgb(246, 245, 248), #bfa6ff 100%) !important;
-  box-shadow: 0 8px 32px rgba(152, 188, 238, 0.18), 0 2px 8px rgba(0,0,0,0.10);
+  background: #eea1c5  !important;
   color: #fff !important;
   transform: scale(1.08);
 }
 .psv-googlemaps-btn {
-  background: linear-gradient(120deg, rgb(246, 245, 248), #bfa6ff 100%) !important;
+  background: rgba(255,255,255,0.22) !important;
   color: #6B46C1 !important;
+  border: 1.5px solid #A7C7FF !important;
 }
-.psv-googlemaps-btn:hover {
-  background: linear-gradient(120deg, rgb(246, 245, 248), #bfa6ff 100%) !important;
-  box-shadow: 0 8px 32px rgba(152, 188, 238, 0.18), 0 2px 8px rgba(0,0,0,0.10);
+.psv-googlemaps-btn:hover, .psv-googlemaps-btn:focus {
+  background: rgba(255,255,255,0.35) !important;
+  box-shadow: 0 0 16px #3FA9F5, 0 8px 32px #A7C7FF !important;
+  border: 2.5px solid #3FA9F5 !important;
   color: #fff !important;
 }
 .psv-menu-button { display: none !important; }
@@ -116,10 +117,10 @@
   align-items: center;
   min-width: 120px;
   max-width: 180px;
-  background: rgba(255,255,255,0.55);
-  backdrop-filter: blur(6px) saturate(120%);
+  background: rgba(255,255,255,0.22);
+  backdrop-filter: blur(8px) saturate(120%);
   border-radius: 18px;
-  box-shadow: 0 4px 24px  rgba(107,70,193,0.10) 0 1.5px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 24px rgba(90,24,154,0.10), 0 1.5px 6px rgba(0,0,0,0.08);
   border: 2.5px solid #bfa6ff;
   padding: 10px 10px 8px 10px;
   transition: transform 0.25s, box-shadow 0.25s, border 0.25s, background 0.25s;
@@ -128,7 +129,6 @@
   z-index: 10;
   animation: marker-bounce 1.2s cubic-bezier(.68,-0.55,.27,1.55) 1;
 }
-
 .custom-marker-img {
   width: 100px;
   height: 60px;
@@ -136,27 +136,26 @@
   background-size: cover;
   background-position: center;
   margin-bottom: 8px;
-  box-shadow: 0 2px 8px rgba(107,70,193,0.10);
-  border: 1.5px solid #bfa6ff;
+  box-shadow: 0 2px 8px #A7C7FF;
+  border: 2px solid #A7C7FF;
+  background-blend-mode: lighten;
 }
-
+.custom-marker-card:hover {
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 0 8px 32px #eea1c5, 0 2px 8px rgba(0,0,0,0.10);
+  border: 2.5px solid #eea1c5;
+  background: linear-gradient(135deg, #f8f7ff 60%, #bfa6ff 100%);
+  z-index: 20;
+  animation: marker-pulse 1.2s;
+}
 .custom-marker-label {
   font-size: 15px;
   font-weight: 700;
-  color: #0e0e0e;
+  color: #6B46C1;
   text-align: center;
   padding: 2px 0 0 0;
   letter-spacing: 0.5px;
   text-shadow: 0 1px 4px rgba(255,152,0,0.08);
-}
-
-.custom-marker-card:hover {
-  transform: scale(1.12) translateY(-4px);
-  box-shadow: 0 8px 32px rgba(152, 188, 238, 0.18), 0 2px 8px rgba(0,0,0,0.10);
-  border: 2.5px solid #0630a48e;
-  background: linear-gradient(120deg, #fffbe7 60%, #b2b7ff 100%);
-  z-index: 20;
-  animation: marker-pulse 1.2s;
 }
 
 .psv-logo-overlay {
@@ -168,12 +167,29 @@
 }
 
 .responsive-logo {
-  height: 90px;
+  height: 120px;
   width: auto;
   padding: 10px;
   background: none;
   display: block;
   max-width: 30vw;
+}
+
+@media (max-width: 768px) {
+  .responsive-logo {
+    height: 60px;
+    width: auto;
+    padding: 4px;
+    max-width: 40vw;
+  }
+}
+@media (max-width: 480px) {
+  .responsive-logo {
+    height: 40px;
+    width: auto;
+    padding: 2px;
+    max-width: 60vw;
+  }
 }
 
 /* Hide the default Photo Sphere Viewer loading spinner */
@@ -241,6 +257,81 @@
     display: none !important;
   }
 } 
-body.nav-open #psv-chatbot-img {
-  display: none !important;
+
+/* Viewer Header Gradient */
+.viewer-header {
+  background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(90,24,154,0.08);
+}
+
+/* Glassmorphic overlay for controls */
+.viewer-controls {
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(157,78,221,0.08);
+}
+
+/* Buttons with gradient */
+.viewer-btn, .autorotate-btn {
+  background: var(--button-gradient);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(90,24,154,0.10);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.viewer-btn:hover, .autorotate-btn:hover {
+  background: linear-gradient(90deg, var(--accent) 0%, var(--primary) 100%);
+  box-shadow: 0 4px 16px rgba(157,78,221,0.16);
+}
+
+/* Background for viewer */
+.viewer-background {
+  background: linear-gradient(120deg, #F8F7FF 0%, #F0A6CA 100%);
+} 
+
+/* Overlay icon gradients for viewer */
+.icon-blue {
+  background: linear-gradient(135deg, #7e8ba1 0%, #145d91 100%) !important;
+}
+.icon-pink {
+  background: linear-gradient(135deg, #3d1424 0%, #a93785 100%) !important;
+}
+.icon-violet {
+  background: linear-gradient(135deg, #1e1c23 0%, #633bb1 100%) !important;
+} 
+
+/* Gradient backgrounds for overlay icons by order */
+.psv-navbar .psv-button:nth-child(1) {
+  background: rgba(255,255,255,0.22) !important;
+  border: 1.5px solid #A7C7FF !important;
+}
+.psv-navbar .psv-button:nth-child(1):hover, .psv-navbar .psv-button:nth-child(1):focus {
+  background: rgba(255,255,255,0.35) !important;
+  box-shadow: 0 0 16px #3FA9F5, 0 8px 32px #A7C7FF !important;
+  border: 2.5px solid #3FA9F5 !important;
+}
+.psv-navbar .psv-button:nth-child(2) {
+  background: rgba(255,255,255,0.22) !important;
+  border: 1.5px solid #FFD1E3 !important;
+}
+.psv-navbar .psv-button:nth-child(2):hover, .psv-navbar .psv-button:nth-child(2):focus {
+  background: rgba(255,255,255,0.35) !important;
+  box-shadow: 0 0 16px #E15CB7, 0 8px 32px #FFD1E3 !important;
+  border: 2.5px solid #E15CB7 !important;
+}
+.psv-navbar .psv-button:nth-child(3) {
+  background: rgba(255,255,255,0.22) !important;
+  border: 1.5px solid #E0D7FF !important;
+}
+.psv-navbar .psv-button:nth-child(3):hover, .psv-navbar .psv-button:nth-child(3):focus {
+  background: rgba(255,255,255,0.35) !important;
+  box-shadow: 0 0 16px #7B3FF2, 0 8px 32px #E0D7FF !important;
+  border: 2.5px solid #7B3FF2 !important;
+}
+.psv-navbar .psv-button svg {
+  color: #fff !important;
+  fill: #fff !important;
 } 
