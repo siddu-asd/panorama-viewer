@@ -17,12 +17,25 @@ const App = () => {
     setCurrentScene(scene);
   };
 
+  const handleShowPanorama = (imageUrl) => {
+    if (window.pannellum) {
+      window.pannellum.viewer('panorama', {
+        type: 'equirectangular',
+        panorama: imageUrl,
+        autoLoad: true,
+        autoRotate: -2,
+        compass: true,
+        showControls: true
+      });
+    }
+  };
+
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
       {/* Main App Content */}
       <h1 style={{ visibility: 'hidden', height: 0, margin: 0 }}>{t('welcome')}</h1>
       <ViewerComponent toggleChatBot={toggleChatBot} currentScene={currentScene} onNavigate={handleNavigate} />
-      <ChatBot2 isVisible={showBot} toggleChatBot={toggleChatBot} />
+      <ChatBot2 isVisible={showBot} toggleChatBot={toggleChatBot} onShowPanorama={handleShowPanorama} />
     </div>
   );
 };

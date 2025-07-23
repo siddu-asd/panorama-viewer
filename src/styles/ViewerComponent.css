@@ -97,6 +97,12 @@
   height: 160px !important;
   object-fit: contain;
   pointer-events: auto !important;
+  animation: chatbot-float 2.2s ease-in-out infinite alternate;
+}
+@keyframes chatbot-float {
+  0% { transform: translateY(0) scale(1); filter: drop-shadow(0 2px 8px #fcb3e5); }
+  60% { transform: translateY(-16px) scale(1.04); filter: drop-shadow(0 8px 24px #bfa6ff); }
+  100% { transform: translateY(-8px) scale(1.02); filter: drop-shadow(0 4px 16px #aee0f5); }
 }
 
 @keyframes marker-bounce {
@@ -141,21 +147,37 @@
   background-blend-mode: lighten;
 }
 .custom-marker-card:hover {
-  transform: scale(1.08) translateY(-2px);
-  box-shadow: 0 8px 32px #eea1c5, 0 2px 8px rgba(0,0,0,0.10);
-  border: 2.5px solid #eea1c5;
-  background: linear-gradient(135deg, #f8f7ff 60%, #bfa6ff 100%);
+  transform: scale(1.12) translateY(-6px);
+  box-shadow: 0 0 24px 8px #eea1c5, 0 8px 32px #bfa6ff, 0 2px 8px rgba(0,0,0,0.10);
+  border: 2.5px solid;
+  border-image: linear-gradient(135deg, #eea1c5 0%, #bfa6ff 100%) 1;
   z-index: 20;
   animation: marker-pulse 1.2s;
 }
 .custom-marker-label {
   font-size: 15px;
   font-weight: 700;
-  color: #6B46C1;
+  color: #181818;
   text-align: center;
   padding: 2px 0 0 0;
   letter-spacing: 0.5px;
   text-shadow: 0 1px 4px rgba(255,152,0,0.08);
+  background: none;
+  opacity: 0;
+  transform: scale(0.92);
+  animation: shimmer-text 2.2s linear infinite, label-scale-fadein 0.7s cubic-bezier(.4,0,.2,1) forwards;
+}
+.custom-marker-card:hover .custom-marker-label {
+  color: #fff;
+  text-shadow: 0 2px 8px #bfa6ff, 0 0 12px #eea1c5;
+}
+@keyframes shimmer-text {
+  0% { background-position: 200% center; }
+  100% { background-position: 0% center; }
+}
+@keyframes label-scale-fadein {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .psv-logo-overlay {

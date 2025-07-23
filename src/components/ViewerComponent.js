@@ -5,6 +5,7 @@ import { MarkersPlugin } from '@photo-sphere-viewer/markers-plugin';
 import { AutorotatePlugin } from '@photo-sphere-viewer/autorotate-plugin';
 import VerticalNav from './VerticalNav';
 import '../styles/ViewerComponent.css';
+import '../styles/PanoramaViewer.css';
 
 import '@photo-sphere-viewer/core/index.css';
 import '@photo-sphere-viewer/markers-plugin/index.css';
@@ -76,6 +77,17 @@ const scenes = {
   },
 };
 
+function loadPannellumScript(callback) {
+  if (window.pannellum) {
+    callback();
+    return;
+  }
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js';
+  script.onload = callback;
+  document.body.appendChild(script);
+}
+
 const ViewerComponent = ({ toggleChatBot }) => {
   const [currentScene, setCurrentScene] = useState('ENTRY');
   const viewerRef = useRef(null);
@@ -124,6 +136,22 @@ const ViewerComponent = ({ toggleChatBot }) => {
   }, [switchToScene]);
 
   useEffect(() => {
+    loadPannellumScript(() => {
+      if (window.pannellum) {
+        window.pannellum.viewer('panorama', {
+          type: 'equirectangular',
+          panorama: '/public/360-1.jpg', // <-- update to your panorama image path
+          autoLoad: true,
+          autoRotate: -2,
+          compass: true,
+          showControls: true
+        });
+      } else {
+        const panoDiv = document.getElementById('panorama');
+        if (panoDiv) panoDiv.innerHTML = '<p style="color:white;text-align:center;margin-top:20%">Pannellum failed to load.</p>';
+      }
+    });
+
     const container = document.getElementById('app-viewer-container');
     const viewer = new Viewer({
       container,
@@ -178,6 +206,7 @@ const ViewerComponent = ({ toggleChatBot }) => {
 
   return (
     <div>
+      <div id="panorama" style={{ width: '100%', height: '500px' }}></div>
       <div
         id="app-viewer-container"
         style={{

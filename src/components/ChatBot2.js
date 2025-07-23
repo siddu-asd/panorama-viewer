@@ -33,7 +33,7 @@ const LANGUAGES = [
   { code: 'mr', label: 'मराठी' },
 ];
 
-const ChatBot2 = ({ isVisible, toggleChatBot }) => {
+const ChatBot2 = ({ isVisible, toggleChatBot, onShowPanorama }) => {
   const {
     messages,
     isTyping,
@@ -50,7 +50,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
   } = useChatBot(isVisible);
 
   const { t, i18n } = useTranslation();
-  const [languageSelected, setLanguageSelected] = useState(false);
+  const [languageSelected, setLanguageSelected] = useState(true);
   const [selectedLang, setSelectedLang] = useState(i18n.language || 'en');
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
@@ -69,6 +69,15 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
       }
     }
   }, [messages, i18n.language]);
+
+  useEffect(() => {
+    if (messages && messages.length > 0) {
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg.type === '360_view' && lastMsg.image && typeof onShowPanorama === 'function') {
+        onShowPanorama(lastMsg.image);
+      }
+    }
+  }, [messages, onShowPanorama]);
 
   if (!isVisible) return null;
 
