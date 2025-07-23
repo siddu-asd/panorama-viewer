@@ -160,8 +160,15 @@ const ViewerComponent = ({ toggleChatBot }) => {
     // 👇 Chatbot overlay
     const chatbotOverlay = document.createElement('div');
     chatbotOverlay.className = 'psv-chatbot-overlay';
-    chatbotOverlay.innerHTML = `<img id="psv-chatbot-img" src="/nisaa.png" alt="Bot" style="width: 320px; height: 280px; object-fit: contain; cursor: pointer;" />`;
-    chatbotOverlay.querySelector('#psv-chatbot-img')?.addEventListener('click', toggleChatBot);
+    chatbotOverlay.innerHTML = `<img id="psv-chatbot-img" src="/nisaaf.png" alt="Bot" style="width: 400px; height: 350px; object-fit: contain; cursor: pointer; max-width: 90vw; max-height: 60vw;" />`;
+    chatbotOverlay.querySelector('#psv-chatbot-img')?.addEventListener('click', (e) => {
+      toggleChatBot();
+      // Open the navigation menu if available
+      const exploreBtn = document.querySelector('.main-button');
+      if (exploreBtn) {
+        exploreBtn.click();
+      }
+    });
     container.appendChild(chatbotOverlay);
 
     viewer.getPlugin(MarkersPlugin)?.addEventListener('select-marker', (e) => {

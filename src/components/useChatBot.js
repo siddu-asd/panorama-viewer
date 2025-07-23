@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { initializeSpeechRecognition, testAPIConnection } from './chatUtils';
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = 'https://nissa-chat-bot.onrender.com';
 
 export const useChatBot = (isVisible, selectedLanguage = 'en') => {
   const [userMessage, setUserMessage] = useState('');

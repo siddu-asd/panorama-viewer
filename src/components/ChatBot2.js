@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 // Audio playback function
 async function playBotAudio(text, language = 'en') {
   try {
-    const response = await fetch('http://127.0.0.1:5000/tts', {
+    const response = await fetch('https://nissa-chat-bot.onrender.com/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, language }),
@@ -66,7 +66,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
       <div className="bot-header">
         <div className="main-bot-avatar-container">
           <img
-            src="/nisaahalf.png"
+            src="/nisaaf.png"
             alt="Bot"
             className="main-bot-avatar"
             onClick={toggleChatBot}
@@ -122,7 +122,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot }) => {
           <div className="typing-indicator-wrapper">
             <div className="bot-message-container">
               <div className="bot-avatar">
-                <img src="/nisaa.png" alt="Bot" />
+                <img src="/nisaaf.png" alt="Bot" style={{ width: '120px', height: '120px', maxWidth: '30vw', maxHeight: '30vw' }} />
               </div>
               <div className="typing-indicator">
                 <span></span>
