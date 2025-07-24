@@ -123,17 +123,42 @@
   align-items: center;
   min-width: 120px;
   max-width: 180px;
-  background: rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.38); /* less transparent */
   backdrop-filter: blur(8px) saturate(120%);
   border-radius: 18px;
   box-shadow: 0 4px 24px rgba(90,24,154,0.10), 0 1.5px 6px rgba(0,0,0,0.08);
-  border: 2.5px solid #bfa6ff;
+  border: 3.5px solid #bfa6ff; /* thicker border */
   padding: 10px 10px 8px 10px;
-  transition: transform 0.25s, box-shadow 0.25s, border 0.25s, background 0.25s;
+  transition: transform 0.08s, box-shadow 0.16s, border 0.18s, background 0.18s;
   cursor: pointer;
   position: relative;
   z-index: 10;
-  animation: marker-bounce 1.2s cubic-bezier(.68,-0.55,.27,1.55) 1;
+  transform: scale(0.7);
+}
+
+@keyframes markerBoxShadowCycle {
+  0% {
+    box-shadow: 0 0 24px 8px #eea1c5, 0 8px 32px #bfa6ff, 0 2px 8px rgba(0,0,0,0.10);
+  }
+  40% {
+    box-shadow: 0 0 24px 8px #7B3FF2, 0 8px 32px #FFD1E3, 0 2px 8px rgba(0,0,0,0.10);
+  }
+  66% {
+    box-shadow: 0 0 24px 8px #3FA9F5, 0 8px 32px #E0D7FF, 0 2px 8px rgba(0,0,0,0.10);
+  }
+  100% {
+    box-shadow: 0 0 24px 8px #eea1c5, 0 8px 32px #bfa6ff, 0 2px 8px rgba(0,0,0,0.10);
+  }
+}
+
+.custom-marker-card:hover {
+  transform: scale(1) translateY(-6px);
+  border: 3.5px solid #c7b4f7; 
+  border-radius: 18px;
+  /* border-image: linear-gradient(135deg, #eea1c5 0%, #bfa6ff 100%) 1; */
+  z-index: 50;
+  animation: markerBoxShadowCycle 1.2s linear infinite;
+  box-shadow: 0 0 32px 8px #bfa6ff, 0 8px 32px #eea1c5, 0 2px 8px rgba(0,0,0,0.13);
 }
 .custom-marker-img {
   width: 100px;
@@ -145,27 +170,6 @@
   box-shadow: 0 2px 8px #A7C7FF;
   border: 2px solid #A7C7FF;
   background-blend-mode: lighten;
-}
-.custom-marker-card:hover {
-  transform: scale(1.12) translateY(-6px);
-  box-shadow: 0 0 24px 8px #eea1c5, 0 8px 32px #bfa6ff, 0 2px 8px rgba(0,0,0,0.10);
-  border: 2.5px solid;
-  border-image: linear-gradient(135deg, #eea1c5 0%, #bfa6ff 100%) 1;
-  z-index: 20;
-  animation: marker-pulse 1.2s;
-}
-.custom-marker-label {
-  font-size: 15px;
-  font-weight: 700;
-  color: #181818;
-  text-align: center;
-  padding: 2px 0 0 0;
-  letter-spacing: 0.5px;
-  text-shadow: 0 1px 4px rgba(255,152,0,0.08);
-  background: none;
-  opacity: 0;
-  transform: scale(0.92);
-  animation: shimmer-text 2.2s linear infinite, label-scale-fadein 0.7s cubic-bezier(.4,0,.2,1) forwards;
 }
 .custom-marker-card:hover .custom-marker-label {
   color: #fff;
