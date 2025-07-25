@@ -105,9 +105,9 @@ const ViewerComponent = ({ toggleChatBot }) => {
         id,
         position,
         html: `
-          <div class="custom-marker-card">
-            <div class="custom-marker-img" style="background-image: url('${image}');"></div>
-            <div class="custom-marker-label">${tooltip}</div>
+          <div class="custom-marker-outer">
+            <div class="custom-marker-label always-visible">${tooltip}</div>
+            <div class="custom-marker-dot" style="--marker-img: url('${image}');"></div>
           </div>
         `,
         anchor: 'center center',
