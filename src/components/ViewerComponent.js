@@ -182,7 +182,10 @@ const ViewerComponent = ({ toggleChatBot }) => {
     // 👇 Logo overlay
     const logoOverlay = document.createElement('div');
     logoOverlay.className = 'psv-logo-overlay';
-    logoOverlay.innerHTML = `<img class="responsive-logo" src="/LOGO.png" alt="Logo" />`;
+    logoOverlay.innerHTML = `<img class="responsive-logo" src="/LOGO.png" alt="Logo" style="cursor: pointer;" />`;
+    logoOverlay.querySelector('.responsive-logo')?.addEventListener('click', () => {
+      window.location.href = '/';
+    });
     viewer.container.appendChild(logoOverlay);
 
     // 👇 Chatbot overlay
