@@ -1,4 +1,4 @@
-   import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import '../styles/ChatBot2.css';
 import { useChatBot } from './useChatBot';
 import BotMessage from './BotMessage';
@@ -6,7 +6,6 @@ import UserMessage from './UserMessage';
 import InputContainer from './InputContainer';
 import { useTranslation } from 'react-i18next';
 
-// Audio playback function
 async function playBotAudio(text, language = 'en') {
   try {
     const response = await fetch('https://nissa-chat-bot.onrender.com/tts', {
@@ -33,7 +32,7 @@ const LANGUAGES = [
   { code: 'mr', label: 'मराठी' },
 ];
 
-const ChatBot2 = ({ isVisible, toggleChatBot, onShowPanorama }) => {
+const ChatBot2 = ({ isVisible, toggleChatBot, switchToScene }) => {
   const {
     messages,
     isTyping,
@@ -47,41 +46,30 @@ const ChatBot2 = ({ isVisible, toggleChatBot, onShowPanorama }) => {
     inputRef,
     mutedMessages,
     handleSpeakerClick,
-  } = useChatBot(isVisible);
+  } = useChatBot(isVisible, 'en', switchToScene);
 
   const { t, i18n } = useTranslation();
   const [languageSelected, setLanguageSelected] = useState(true);
   const [selectedLang, setSelectedLang] = useState(i18n.language || 'en');
+  const lastBotMsgRef = useRef(null);
+
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
     setSelectedLang(lng);
   };
 
-  // Track last played bot message to avoid replaying on every render
-  const lastBotMsgRef = useRef(null);
-
   useEffect(() => {
     if (messages && messages.length > 0) {
       const lastMsg = messages[messages.length - 1];
-      if (lastMsg.type === 'bot' && lastBotMsgRef.current !== lastMsg.content) {
+      if (lastMsg.type === 'bot' && lastBotMsgRef.current !== lastMsg.content && !mutedMessages.has(lastMsg.id)) {
         playBotAudio(lastMsg.content, i18n.language);
         lastBotMsgRef.current = lastMsg.content;
       }
     }
-  }, [messages, i18n.language]);
-
-  useEffect(() => {
-    if (messages && messages.length > 0) {
-      const lastMsg = messages[messages.length - 1];
-      if (lastMsg.type === '360_view' && lastMsg.image && typeof onShowPanorama === 'function') {
-        onShowPanorama(lastMsg.image);
-      }
-    }
-  }, [messages, onShowPanorama]);
+  }, [messages, i18n.language, mutedMessages]);
 
   if (!isVisible) return null;
 
-  // Initial language selection UI
   if (!languageSelected) {
     return (
       <div className="chatbot-container chatbot-language-select">
@@ -95,7 +83,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot, onShowPanorama }) => {
               title="Click to close"
             />
           </div>
-          <div className="language-select-prompt">Choose your language to start  Conversation</div>
+          <div className="language-select-prompt">{t('choose_language')}</div>
           <div className="language-select-grid">
             <div className="language-row">
               <button className="language-btn" onClick={() => { changeLanguage('en'); setLanguageSelected(true); }}>English</button>
@@ -114,7 +102,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot, onShowPanorama }) => {
           className="continue-english-btn"
           onClick={() => { changeLanguage('en'); setLanguageSelected(true); }}
         >
-          Start the Conversation
+          {t('start_conversation')}
         </button>
       </div>
     );
@@ -134,7 +122,6 @@ const ChatBot2 = ({ isVisible, toggleChatBot, onShowPanorama }) => {
         </div>
       </div>
 
-      {/* Language Dropdown inside chatbot */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -158,11 +145,9 @@ const ChatBot2 = ({ isVisible, toggleChatBot, onShowPanorama }) => {
             boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
           }}
         >
-          <option value="en">English</option>
-          <option value="hi">हिन्दी</option>
-          <option value="te">తెలుగు</option>
-          <option value="ta">தமிழ்</option>
-          <option value="mr">मराठी</option>
+          {LANGUAGES.map(lang => (
+            <option key={lang.code} value={lang.code}>{lang.label}</option>
+          ))}
         </select>
       </div>
 

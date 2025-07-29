@@ -1,8 +1,21 @@
+// src/components/BotMessage.js
 import React from 'react';
 import BotResponse from './BotResponse';
+import '../styles/BotMessage.css';
 
-const BotMessage = ({ message, handleSpeakerClick, isMuted }) => {
-  // Defensive check wrapper
+const BotMessage = ({ message, handleSpeakerClick, isMuted, switchToScene }) => {
+  const handleSceneClick = (e) => {
+    e.preventDefault(); // Prevent default navigation
+    if (message.url && switchToScene) {
+      const urlParams = new URLSearchParams(message.url.split('?')[1]);
+      const sceneId = urlParams.get('scene');
+      if (sceneId) {
+        console.log('Switching to scene:', sceneId); // Debug log
+        switchToScene(sceneId); // Trigger scene change
+      }
+    }
+  };
+
   const onSpeakClick = (e) => {
     if (typeof handleSpeakerClick === 'function') {
       handleSpeakerClick(message.id, e);
@@ -18,23 +31,33 @@ const BotMessage = ({ message, handleSpeakerClick, isMuted }) => {
       </div>
       <div className="bot-content">
         <div className="message bot">
-          {/* Show image if present (e.g., for 360 view) */}
+          <BotResponse content={message.displayedContent} />
           {message.image && (
-            <img
-              src={message.image}
-              alt={message.label || '360 view'}
-              style={{ maxWidth: '100%', borderRadius: 12, margin: '8px 0' }}
-            />
-          )}
-          {/* Optionally show a link if present */}
-          {message.url && (
-            <div style={{ marginBottom: 8 }}>
-              <a href={message.url} target="_blank" rel="noopener noreferrer">
-                {message.label || 'Open Virtual Tour'}
-              </a>
+            <div className="bot-message-image">
+              <img
+                src={message.image} 
+                alt={message.label || '360° view'}
+                onClick={handleSceneClick}
+                style={{ maxWidth: '100%', borderRadius: 12, margin: '8px 0', cursor: 'pointer' }}
+              />
             </div>
           )}
-          <BotResponse content={message.displayedContent} />
+          {message.url && message.label && (
+  <div className="bot-message-link" style={{ marginBottom: 8 }}>
+    <a
+      href={message.url}
+      
+      rel="noopener noreferrer"
+      style={{
+        color: '#007bff',
+        textDecoration: 'underline',
+        fontSize: '14px',
+      }}
+    >
+      {message.label || 'Open Virtual Tour'}
+    </a>
+  </div>
+)}
           <button
             className={`speak-button ${isMuted ? 'muted' : ''}`}
             onClick={onSpeakClick}
@@ -56,10 +79,10 @@ const BotMessage = ({ message, handleSpeakerClick, isMuted }) => {
   );
 };
 
-// Optional: provide default to avoid accidental omission
 BotMessage.defaultProps = {
   handleSpeakerClick: null,
   isMuted: false,
+  switchToScene: null,
 };
 
 export default BotMessage;

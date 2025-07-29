@@ -6,7 +6,6 @@ import { AutorotatePlugin } from '@photo-sphere-viewer/autorotate-plugin';
 import VerticalNav from './VerticalNav';
 import '../styles/ViewerComponent.css';
 import '../styles/PanoramaViewer.css';
-
 import '@photo-sphere-viewer/core/index.css';
 import '@photo-sphere-viewer/markers-plugin/index.css';
 
@@ -77,24 +76,11 @@ const scenes = {
   },
 };
 
-function loadPannellumScript(callback) {
-  if (window.pannellum) {
-    callback();
-    return;
-  }
-  const script = document.createElement('script');
-  script.src = 'https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js';
-  script.onload = callback;
-  document.body.appendChild(script);
-}
-
-const ViewerComponent = ({ toggleChatBot }) => {
-  const [currentScene, setCurrentScene] = useState('ENTRY');
+const ViewerComponent = ({ toggleChatBot, currentScene, switchToScene }) => {
   const viewerRef = useRef(null);
   const markersPluginRef = useRef(null);
   const autorotateRef = useRef(null);
   const [portalContainer, setPortalContainer] = useState(null);
-  const [navbarContainer, setNavbarContainer] = useState(null);
 
   const setSceneMarkers = useCallback((markerList) => {
     const plugin = markersPluginRef.current;
@@ -115,14 +101,15 @@ const ViewerComponent = ({ toggleChatBot }) => {
     });
   }, []);
 
-  const switchToScene = useCallback(async (sceneId) => {
+  const internalSwitchToScene = useCallback(async (sceneId) => {
     const scene = scenes[sceneId];
     if (!scene) return;
     autorotateRef.current?.stop();
     await viewerRef.current.setPanorama(scene.panorama);
     setSceneMarkers(scene.markers);
+    switchToScene(sceneId); // Update parent state and URL
     autorotateRef.current?.start();
-  }, [setSceneMarkers]);
+  }, [setSceneMarkers, switchToScene]);
 
   const handleNavigation = useCallback((target) => {
     if (target === 'exit') {
@@ -130,32 +117,15 @@ const ViewerComponent = ({ toggleChatBot }) => {
         window.location.href = '/';
       }
     } else {
-      switchToScene(target);
-      setCurrentScene(target);
+      internalSwitchToScene(target);
     }
-  }, [switchToScene]);
+  }, [internalSwitchToScene]);
 
   useEffect(() => {
-    loadPannellumScript(() => {
-      if (window.pannellum) {
-        window.pannellum.viewer('panorama', {
-          type: 'equirectangular',
-          panorama: '/public/360-1.jpg', // <-- update to your panorama image path
-          autoLoad: true,
-          autoRotate: -2,
-          compass: true,
-          showControls: true
-        });
-      } else {
-        const panoDiv = document.getElementById('panorama');
-        if (panoDiv) panoDiv.innerHTML = '<p style="color:white;text-align:center;margin-top:20%">Pannellum failed to load.</p>';
-      }
-    });
-
     const container = document.getElementById('app-viewer-container');
     const viewer = new Viewer({
       container,
-      panorama: scenes.ENTRY.panorama,
+      panorama: scenes[currentScene]?.panorama || scenes.ENTRY.panorama,
       defaultZoomLvl: 30,
       navbar: [
         {
@@ -177,9 +147,9 @@ const ViewerComponent = ({ toggleChatBot }) => {
       markersPluginRef.current = viewer.getPlugin(MarkersPlugin);
       autorotateRef.current = viewer.getPlugin(AutorotatePlugin);
       autorotateRef.current?.start();
-      setSceneMarkers(scenes.ENTRY.markers);
+      setSceneMarkers(scenes[currentScene]?.markers || scenes.ENTRY.markers);
     });
-    // 👇 Logo overlay
+
     const logoOverlay = document.createElement('div');
     logoOverlay.className = 'psv-logo-overlay';
     logoOverlay.innerHTML = `<img class="responsive-logo" src="/LOGO.png" alt="Logo" style="cursor: pointer;" />`;
@@ -188,7 +158,6 @@ const ViewerComponent = ({ toggleChatBot }) => {
     });
     viewer.container.appendChild(logoOverlay);
 
-    // 👇 Chatbot overlay
     const chatbotOverlay = document.createElement('div');
     chatbotOverlay.className = 'psv-chatbot-overlay';
     chatbotOverlay.innerHTML = `<img id="psv-chatbot-img" src="/NISAAF.png" alt="Bot" style="width: 320px; height: 280px; object-fit: contain; cursor: pointer;" />`;
@@ -197,7 +166,7 @@ const ViewerComponent = ({ toggleChatBot }) => {
 
     viewer.getPlugin(MarkersPlugin)?.addEventListener('select-marker', (e) => {
       const target = Object.values(scenes).flatMap((s) => s.markers).find((m) => m.id === e.marker.id)?.target;
-      if (target) switchToScene(target);
+      if (target) internalSwitchToScene(target);
     });
 
     setPortalContainer(container);
@@ -205,11 +174,18 @@ const ViewerComponent = ({ toggleChatBot }) => {
     return () => {
       viewer.destroy();
     };
-  }, [setSceneMarkers, switchToScene, toggleChatBot]);
+  }, [setSceneMarkers, internalSwitchToScene, toggleChatBot, currentScene]);
+
+  useEffect(() => {
+    // Update scene when currentScene prop changes
+    if (viewerRef.current && scenes[currentScene]) {
+      internalSwitchToScene(currentScene);
+    }
+  }, [currentScene, internalSwitchToScene]);
 
   return (
     <div>
-      <div id="panorama" style={{ width: '100%', height: '500px' }}></div>
+      <div id="panorama" style={{ width: '100%', height: '100vh' }} />
       <div
         id="app-viewer-container"
         style={{
@@ -226,7 +202,12 @@ const ViewerComponent = ({ toggleChatBot }) => {
       />
       {portalContainer &&
         ReactDOM.createPortal(
-          <VerticalNav onNavigate={handleNavigation} currentScene={currentScene} scenes={scenes} portalContainer={portalContainer} />,
+          <VerticalNav
+            onNavigate={handleNavigation}
+            currentScene={currentScene}
+            scenes={scenes}
+            portalContainer={portalContainer}
+          />,
           portalContainer
         )}
     </div>

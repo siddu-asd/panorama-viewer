@@ -1,0 +1,58 @@
+/* src/styles/BotMessage.css */
+.bot-message-container {
+  display: flex;
+  align-items: flex-start;
+  padding: 10px;
+  margin: 10px;
+}
+
+.bot-avatar img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  margin-right: 10px;
+}
+
+.bot-content {
+  background: #f0f0f0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  max-width: 70%;
+}
+
+.message.bot {
+  font-size: 14px;
+  color: #333;
+}
+
+.bot-message-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  margin: 8px 0;
+}
+
+.bot-message-link button {
+  background: none;
+  border: none;
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: left;
+}
+
+.bot-message-link button:hover {
+  color: #0056b3;
+}
+
+.speak-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.speak-button.muted {
+  opacity: 0.5;
+}

@@ -1,23 +1,22 @@
+// src/components/useChatBot.js
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { initializeSpeechRecognition, testAPIConnection } from './chatUtils';
 
-const API_BASE = 'https://nissa-chat-bot.onrender.com';
+const API_BASE = 'http://127.0.0.1:5000';
 
-export const useChatBot = (isVisible, selectedLanguage = 'en') => {
+export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) => {
   const [userMessage, setUserMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [isListening, setIsListening] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [sessionId, setSessionId] = useState('');
   const [inputMode, setInputMode] = useState('text');
-  const [currentTypingIndex, setCurrentTypingIndex] = useState(-1);
   const [mutedMessages, setMutedMessages] = useState(new Set());
 
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
-  const typingTimeoutRef = useRef(null);
   const inputRef = useRef(null);
-  const audioRef = useRef(null); // 👈 For stopping audio
+  const audioRef = useRef(null);
 
   const playAudioFromURL = (url, messageId) => {
     if (audioRef.current) {
@@ -63,9 +62,9 @@ export const useChatBot = (isVisible, selectedLanguage = 'en') => {
           content: botResponse,
           displayedContent: botResponse,
           isTyping: false,
-          image: data.image,   // Pass image from backend
-          url: data.url,       // Pass url from backend
-          label: data.label    // Pass label from backend
+          image: data.image,
+          url: data.url,
+          label: data.label
         };
 
         setMessages(prev => [...prev, botReply]);
@@ -75,11 +74,11 @@ export const useChatBot = (isVisible, selectedLanguage = 'en') => {
         }
       })
       .catch(err => {
-        const errorMessage = err.message.includes('Failed to fetch')
+        const errorMessage = err.message?.includes('Failed to fetch')
           ? "Network error. Please check your internet connection."
-          : err.message.includes('HTTP error')
+          : err.message?.includes('HTTP error')
             ? "Server error. Please try again in a moment."
-            : err.message.includes('JSON')
+            : err.message?.includes('JSON')
               ? "Invalid response from server. Please try again."
               : "Oops! Something went wrong. Please try again later.";
 
@@ -111,7 +110,7 @@ export const useChatBot = (isVisible, selectedLanguage = 'en') => {
   const handleVoiceButtonClick = useCallback(() => {
     if (inputMode === 'text') {
       setInputMode('voice');
-      recognitionRef.current = initializeSpeechRecognition('en-IN', setIsListening, handleTranscript);
+      recognitionRef.current = initializeSpeechRecognition(selectedLanguage === 'en' ? 'en-IN' : selectedLanguage, setIsListening, handleTranscript);
       try {
         recognitionRef.current.start();
       } catch (error) {
@@ -123,7 +122,7 @@ export const useChatBot = (isVisible, selectedLanguage = 'en') => {
         recognitionRef.current?.stop();
         setTimeout(() => setInputMode('text'), 200);
       } else {
-        recognitionRef.current = initializeSpeechRecognition('en-IN', setIsListening, handleTranscript);
+        recognitionRef.current = initializeSpeechRecognition(selectedLanguage === 'en' ? 'en-IN' : selectedLanguage, setIsListening, handleTranscript);
         try {
           recognitionRef.current.start();
         } catch (error) {
@@ -132,7 +131,7 @@ export const useChatBot = (isVisible, selectedLanguage = 'en') => {
         }
       }
     }
-  }, [inputMode, isListening, handleTranscript]);
+  }, [inputMode, isListening, handleTranscript, selectedLanguage]);
 
   const handleSpeakerClick = useCallback((messageId) => {
     const message = messages.find(m => m.id === messageId);
@@ -166,8 +165,8 @@ export const useChatBot = (isVisible, selectedLanguage = 'en') => {
       const welcome = {
         id: 'welcome',
         type: 'bot',
-        content: "Welcome! I'm Nisaa, your assistant from Raising 100X.",
-        displayedContent: "Welcome! I'm Nisaa, your assistant from Raising 100X.",
+        content: "Welcome! I'm Nisaa, your assistant from Raising 100X. Ask me about our 360° office tour or anything else!",
+        displayedContent: "Welcome! I'm Nisaa, your assistant from Raising 100X. Ask me about our 360° office tour or anything else!",
         isTyping: false,
       };
       setMessages([welcome]);
@@ -186,9 +185,9 @@ export const useChatBot = (isVisible, selectedLanguage = 'en') => {
 
   useEffect(() => {
     if (inputMode === 'voice') {
-      recognitionRef.current = initializeSpeechRecognition('en-IN', setIsListening, handleTranscript);
+      recognitionRef.current = initializeSpeechRecognition(selectedLanguage === 'en' ? 'en-IN' : selectedLanguage, setIsListening, handleTranscript);
     }
-  }, [inputMode, handleTranscript]);
+  }, [inputMode, handleTranscript, selectedLanguage]);
 
   return {
     userMessage,
@@ -202,6 +201,6 @@ export const useChatBot = (isVisible, selectedLanguage = 'en') => {
     handleVoiceButtonClick,
     handleSpeakerClick,
     inputRef,
-    messagesEndRef
+    messagesEndRef,
   };
 };
