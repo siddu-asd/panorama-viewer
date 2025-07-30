@@ -1,4 +1,3 @@
-// src/components/BotMessage.js
 import React from 'react';
 import BotResponse from './BotResponse';
 import '../styles/BotMessage.css';
@@ -6,13 +5,23 @@ import '../styles/BotMessage.css';
 const BotMessage = ({ message, handleSpeakerClick, isMuted, switchToScene }) => {
   const handleSceneClick = (e) => {
     e.preventDefault(); // Prevent default navigation
-    if (message.url && switchToScene) {
-      const urlParams = new URLSearchParams(message.url.split('?')[1]);
+    console.log('handleSceneClick triggered, message.url:', message.url);
+    if (message.url) {
+      const urlParts = message.url.split('?');
+      if (urlParts.length < 2) {
+        console.warn('Invalid message.url, no query params:', message.url);
+        return;
+      }
+      const urlParams = new URLSearchParams(urlParts[1]);
       const sceneId = urlParams.get('scene');
       if (sceneId) {
-        console.log('Switching to scene:', sceneId); // Debug log
-        switchToScene(sceneId); // Trigger scene change
+        console.log('Switching to scene with refresh:', sceneId);
+        window.location.href = `/#panorama?scene=${sceneId}`;
+      } else {
+        console.warn('No sceneId found in message.url:', message.url);
       }
+    } else {
+      console.warn('message.url is undefined or empty');
     }
   };
 
@@ -35,7 +44,7 @@ const BotMessage = ({ message, handleSpeakerClick, isMuted, switchToScene }) => 
           {message.image && (
             <div className="bot-message-image">
               <img
-                src={message.image} 
+                src={message.image}
                 alt={message.label || '360° view'}
                 onClick={handleSceneClick}
                 style={{ maxWidth: '100%', borderRadius: 12, margin: '8px 0', cursor: 'pointer' }}
@@ -43,21 +52,21 @@ const BotMessage = ({ message, handleSpeakerClick, isMuted, switchToScene }) => 
             </div>
           )}
           {message.url && message.label && (
-  <div className="bot-message-link" style={{ marginBottom: 8 }}>
-    <a
-      href={message.url}
-      
-      rel="noopener noreferrer"
-      style={{
-        color: '#007bff',
-        textDecoration: 'underline',
-        fontSize: '14px',
-      }}
-    >
-      {message.label || 'Open Virtual Tour'}
-    </a>
-  </div>
-)}
+            <div className="bot-message-link" style={{ marginBottom: 8 }}>
+              <a
+                href={message.url}
+                onClick={handleSceneClick}
+                style={{
+                  color: '#007bff',
+                  textDecoration: 'underline',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                }}
+              >
+                {message.label || 'Open Virtual Tour'}
+              </a>
+            </div>
+          )}
           <button
             className={`speak-button ${isMuted ? 'muted' : ''}`}
             onClick={onSpeakClick}
