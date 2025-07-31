@@ -327,7 +327,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot, switchToScene }) => {
           <div className="typing-indicator-wrapper">
             <div className="bot-message-container">
               <div className="bot-avatar">
-                <img src="/NISAAF.png" alt="Bot" />
+                <img src="/LOGO.png" alt="Bot" />
               </div>
               <div className="typing-indicator">
                 <span></span>

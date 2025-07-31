@@ -21,7 +21,6 @@
   padding: 0px 20px 12px 20px;
   padding-top:6px;
   background: linear-gradient(
-    135deg, 
     rgba(255, 255, 255, 0.1) 0%, 
     rgba(255, 255, 255, 0.05) 50%, 
     rgba(255, 255, 255, 0.08) 100%
@@ -34,9 +33,9 @@
 
 .chatbot-container:hover {
   box-shadow: 
-    0 12px 40px rgba(107, 70, 193, 0.2),
-    0 0 0 1px rgba(255, 255, 255, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  0 8px 32px rgba(107, 70, 193, 0.15),
+  0 0 0 1px rgba(255, 255, 255, 0.1),
+  inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
 }
 
@@ -450,6 +449,10 @@
   );
   border-radius: 16px;
   backdrop-filter: blur(8px);
+}
+
+.message-input::placeholder {
+  color: rgb(255, 255, 255);
 }
 
 /* Message Input */
