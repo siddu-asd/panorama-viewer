@@ -6,17 +6,28 @@ import { useTranslation } from 'react-i18next';
 
 const App = () => {
   const { t, i18n } = useTranslation();
-  const [showBot, setShowBot] = useState(true); // Chat visible by default
-  const [currentScene, setCurrentScene] = useState('ENTRY');
-  const [messages, setMessages] = useState([
-    {
-      id: 'welcome',
-      type: 'bot',
-      content: "Welcome! I'm Nisaa, your assistant from Raising 100X. Ask me about our 360° office tour or anything else!",
-      displayedContent: "Welcome! I'm Nisaa, your assistant from Raising 100X. Ask me about our 360° office tour or anything else!",
-      isTyping: false,
-    },
-  ]);
+  const [showBot, setShowBot] = useState(true);
+  const [currentScene, setCurrentScene] = useState(() => {
+    // Handle hash-based URLs (e.g., /#panorama?scene=ROOM1)
+    const hash = window.location.hash;
+    const params = new URLSearchParams(hash.split('?')[1] || '');
+    const scene = params.get('scene')?.toUpperCase() || 'ENTRY';
+    console.log('Initial scene from URL:', scene, 'Hash:', hash);
+    return scene;
+  });
+  const [messages, setMessages] = useState(() => {
+    const storedMessages = localStorage.getItem('chatMessages');
+    console.log('Initial messages from localStorage:', storedMessages);
+    return storedMessages ? JSON.parse(storedMessages) : [
+      {
+        id: 'welcome',
+        type: 'bot',
+        content: "Welcome! I'm Nisaa, your assistant from Raising 100X. Ask me about our 360° office tour or anything else!",
+        displayedContent: "Welcome! I'm Nisaa, your assistant from Raising 100X. Ask me about our 360° office tour or anything else!",
+        isTyping: false,
+      },
+    ];
+  });
   const [sessionId, setSessionId] = useState(() => {
     const storedId = localStorage.getItem('chatSessionId');
     console.log('Initial session ID from localStorage:', storedId);
@@ -32,7 +43,7 @@ const App = () => {
     if (scene && scene !== currentScene) {
       console.log('Switching scene to:', scene, 'Current session ID:', sessionId);
       setCurrentScene(scene);
-      window.history.pushState({}, '', `/#panorama?scene=${scene}`);
+      window.location.href = `/#panorama?scene=${scene}`;
     }
   };
 
@@ -55,16 +66,42 @@ const App = () => {
           localStorage.setItem('chatSessionId', fallbackId);
         });
     }
-  }, [sessionId]); // Dependency on sessionId to handle manual resets
+  }, []); // Run once on mount
 
-  // Handle initial scene from URL query parameter
+  // Persist messages to localStorage
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const sceneFromUrl = params.get('scene')?.toUpperCase();
-    if (sceneFromUrl && sceneFromUrl !== currentScene) {
-      console.log('Setting scene from URL:', sceneFromUrl);
-      setCurrentScene(sceneFromUrl);
-    }
+    console.log('Saving messages to localStorage:', messages.length);
+    localStorage.setItem('chatMessages', JSON.stringify(messages));
+  }, [messages]);
+
+  // Clear localStorage on tab close
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      console.log('Tab closing, clearing localStorage');
+      localStorage.removeItem('chatSessionId');
+      localStorage.removeItem('chatMessages');
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
+  // Update scene on URL change
+  useEffect(() => {
+    const handlePopstate = () => {
+      const hash = window.location.hash;
+      const params = new URLSearchParams(hash.split('?')[1] || '');
+      const newScene = params.get('scene')?.toUpperCase() || 'ENTRY';
+      console.log('Popstate detected, updating scene to:', newScene);
+      if (newScene !== currentScene) {
+        setCurrentScene(newScene);
+      }
+    };
+    window.addEventListener('popstate', handlePopstate);
+    return () => {
+      window.removeEventListener('popstate', handlePopstate);
+    };
   }, [currentScene]);
 
   return (

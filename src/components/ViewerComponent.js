@@ -102,27 +102,39 @@ const ViewerComponent = ({ toggleChatBot, currentScene, switchToScene }) => {
   }, []);
 
   const internalSwitchToScene = useCallback(async (sceneId) => {
+    console.log('internalSwitchToScene called with sceneId:', sceneId);
     const scene = scenes[sceneId];
-    if (!scene) return;
+    if (!scene) {
+      console.warn('Scene not found:', sceneId);
+      return;
+    }
     autorotateRef.current?.stop();
     await viewerRef.current.setPanorama(scene.panorama);
     setSceneMarkers(scene.markers);
-    switchToScene(sceneId); // Update parent state and URL
+    // Removed switchToScene(sceneId) to prevent redundant refresh
     autorotateRef.current?.start();
-  }, [setSceneMarkers, switchToScene]);
+  }, [setSceneMarkers]);
 
   const handleNavigation = useCallback((target) => {
+    console.log('handleNavigation called with target:', target);
     if (target === 'exit') {
       if (window.confirm('Are you sure you want to exit?')) {
         window.location.href = '/';
       }
     } else {
       internalSwitchToScene(target);
+      switchToScene(target); // Update URL and parent state
     }
-  }, [internalSwitchToScene]);
+  }, [internalSwitchToScene, switchToScene]);
 
   useEffect(() => {
+    console.log('ViewerComponent initial useEffect, currentScene:', currentScene);
     const container = document.getElementById('app-viewer-container');
+    if (!container) {
+      console.warn('Container #app-viewer-container not found');
+      return;
+    }
+
     const viewer = new Viewer({
       container,
       panorama: scenes[currentScene]?.panorama || scenes.ENTRY.panorama,
@@ -166,7 +178,10 @@ const ViewerComponent = ({ toggleChatBot, currentScene, switchToScene }) => {
 
     viewer.getPlugin(MarkersPlugin)?.addEventListener('select-marker', (e) => {
       const target = Object.values(scenes).flatMap((s) => s.markers).find((m) => m.id === e.marker.id)?.target;
-      if (target) internalSwitchToScene(target);
+      if (target) {
+        console.log('Marker select, switching to scene:', target);
+        handleNavigation(target);
+      }
     });
 
     setPortalContainer(container);
@@ -174,10 +189,10 @@ const ViewerComponent = ({ toggleChatBot, currentScene, switchToScene }) => {
     return () => {
       viewer.destroy();
     };
-  }, [setSceneMarkers, internalSwitchToScene, toggleChatBot, currentScene]);
+  }, [setSceneMarkers, toggleChatBot, currentScene]);
 
   useEffect(() => {
-    // Update scene when currentScene prop changes
+    console.log('ViewerComponent scene update useEffect, currentScene:', currentScene);
     if (viewerRef.current && scenes[currentScene]) {
       internalSwitchToScene(currentScene);
     }
