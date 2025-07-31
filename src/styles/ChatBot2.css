@@ -26,7 +26,7 @@
     rgba(255, 255, 255, 0.05) 50%, 
     rgba(255, 255, 255, 0.08) 100%
   );
-  backdrop-filter: blur(24px);
+  backdrop-filter: blur(34px);
   -webkit-backdrop-filter: blur(24px);
   border: 2px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -86,7 +86,7 @@
   color: #1F2937;
   margin: 0 0 4px 0;
   text-align: center;
-  background: linear-gradient(135deg, #0b0b0b 0%, #8B5CF6 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #8d68df 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
