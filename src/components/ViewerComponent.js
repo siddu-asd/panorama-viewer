@@ -14,69 +14,69 @@ const GOOGLE_MAPS_URL =
 
 const scenes = {
   ENTRY: {
-    panorama: '/office-15.jpg',
+    panorama: './office-15.jpg',
     markers: [
-      { id: 'TO-ROOM1', image: '/office-10.jpg', tooltip: 'Go to Office Room', position: { yaw: -3.0, pitch: -0.15 }, target: 'ROOM1' },
-      { id: 'TO-STUDIO-OUTSIDE', image: '/office-6.jpg', tooltip: 'Go to Studio Entrance', position: { yaw: -2.0, pitch: -0.1 }, target: 'STUDIO-OUTSIDE' },
-      { id: 'TO-NEW-OFFICE', image: '/office-11.jpg', tooltip: 'Go to New Office', position: { yaw: 1.5, pitch: 0.2 }, target: 'NEW-OFFICE' },
+      { id: 'TO-ROOM1', image: './officeroom.jpg', tooltip: 'Go to Office Room', position: { yaw: -3.0, pitch: -0.15 }, target: 'ROOM1' },
+      { id: 'TO-STUDIO-OUTSIDE', image: './studio.jpg', tooltip: 'Go to Studio Entrance', position: { yaw: -2.0, pitch: -0.1 }, target: 'STUDIO-OUTSIDE' },
+      { id: 'TO-NEW-OFFICE', image: './office.jpg', tooltip: 'Go to New Office', position: { yaw: 1.5, pitch: 0.2 }, target: 'NEW-OFFICE' },
     ],
   },
   ROOM1: {
-    panorama: '/office-10.jpg',
+    panorama: './office-10.jpg',
     markers: [
-      { id: 'TO-ADMIN-BLOCK', image: '/office-14.jpg', tooltip: 'Go to Admin Block', position: { yaw: 2.5, pitch: -0.1 }, target: 'ADMIN-BLOCK' },
-      { id: 'ROOM1-BACK', image: '/office-15.jpg', tooltip: 'Back to Main Entry', position: { yaw: -0.6, pitch: 0.1 }, target: 'ENTRY' },
+      { id: 'TO-ADMIN-BLOCK', image: './adminblock.jpg', tooltip: 'Go to Admin Block', position: { yaw: 2.5, pitch: -0.1 }, target: 'ADMIN-BLOCK' },
+      { id: 'ROOM1-BACK', image: './backToMainEntry.jpg', tooltip: 'Back to Main Entry', position: { yaw: -0.6, pitch: 0.1 }, target: 'ENTRY' },
     ],
   },
   'ADMIN-BLOCK': {
-    panorama: '/office-14.jpg',
+    panorama: './office-14.jpg',
     markers: [
-      { id: 'TO-MEETING-ROOM', image: '/office-7.jpg', tooltip: 'Go to Meeting Room', position: { yaw: -0.7, pitch: -0.1 }, target: 'MEETING-ROOM' },
-      { id: 'TO-WORKSPACE-FROM-ADMIN', image: '/office-7.jpg', tooltip: 'Go to Workspace', position: { yaw: -0.4, pitch: 0.1 }, target: 'WORKSPACE' },
-      { id: 'ADMIN-BLOCK-BACK', image: '/office-10.jpg', tooltip: 'Back to Office Room', position: { yaw: 2.6, pitch: -0.1 }, target: 'ROOM1' },
+      { id: 'TO-MEETING-ROOM', image: './meeting.jpg', tooltip: 'Go to Meeting Room', position: { yaw: -0.7, pitch: -0.1 }, target: 'MEETING-ROOM' },
+      { id: 'TO-WORKSPACE-FROM-ADMIN', image: './workspace.jpg', tooltip: 'Go to Workspace', position: { yaw: -0.4, pitch: 0.1 }, target: 'WORKSPACE' },
+      { id: 'ADMIN-BLOCK-BACK', image: './backtoofficeroom.jpg', tooltip: 'Back to Office Room', position: { yaw: 2.6, pitch: -0.1 }, target: 'ROOM1' },
     ],
   },
   'MEETING-ROOM': {
-    panorama: '/office-7.jpg',
+    panorama: './office-7.jpg',
     markers: [
-      { id: 'MEETING-BACK', image: '/office-14.jpg', tooltip: 'Back to Admin Block', position: { yaw: -0.95, pitch: -0.25 }, target: 'ADMIN-BLOCK' },
+      { id: 'MEETING-BACK', image: './adminblock.jpg', tooltip: 'Back to Admin Block', position: { yaw: -0.95, pitch: -0.25 }, target: 'ADMIN-BLOCK' },
     ],
   },
   'WORKSPACE': {
-    panorama: '/office-2.jpg',
+    panorama: './office-2.jpg',
     markers: [
-      { id: 'WORKSPACE-BACK', image: '/office-14.jpg', tooltip: 'Back to Admin Block', position: { yaw: -2.5, pitch: -0.1 }, target: 'ADMIN-BLOCK' },
+      { id: 'WORKSPACE-BACK', image: './backToAdminBlock.jpg', tooltip: 'Back to Admin Block', position: { yaw: -2.5, pitch: -0.1 }, target: 'ADMIN-BLOCK' },
     ],
   },
   'NEW-OFFICE': {
-    panorama: '/office-11.jpg',
+    panorama: './office-11.jpg',
     markers: [
-      { id: 'TO-NEW-OFFICE-INSIDE', image: '/office-12.jpg', tooltip: 'Go to New Office Interior', position: { yaw: -0.2, pitch: 0.1 }, target: 'NEW-OFFICE-INSIDE' },
-      { id: 'NEW-OFFICE-BACK', image: '/office-15.jpg', tooltip: 'Back to Main Entry', position: { yaw: 1.5, pitch: 0.1 }, target: 'ENTRY' },
+      { id: 'TO-NEW-OFFICE-INSIDE', image: './GoToNewOfficeInterior.jpg', tooltip: 'Go to New Office Interior', position: { yaw: -0.2, pitch: 0.1 }, target: 'NEW-OFFICE-INSIDE' },
+      { id: 'NEW-OFFICE-BACK', image: './backToMainEntry.jpg', tooltip: 'Back to Main Entry', position: { yaw: 1.5, pitch: 0.1 }, target: 'ENTRY' },
     ],
   },
   'NEW-OFFICE-INSIDE': {
-    panorama: '/office-12.jpg',
+    panorama: './office-12.jpg',
     markers: [
-      { id: 'NEW-OFFICE-INSIDE-BACK', image: '/office-11.jpg', tooltip: 'Back to New Office', position: { yaw: -3.55, pitch: -0.1 }, target: 'NEW-OFFICE' },
+      { id: 'NEW-OFFICE-INSIDE-BACK', image: './newOffice.jpg', tooltip: 'Back to New Office', position: { yaw: -3.55, pitch: -0.1 }, target: 'NEW-OFFICE' },
     ],
   },
   'STUDIO-OUTSIDE': {
-    panorama: '/office-6.jpg',
+    panorama: './office-6.jpg',
     markers: [
-      { id: 'TO-STUDIO', image: '/office-1.jpg', tooltip: 'Go to Studio', position: { yaw: 1.9, pitch: 0.05 }, target: 'STUDIO' },
-      { id: 'STUDIO-OUTSIDE-BACK', image: '/office-15.jpg', tooltip: 'Back to Main Entry', position: { yaw: -0.6, pitch: 0.05 }, target: 'ENTRY' },
+      { id: 'TO-STUDIO', image: './studio2.jpg', tooltip: 'Go to Studio', position: { yaw: 1.9, pitch: 0.05 }, target: 'STUDIO' },
+      { id: 'STUDIO-OUTSIDE-BACK', image: './studio4.jpg', tooltip: 'Back to Main Entry', position: { yaw: -0.6, pitch: 0.05 }, target: 'ENTRY' },
     ],
   },
   'STUDIO': {
-    panorama: '/office-16.jpg',
+    panorama: './office-16.jpg',
     markers: [
-      { id: 'STUDIO-BACK', image: '/office-6.jpg', tooltip: 'Back to Studio Entrance', position: { yaw: -2.19, pitch: -0.18 }, target: 'STUDIO-OUTSIDE' },
+      { id: 'STUDIO-BACK', image: './studio3.jpg', tooltip: 'Back to Studio Entrance', position: { yaw: -2.19, pitch: -0.18 }, target: 'STUDIO-OUTSIDE' },
     ],
   },
 };
 
-const ViewerComponent = ({ currentScene, switchToScene }) => {
+const ViewerComponent = ({ toggleChatBot, currentScene, switchToScene }) => {
   const viewerRef = useRef(null);
   const markersPluginRef = useRef(null);
   const autorotateRef = useRef(null);
@@ -84,10 +84,7 @@ const ViewerComponent = ({ currentScene, switchToScene }) => {
 
   const setSceneMarkers = useCallback((markerList) => {
     const plugin = markersPluginRef.current;
-    if (!plugin) {
-      console.warn('MarkersPlugin not initialized');
-      return;
-    }
+    if (!plugin) return;
     plugin.clearMarkers();
     markerList.forEach(({ id, position, image, tooltip }) => {
       plugin.addMarker({
@@ -111,19 +108,11 @@ const ViewerComponent = ({ currentScene, switchToScene }) => {
       console.warn('Scene not found:', sceneId);
       return;
     }
-    if (!viewerRef.current) {
-      console.warn('Viewer not initialized for scene:', sceneId);
-      return;
-    }
-    try {
-      autorotateRef.current?.stop();
-      await viewerRef.current.setPanorama(scene.panorama);
-      setSceneMarkers(scene.markers);
-      autorotateRef.current?.start();
-      console.log('Successfully switched to scene:', sceneId, 'Panorama:', scene.panorama);
-    } catch (error) {
-      console.error('Error switching panorama:', scene.panorama, error);
-    }
+    autorotateRef.current?.stop();
+    await viewerRef.current.setPanorama(scene.panorama);
+    setSceneMarkers(scene.markers);
+    // Removed switchToScene(sceneId) to prevent redundant refresh
+    autorotateRef.current?.start();
   }, [setSceneMarkers]);
 
   const handleNavigation = useCallback((target) => {
@@ -134,7 +123,7 @@ const ViewerComponent = ({ currentScene, switchToScene }) => {
       }
     } else {
       internalSwitchToScene(target);
-      switchToScene(target);
+      switchToScene(target); // Update URL and parent state
     }
   }, [internalSwitchToScene, switchToScene]);
 
@@ -167,7 +156,6 @@ const ViewerComponent = ({ currentScene, switchToScene }) => {
     viewerRef.current = viewer;
 
     viewer.addEventListener('ready', () => {
-      console.log('Viewer ready, initializing plugins');
       markersPluginRef.current = viewer.getPlugin(MarkersPlugin);
       autorotateRef.current = viewer.getPlugin(AutorotatePlugin);
       autorotateRef.current?.start();
@@ -176,7 +164,7 @@ const ViewerComponent = ({ currentScene, switchToScene }) => {
 
     const logoOverlay = document.createElement('div');
     logoOverlay.className = 'psv-logo-overlay';
-    logoOverlay.innerHTML = `<img class="responsive-logo" src="/LOGO.png" alt="Logo" style="cursor: pointer;" onError="console.error('Logo image failed to load: /LOGO.png')" />`;
+    logoOverlay.innerHTML = `<img class="responsive-logo" src="/LOGO.png" alt="Logo" style="cursor: pointer;" />`;
     logoOverlay.querySelector('.responsive-logo')?.addEventListener('click', () => {
       window.location.href = '/';
     });
@@ -184,7 +172,8 @@ const ViewerComponent = ({ currentScene, switchToScene }) => {
 
     const chatbotOverlay = document.createElement('div');
     chatbotOverlay.className = 'psv-chatbot-overlay';
-    chatbotOverlay.innerHTML = `<img id="psv-chatbot-img" src="/NISAAF.png" alt="Bot" style="width: 320px; height: 280px; object-fit: contain; cursor: pointer;" onError="console.error('Chatbot image failed to load: /NISAAF.png')" />`;
+    chatbotOverlay.innerHTML = `<img id="psv-chatbot-img" src="/NISAAF.png" alt="Bot" style="width: 320px; height: 280px; object-fit: contain; cursor: pointer;" />`;
+    chatbotOverlay.querySelector('#psv-chatbot-img')?.addEventListener('click', toggleChatBot);
     container.appendChild(chatbotOverlay);
 
     viewer.getPlugin(MarkersPlugin)?.addEventListener('select-marker', (e) => {
@@ -198,17 +187,14 @@ const ViewerComponent = ({ currentScene, switchToScene }) => {
     setPortalContainer(container);
 
     return () => {
-      console.log('Destroying viewer');
       viewer.destroy();
     };
-  }, [setSceneMarkers, currentScene]);
+  }, [setSceneMarkers, toggleChatBot, currentScene]);
 
   useEffect(() => {
     console.log('ViewerComponent scene update useEffect, currentScene:', currentScene);
     if (viewerRef.current && scenes[currentScene]) {
       internalSwitchToScene(currentScene);
-    } else {
-      console.warn('Cannot switch scene: viewer or scene not ready', { viewer: !!viewerRef.current, scene: !!scenes[currentScene] });
     }
   }, [currentScene, internalSwitchToScene]);
 
