@@ -1,25 +1,35 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-import en from '../locales/en/translation.json';
-import es from '../locales/es/translation.json';
-import hi from '../locales/hi/translation.json';
-import te from '../locales/te/translation.json';
-
 const resources = {
-  en: { translation: en },
-  es: { translation: es },
-  hi: { translation: hi },
-  te: { translation: te },
+  en: {
+    translation: {
+      welcome: 'Welcome to Raising 100X',
+      chatbot_title: 'Chat with Nisaa',
+      type_message: 'Type your message...',
+      send_message: 'Send message',
+      start_listening: 'Start listening',
+      stop_listening: 'Stop listening',
+      scene_entry: 'Main Entry',
+      scene_room1: 'Office Room',
+      scene_admin_block: 'Admin Block',
+      scene_meeting_room: 'Meeting Room',
+      scene_workspace: 'Workspace',
+      scene_new_office: 'New Office',
+      scene_new_office_inside: 'New Office Interior',
+      scene_studio_outside: 'Studio Entrance',
+      scene_studio: 'Studio',
+      exit: 'Exit',
+    },
+  },
 };
 
-i18n
-  .use(initReactI18next)
-  .init({
-    resources,
-    lng: 'en',
-    fallbackLng: 'en',
-    interpolation: { escapeValue: false },
-  });
+i18n.use(initReactI18next).init({
+  resources,
+  lng: 'en',
+  interpolation: {
+    escapeValue: false,
+  },
+});
 
-export default i18n; 
+export default i18n;
