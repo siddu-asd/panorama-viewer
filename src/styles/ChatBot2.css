@@ -175,8 +175,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 320px;
-  min-height: 200px;
+  max-height: 406px;
+  min-height: 240px;
 }
 
 .messages-container::-webkit-scrollbar {
@@ -320,7 +320,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+  background: linear-gradient(135deg, #fbfafc00 0%, #81799a 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -449,7 +449,6 @@
     rgba(255, 255, 255, 0.05) 100%
   );
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(8px);
 }
 
@@ -457,20 +456,16 @@
 .message-input {
   flex: 1;
   padding: 14px 18px;
-  border: 1px solid rgba(107, 70, 193, 0.2);
+  border: 1px solid rgba(86, 53, 163, 0.2);
   border-radius: 14px;
   outline: none;
   font-size: 14px;
-  background: linear-gradient(
-    135deg, 
-    rgba(255, 255, 255, 0.9) 0%, 
-    rgba(255, 255, 255, 0.8) 100%
-  );
+  background: none;
+  color: white;
   backdrop-filter: blur(4px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+   0 2px 8px #9575CD, inset 0 1px 0 rgb(90 77 173 / 30%)
 }
 
 .message-input:focus {
@@ -1008,7 +1003,7 @@
     right: 2.5vw;
     left: 2.5vw;
     bottom: 1vw;
-    height: 60vh;
+    height: 74vh;
     padding: 8px 4px 4px 4px;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -1039,7 +1034,6 @@
     height: 42px;
     border-radius: 10px;
     font-size: 18px;
-    background: linear-gradient(135deg, #ede9fe 0%, #f3e8ff 100%);
     box-shadow: 0 1px 4px rgba(107, 70, 193, 0.1);
     position: relative;
     z-index: 3;

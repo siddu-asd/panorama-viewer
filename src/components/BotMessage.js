@@ -36,7 +36,7 @@ const BotMessage = ({ message, handleSpeakerClick, isMuted, switchToScene }) => 
   return (
     <div className="bot-message-container">
       <div className="bot-avatar">
-        <img src="/NISAAF.png" alt="Bot" />
+        <img src="/LOGO.png" alt="Bot" />
       </div>
       <div className="bot-content">
         <div className="message bot">
