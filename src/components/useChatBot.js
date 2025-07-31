@@ -41,59 +41,59 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
     setMessages(prev => [...prev, newUserMessage]);
     setIsTyping(true);
 
-    fetch(`${API_BASE}/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: messageToSend,
-        session_id: sessionId,
-        language: selectedLanguage,
-      }),
-    })
-      .then(res => res.ok ? res.json() : Promise.reject(res))
-      .then(data => {
-        const botResponse = data.response || "Sorry, I didn't understand that.";
-        const audioUrl = data.audio_url || null;
-        const botId = `bot-${Date.now()}`;
-
-        const botReply = {
-          id: botId,
-          type: 'bot',
-          content: botResponse,
-          displayedContent: botResponse,
-          isTyping: false,
-          image: data.image,
-          url: data.url,
-          label: data.label
-        };
-
-        setMessages(prev => [...prev, botReply]);
-
-        if (audioUrl) {
-          playAudioFromURL(audioUrl, botId);
-        }
-      })
-      .catch(err => {
-        const errorMessage = err.message?.includes('Failed to fetch')
-          ? "Network error. Please check your internet connection."
-          : err.message?.includes('HTTP error')
-            ? "Server error. Please try again in a moment."
-            : err.message?.includes('JSON')
-              ? "Invalid response from server. Please try again."
-              : "Oops! Something went wrong. Please try again later.";
-
-        setMessages(prev => [...prev, {
-          id: `bot-error-${Date.now()}`,
-          type: 'bot',
-          content: errorMessage,
-          displayedContent: errorMessage,
-          isTyping: false,
-        }]);
-      })
-      .finally(() => {
-        setIsTyping(false);
+    try {
+      const response = await fetch(`${API_BASE}/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: messageToSend.trim(),
+          session_id: sessionId,
+          language: selectedLanguage,
+        }),
       });
-  }, [sessionId, mutedMessages, selectedLanguage]);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Server response:', data);
+      
+      const botMessageObj = {
+        id: `bot-${Date.now()}`,
+        type: 'bot',
+        content: data.response,
+        displayedContent: data.response,
+        audioUrl: data.audio_url,
+        isTyping: false,
+      };
+
+      console.log('Created bot message:', botMessageObj);
+      setMessages(prev => [...prev, botMessageObj]);
+      
+      // Try to play audio from server URL first, then fallback to TTS
+      if (data.audio_url && !mutedMessages.has(botMessageObj.id)) {
+        console.log('Playing audio from server URL:', data.audio_url);
+        playAudioFromURL(data.audio_url, botMessageObj.id);
+      } else {
+        console.log('No audio URL from server, will use TTS fallback in ChatBot2');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      const errorMessageObj = {
+        id: `error-${Date.now()}`,
+        type: 'bot',
+        content: 'Sorry, I encountered an error. Please try again.',
+        displayedContent: 'Sorry, I encountered an error. Please try again.',
+        isTyping: false,
+      };
+      setMessages(prev => [...prev, errorMessageObj]);
+    } finally {
+      setIsTyping(false);
+    }
+  }, [sessionId, selectedLanguage, mutedMessages]);
 
   const handleTranscript = useCallback((transcript) => {
     sendToServer(transcript);
@@ -107,23 +107,28 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
     setUserMessage('');
   }, [userMessage, sendToServer]);
 
+  // Fixed voice button click handler
   const handleVoiceButtonClick = useCallback(() => {
-    if (inputMode === 'text') {
-      setInputMode('voice');
-      recognitionRef.current = initializeSpeechRecognition(selectedLanguage === 'en' ? 'en-IN' : selectedLanguage, setIsListening, handleTranscript);
-      try {
-        recognitionRef.current.start();
-      } catch (error) {
-        console.error('Error starting speech recognition:', error);
-        setInputMode('text');
+    console.log('Voice button clicked, isListening:', isListening);
+    
+    if (isListening) {
+      // Stop listening
+      console.log('Stopping speech recognition');
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
       }
+      setIsListening(false);
     } else {
-      if (isListening) {
-        recognitionRef.current?.stop();
-        setTimeout(() => setInputMode('text'), 200);
-      } else {
-        recognitionRef.current = initializeSpeechRecognition(selectedLanguage === 'en' ? 'en-IN' : selectedLanguage, setIsListening, handleTranscript);
-        try {
+      // Start listening
+      console.log('Starting speech recognition');
+      try {
+        recognitionRef.current = initializeSpeechRecognition(
+          selectedLanguage === 'en' ? 'en-IN' : selectedLanguage, 
+          setIsListening, 
+          handleTranscript
+        );
+        
+        if (recognitionRef.current) {
           recognitionRef.current.start();
         } catch (error) {
           console.error('Error starting speech recognition:', error);
