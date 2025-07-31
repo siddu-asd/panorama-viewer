@@ -8,19 +8,187 @@ import { useTranslation } from 'react-i18next';
 
 async function playBotAudio(text, language = 'en') {
   try {
-    const response = await fetch('https://nissa-chat-bot.onrender.com/tts', {
+    console.log('Playing bot audio for:', text, 'language:', language);
+    
+    // Try browser speech synthesis first for better voice control
+    if ('speechSynthesis' in window) {
+      console.log('Using browser speech synthesis for Siri-like voice');
+      
+      // Get available voices
+      let voices = speechSynthesis.getVoices();
+      
+      // If voices aren't loaded yet, wait for them
+      if (voices.length === 0) {
+        console.log('Waiting for voices to load...');
+        voices = await new Promise(resolve => {
+          speechSynthesis.onvoiceschanged = () => {
+            const loadedVoices = speechSynthesis.getVoices();
+            console.log('Voices loaded:', loadedVoices.length);
+            resolve(loadedVoices);
+          };
+        });
+      }
+      
+      console.log('Available voices:', voices.map(v => `${v.name} (${v.lang}) - ${v.voiceURI}`));
+      
+      // Find the best female voice - more aggressive search
+      let selectedVoice = null;
+      
+      // First, try to find any female voice
+      selectedVoice = voices.find(voice => {
+        const voiceName = voice.name.toLowerCase();
+        const voiceURI = voice.voiceURI.toLowerCase();
+        return (
+          voiceName.includes('female') ||
+          voiceName.includes('samantha') ||
+          voiceName.includes('karen') ||
+          voiceName.includes('victoria') ||
+          voiceName.includes('martha') ||
+          voiceName.includes('serena') ||
+          voiceName.includes('tessa') ||
+          voiceName.includes('alex') ||
+          voiceName.includes('siri') ||
+          voiceURI.includes('female') ||
+          voiceURI.includes('samantha') ||
+          voiceURI.includes('karen') ||
+          voiceURI.includes('victoria')
+        ) && voice.lang.startsWith('en');
+      });
+      
+      // If no specific female voice found, try any English voice that's not obviously male
+      if (!selectedVoice) {
+        selectedVoice = voices.find(voice => {
+          const voiceName = voice.name.toLowerCase();
+          return (
+            voice.lang.startsWith('en') &&
+            !voiceName.includes('male') &&
+            !voiceName.includes('david') &&
+            !voiceName.includes('tom') &&
+            !voiceName.includes('james') &&
+            !voiceName.includes('john') &&
+            !voiceName.includes('mike')
+          );
+        });
+      }
+      
+      // Last resort: any English voice
+      if (!selectedVoice) {
+        selectedVoice = voices.find(voice => voice.lang.startsWith('en'));
+      }
+      
+      if (selectedVoice) {
+        console.log('Selected voice:', selectedVoice.name, selectedVoice.lang, selectedVoice.voiceURI);
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.voice = selectedVoice;
+        utterance.volume = 0.9;
+        utterance.rate = 0.85; // Slightly slower for more natural sound
+        utterance.pitch = 1.2; // Higher pitch for more feminine sound
+        utterance.lang = selectedVoice.lang;
+        
+        // Add event listeners for debugging
+        utterance.onstart = () => console.log('Speech synthesis started with voice:', selectedVoice.name);
+        utterance.onend = () => console.log('Speech synthesis ended');
+        utterance.onerror = (e) => console.error('Speech synthesis error:', e);
+        
+        // Stop any currently speaking
+        speechSynthesis.cancel();
+        
+        speechSynthesis.speak(utterance);
+        return; // Exit early if speech synthesis works
+      } else {
+        console.log('No suitable voice found, falling back to TTS server');
+      }
+    }
+    
+    // Fallback to TTS server with explicit female voice request
+    console.log('Falling back to TTS server with female voice request');
+      const response = await fetch('https://nissa-chat-bot.onrender.com/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, language }),
+      body: JSON.stringify({ 
+        text, 
+        language,
+        voice: 'female', // Explicitly request female voice
+        speed: 0.85, // Slightly slower speed
+        pitch: 1.2, // Higher pitch for female voice
+        gender: 'female' // Additional gender parameter
+      }),
     });
-    if (!response.ok) throw new Error('TTS failed');
+    
+    console.log('TTS response status:', response.status);
+    
+    if (!response.ok) {
+      console.error('TTS failed with status:', response.status);
+      throw new Error(`TTS failed with status: ${response.status}`);
+    }
+    
     const audioData = await response.arrayBuffer();
+    console.log('Audio data received, size:', audioData.byteLength);
+    
     const blob = new Blob([audioData], { type: 'audio/mpeg' });
     const url = URL.createObjectURL(blob);
+    console.log('Audio URL created:', url);
+    
     const audio = new Audio(url);
-    audio.play();
+    
+    // Add event listeners for debugging
+    audio.addEventListener('loadstart', () => console.log('Audio loading started'));
+    audio.addEventListener('canplay', () => console.log('Audio can play'));
+    audio.addEventListener('play', () => console.log('Audio started playing'));
+    audio.addEventListener('ended', () => console.log('Audio finished playing'));
+    audio.addEventListener('error', (e) => console.error('Audio error:', e));
+    
+    // Set volume and play
+    audio.volume = 0.9;
+    await audio.play();
+    console.log('Audio play() called successfully');
+    
+    // Clean up URL after playing
+    audio.addEventListener('ended', () => {
+      URL.revokeObjectURL(url);
+    });
+    
   } catch (err) {
     console.error('Audio playback error:', err);
+    // Final fallback: force female voice with speech synthesis
+    try {
+      if ('speechSynthesis' in window) {
+        const voices = speechSynthesis.getVoices();
+        console.log('Fallback voices available:', voices.map(v => v.name));
+        
+        // Force find a female voice
+        const femaleVoice = voices.find(voice => {
+          const name = voice.name.toLowerCase();
+          return (
+            name.includes('female') ||
+            name.includes('samantha') ||
+            name.includes('karen') ||
+            name.includes('victoria') ||
+            name.includes('martha')
+          ) && voice.lang.startsWith('en');
+        });
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        if (femaleVoice) {
+          utterance.voice = femaleVoice;
+          console.log('Using fallback female voice:', femaleVoice.name);
+        } else {
+          console.log('No female voice found, using default');
+        }
+        
+        utterance.lang = language === 'en' ? 'en-US' : language;
+        utterance.volume = 0.9;
+        utterance.rate = 0.85;
+        utterance.pitch = 1.2; // Higher pitch for female voice
+        
+        speechSynthesis.cancel(); // Stop any current speech
+        speechSynthesis.speak(utterance);
+        console.log('Using forced speech synthesis with female settings');
+      }
+    } catch (fallbackErr) {
+      console.error('All audio methods failed:', fallbackErr);
+    }
   }
 }
 
@@ -59,11 +227,25 @@ const ChatBot2 = ({ isVisible, toggleChatBot, switchToScene }) => {
   };
 
   useEffect(() => {
+    console.log('Messages changed:', messages?.length, 'Last message:', messages?.[messages.length - 1]);
+    
     if (messages && messages.length > 0) {
       const lastMsg = messages[messages.length - 1];
+      console.log('Last message:', lastMsg);
+      
       if (lastMsg.type === 'bot' && lastBotMsgRef.current !== lastMsg.content && !mutedMessages.has(lastMsg.id)) {
+        console.log('Playing bot audio for message:', lastMsg.content);
+        console.log('Current language:', i18n.language);
+        console.log('Message muted:', mutedMessages.has(lastMsg.id));
+        
         playBotAudio(lastMsg.content, i18n.language);
         lastBotMsgRef.current = lastMsg.content;
+      } else {
+        console.log('Bot audio not triggered because:', {
+          isBot: lastMsg.type === 'bot',
+          isNew: lastBotMsgRef.current !== lastMsg.content,
+          isMuted: mutedMessages.has(lastMsg.id)
+        });
       }
     }
   }, [messages, i18n.language, mutedMessages]);
@@ -74,14 +256,17 @@ const ChatBot2 = ({ isVisible, toggleChatBot, switchToScene }) => {
     return (
       <div className="chatbot-container chatbot-language-select">
         <div className="language-select-card">
-          <div className="main-bot-avatar-container">
-            <img
-              src="/NISAAF.png"
-              alt="Bot"
-              className="main-bot-avatar"
-              onClick={toggleChatBot}
-              title="Click to close"
-            />
+          <div className="main-logo-container">
+            <div className="logo-wrapper">
+              <img
+                src="/LOGO.png"
+                alt="Raising 100X Logo"
+                className="main-logo"
+                onClick={toggleChatBot}
+                title="Click to close"
+              />
+            </div>
+            <h1 className="chatbot-heading"> Nisaa-AI Assistant</h1>
           </div>
           <div className="language-select-prompt">{t('choose_language')}</div>
           <div className="language-select-grid">
@@ -111,14 +296,17 @@ const ChatBot2 = ({ isVisible, toggleChatBot, switchToScene }) => {
   return (
     <div className="chatbot-container">
       <div className="bot-header">
-        <div className="main-bot-avatar-container">
-          <img
-            src="/NISAAF.png"
-            alt="Bot"
-            className="main-bot-avatar"
-            onClick={toggleChatBot}
-            title="Click to close"
-          />
+        <div className="main-logo-container">
+          <div className="logo-wrapper">
+            <img
+              src="/LOGO.png"
+              alt="Raising 100X Logo"
+              className="main-logo"
+              onClick={toggleChatBot}
+              title="Click to close"
+            />
+          </div>
+          <h1 className="chatbot-heading">AI Assistant</h1>
         </div>
       </div>
 
