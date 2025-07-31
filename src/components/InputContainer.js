@@ -60,54 +60,26 @@ const InputContainer = ({
       </svg>
     </button>
     <button
-      className={`voice-button ${isListening ? 'listening' : ''} ${isSpeaking ? 'speaking' : ''}`}
+      className={`voice-button ${isListening ? 'listening' : ''} ${inputMode === 'voice' ? 'active' : ''} ${
+        isSpeaking ? 'speaking' : ''
+      }`}
       onClick={(e) => {
         e.stopPropagation();
         e.preventDefault();
-        console.log('Voice button clicked');
         handleVoiceButtonClick();
       }}
       title={
         isSpeaking
           ? 'Stop chatbot speech'
-          : isListening
-          ? 'Stop listening'
-          : 'Start listening'
+          : inputMode === 'voice'
+          ? isListening
+            ? 'Stop listening'
+            : 'Start listening'
+          : 'Switch to voice mode'
       }
-      style={{ 
-        padding: 0, 
-        background: 'none', 
-        border: 'none',
-        position: 'relative',
-        transition: 'all 0.3s ease'
-      }}
+      style={{ padding: 0, background: 'none', border: 'none' }}
     >
-      <div 
-        style={{
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-      >
-        <LottieMicButton width={32} height={32} />
-        {isListening && (
-          <div 
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              background: 'rgba(239, 68, 68, 0.3)',
-              animation: 'pulse 1.5s infinite',
-              pointerEvents: 'none'
-            }}
-          />
-        )}
-      </div>
+      <LottieMicButton width={32} height={32} />
     </button>
   </div>
 );
