@@ -102,39 +102,27 @@ const ViewerComponent = ({ toggleChatBot, currentScene, switchToScene }) => {
   }, []);
 
   const internalSwitchToScene = useCallback(async (sceneId) => {
-    console.log('internalSwitchToScene called with sceneId:', sceneId);
     const scene = scenes[sceneId];
-    if (!scene) {
-      console.warn('Scene not found:', sceneId);
-      return;
-    }
+    if (!scene) return;
     autorotateRef.current?.stop();
     await viewerRef.current.setPanorama(scene.panorama);
     setSceneMarkers(scene.markers);
-    // Removed switchToScene(sceneId) to prevent redundant refresh
+    switchToScene(sceneId); // Update parent state and URL
     autorotateRef.current?.start();
-  }, [setSceneMarkers]);
+  }, [setSceneMarkers, switchToScene]);
 
   const handleNavigation = useCallback((target) => {
-    console.log('handleNavigation called with target:', target);
     if (target === 'exit') {
       if (window.confirm('Are you sure you want to exit?')) {
         window.location.href = '/';
       }
     } else {
       internalSwitchToScene(target);
-      switchToScene(target); // Update URL and parent state
     }
-  }, [internalSwitchToScene, switchToScene]);
+  }, [internalSwitchToScene]);
 
   useEffect(() => {
-    console.log('ViewerComponent initial useEffect, currentScene:', currentScene);
     const container = document.getElementById('app-viewer-container');
-    if (!container) {
-      console.warn('Container #app-viewer-container not found');
-      return;
-    }
-
     const viewer = new Viewer({
       container,
       panorama: scenes[currentScene]?.panorama || scenes.ENTRY.panorama,
@@ -178,10 +166,7 @@ const ViewerComponent = ({ toggleChatBot, currentScene, switchToScene }) => {
 
     viewer.getPlugin(MarkersPlugin)?.addEventListener('select-marker', (e) => {
       const target = Object.values(scenes).flatMap((s) => s.markers).find((m) => m.id === e.marker.id)?.target;
-      if (target) {
-        console.log('Marker select, switching to scene:', target);
-        handleNavigation(target);
-      }
+      if (target) internalSwitchToScene(target);
     });
 
     setPortalContainer(container);
@@ -189,10 +174,10 @@ const ViewerComponent = ({ toggleChatBot, currentScene, switchToScene }) => {
     return () => {
       viewer.destroy();
     };
-  }, [setSceneMarkers, toggleChatBot, currentScene]);
+  }, [setSceneMarkers, internalSwitchToScene, toggleChatBot, currentScene]);
 
   useEffect(() => {
-    console.log('ViewerComponent scene update useEffect, currentScene:', currentScene);
+    // Update scene when currentScene prop changes
     if (viewerRef.current && scenes[currentScene]) {
       internalSwitchToScene(currentScene);
     }
