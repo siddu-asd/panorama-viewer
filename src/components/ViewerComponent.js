@@ -16,9 +16,9 @@ const scenes = {
   ENTRY: {
     panorama: './office-15.jpg',
     markers: [
-      { id: 'TO-ROOM1', image: './officeroom.jpg', tooltip: 'Go to Office Room', position: { yaw: -3.0, pitch: -0.15 }, target: 'ROOM1' },
-      { id: 'TO-STUDIO-OUTSIDE', image: './studio.jpg', tooltip: 'Go to Studio Entrance', position: { yaw: -2.0, pitch: -0.1 }, target: 'STUDIO-OUTSIDE' },
-      { id: 'TO-NEW-OFFICE', image: './office.jpg', tooltip: 'Go to New Office', position: { yaw: 1.5, pitch: 0.2 }, target: 'NEW-OFFICE' },
+      { id: 'TO-ROOM1', image: './office.jpg', tooltip: 'Go to Office Room', position: { yaw: -3.0, pitch: -0.15 }, target: 'ROOM1' },
+      { id: 'TO-STUDIO-OUTSIDE', image: './studio.JPG', tooltip: 'Go to Studio Entrance', position: { yaw: -2.0, pitch: -0.1 }, target: 'STUDIO-OUTSIDE' },
+      { id: 'TO-NEW-OFFICE', image: './officeroom.jpg', tooltip: 'Go to New Office', position: { yaw: 1.5, pitch: 0.2 }, target: 'NEW-OFFICE' },
     ],
   },
   ROOM1: {
@@ -39,7 +39,7 @@ const scenes = {
   'MEETING-ROOM': {
     panorama: './office-7.jpg',
     markers: [
-      { id: 'MEETING-BACK', image: './adminblock.jpg', tooltip: 'Back to Admin Block', position: { yaw: -0.95, pitch: -0.25 }, target: 'ADMIN-BLOCK' },
+      { id: 'MEETING-BACK', image: './backtoAdminBlock.jpg', tooltip: 'Back to Admin Block', position: { yaw: -0.95, pitch: -0.25 }, target: 'ADMIN-BLOCK' },
     ],
   },
   'WORKSPACE': {
@@ -51,7 +51,7 @@ const scenes = {
   'NEW-OFFICE': {
     panorama: './office-11.jpg',
     markers: [
-      { id: 'TO-NEW-OFFICE-INSIDE', image: './GoToNewOfficeInterior.jpg', tooltip: 'Go to New Office Interior', position: { yaw: -0.2, pitch: 0.1 }, target: 'NEW-OFFICE-INSIDE' },
+      { id: 'TO-NEW-OFFICE-INSIDE', image: './GoToNewOfficeInterior.JPG', tooltip: 'Go to New Office Interior', position: { yaw: -0.2, pitch: 0.1 }, target: 'NEW-OFFICE-INSIDE' },
       { id: 'NEW-OFFICE-BACK', image: './backToMainEntry.jpg', tooltip: 'Back to Main Entry', position: { yaw: 1.5, pitch: 0.1 }, target: 'ENTRY' },
     ],
   },
@@ -65,7 +65,7 @@ const scenes = {
     panorama: './office-6.jpg',
     markers: [
       { id: 'TO-STUDIO', image: './studio2.jpg', tooltip: 'Go to Studio', position: { yaw: 1.9, pitch: 0.05 }, target: 'STUDIO' },
-      { id: 'STUDIO-OUTSIDE-BACK', image: './studio4.jpg', tooltip: 'Back to Main Entry', position: { yaw: -0.6, pitch: 0.05 }, target: 'ENTRY' },
+      { id: 'STUDIO-OUTSIDE-BACK', image: './backToMainEntry.jpg', tooltip: 'Back to Main Entry', position: { yaw: -0.6, pitch: 0.05 }, target: 'ENTRY' },
     ],
   },
   'STUDIO': {

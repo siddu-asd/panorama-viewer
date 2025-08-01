@@ -22,18 +22,18 @@ const VerticalNav = ({ onNavigate, currentScene, scenes, portalContainer }) => {
       id: 'main-areas',
       title: 'Main Areas',
       items: [
-        { id: 'entry', label: 'Main Entry', scene: 'ENTRY', image: '/office-15.jpg' },
-        { id: 'room1', label: 'Office Room', scene: 'ROOM1', image: '/office-10.jpg' },
-        { id: 'admin', label: 'Admin Block', scene: 'ADMIN-BLOCK', image: '/office-14.jpg' },
+        { id: 'entry', label: 'Main Entry', scene: 'ENTRY',  image: './backToMainEntry.jpg'},
+        { id: 'room1', label: 'Office Room', scene: 'ROOM1', image: './office.jpg' },
+        { id: 'admin', label: 'Admin Block', scene: 'ADMIN-BLOCK', image: './adminblock.jpg' },
       ]
     },
     {
       id: 'workspaces',
       title: 'Workspaces',
       items: [
-        { id: 'workspace', label: 'Work Space', scene: 'WORKSPACE', image: '/office-2.jpg' },
-        { id: 'new-office', label: 'New Office', scene: 'NEW-OFFICE', image: '/office-11.jpg' },
-        { id: 'new-office-inside', label: 'New Office Interior', scene: 'NEW-OFFICE-INSIDE', image: '/office-12.jpg' },
+        { id: 'workspace', label: 'Work Space', scene: 'WORKSPACE', image: './workspace.jpg'},
+        { id: 'new-office', label: 'New Office', scene: 'NEW-OFFICE', image: './newOffice.jpg'},
+        { id: 'new-office-inside', label: 'New Office Interior', scene: 'NEW-OFFICE-INSIDE', image: './officeroom.jpg'},
       ]
     },
     {
