@@ -17,6 +17,34 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const audioRef = useRef(null);
+  const selectedVoiceRef = useRef(null);
+
+  // Initialize the selected voice on component mount
+  useEffect(() => {
+    if ('speechSynthesis' in window) {
+      const loadVoices = () => {
+        const voices = speechSynthesis.getVoices();
+        console.log('Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+        
+        // Select only the "Samantha" voice for consistency
+        const preferredVoice = voices.find(voice => {
+          const voiceName = voice.name.toLowerCase();
+          return voice.lang === 'en-US' && voiceName.includes('samantha');
+        }) || voices.find(voice => voice.lang === 'en-US'); // Fallback to any en-US voice
+        
+        selectedVoiceRef.current = preferredVoice;
+        console.log('Selected voice:', preferredVoice ? `${preferredVoice.name} (${preferredVoice.lang})` : 'None');
+      };
+
+      // Load voices immediately and when voices change
+      loadVoices();
+      speechSynthesis.onvoiceschanged = loadVoices;
+      
+      return () => {
+        speechSynthesis.onvoiceschanged = null;
+      };
+    }
+  }, []);
 
   const playAudioFromURL = (url, messageId) => {
     console.log('playAudioFromURL called with:', url, messageId);
@@ -57,55 +85,27 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
     audio.addEventListener('error', (e) => {
       console.error('Audio error:', e);
       setIsAudioPlaying(false);
-      // Fallback to browser speech synthesis with female voice
-      console.log('Trying browser speech synthesis with female voice...');
+      // Fallback to browser speech synthesis with selected voice
+      console.log('Trying browser speech synthesis with selected voice...');
       
-      // Find the bot message and play it with speech synthesis
       const message = messages.find(m => m.id === messageId);
       if (message && message.content && 'speechSynthesis' in window) {
-        const voices = speechSynthesis.getVoices();
-        console.log('Available voices for fallback:', voices.map(v => `${v.name} (${v.lang})`));
-        
-        // Search for a female voice
-        const femaleVoice = voices.find(voice => {
-          const voiceName = voice.name.toLowerCase();
-          const voiceURI = voice.voiceURI.toLowerCase();
-          return (
-            voice.lang.startsWith('en') &&
-            (voiceName.includes('female') ||
-             voiceName.includes('samantha') ||
-             voiceName.includes('karen') ||
-             voiceName.includes('victoria') ||
-             voiceName.includes('martha') ||
-             voiceName.includes('serena') ||
-             voiceName.includes('tessa') ||
-             voiceName.includes('alex') ||
-             voiceName.includes('siri') ||
-             voiceURI.includes('female') ||
-             voiceURI.includes('samantha') ||
-             voiceURI.includes('karen') ||
-             voiceURI.includes('victoria'))
-          );
-        });
-        
         const utterance = new SpeechSynthesisUtterance(message.content);
         utterance.lang = 'en-US';
         utterance.volume = 0.9;
         utterance.rate = 0.85; // Slightly slower for more natural sound
         utterance.pitch = 1.2; // Higher pitch for female voice
         
-        if (femaleVoice) {
-          utterance.voice = femaleVoice;
-          console.log('Using voice:', femaleVoice.name, femaleVoice.lang);
+        if (selectedVoiceRef.current) {
+          utterance.voice = selectedVoiceRef.current;
+          console.log('Using selected voice:', selectedVoiceRef.current.name, selectedVoiceRef.current.lang);
         } else {
-          console.log('No female voice found, using default');
+          console.log('No selected voice, using default');
         }
         
-        // Update audio playing state for speech synthesis
         utterance.onstart = () => setIsAudioPlaying(true);
         utterance.onend = () => setIsAudioPlaying(false);
         
-        // Stop any current speech
         speechSynthesis.cancel();
         speechSynthesis.speak(utterance);
       }
@@ -178,7 +178,6 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
       console.log('Created bot message:', botMessageObj);
       setMessages(prev => [...prev, botMessageObj]);
       
-      // Try to play audio from server URL first, then fallback to TTS
       if (data.audio_url && !mutedMessages.has(botMessageObj.id)) {
         console.log('Playing audio from server URL:', data.audio_url);
         playAudioFromURL(data.audio_url, botMessageObj.id);
@@ -203,9 +202,7 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
   const handleTranscript = useCallback((transcript) => {
     console.log('Transcript received:', transcript);
     if (transcript && transcript.trim()) {
-      // Set the user message first so it shows in the input
       setUserMessage(transcript.trim());
-      // Then send it to the server
       sendToServer(transcript.trim());
     }
     setIsListening(false);
@@ -216,21 +213,18 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
     sendToServer(userMessage.trim());
   }, [userMessage, sendToServer]);
 
-  // Handle microphone icon click to toggle speech recognition
   const handleVoiceButtonClick = useCallback(() => {
     console.log('Voice button clicked, isListening:', isListening);
     
     if (isListening) {
-      // Stop speech recognition
       console.log('Stopping speech recognition');
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
       setIsListening(false);
     } else {
-      // Stop any ongoing audio playback and start speech recognition
       console.log('Starting speech recognition');
-      stopAudioPlayback(); // Stop any bot voice playback
+      stopAudioPlayback();
       try {
         recognitionRef.current = initializeSpeechRecognition(
           selectedLanguage === 'en' ? 'en-IN' : selectedLanguage, 
@@ -262,48 +256,22 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
     const updatedMuted = new Set(mutedMessages);
 
     if (isMutedNow || !isAudioPlaying) {
-      // Unmute and play, or replay if unmuted but not playing
       updatedMuted.delete(messageId);
       setMutedMessages(updatedMuted);
       if (message.audioUrl) {
         playAudioFromURL(message.audioUrl, messageId);
       } else if (message.content && 'speechSynthesis' in window) {
-        const voices = speechSynthesis.getVoices();
-        console.log('Available voices for playback:', voices.map(v => `${v.name} (${v.lang})`));
-        
-        // Search for a female voice
-        const femaleVoice = voices.find(voice => {
-          const voiceName = voice.name.toLowerCase();
-          const voiceURI = voice.voiceURI.toLowerCase();
-          return (
-            voice.lang.startsWith('en') &&
-            (voiceName.includes('female') ||
-             voiceName.includes('samantha') ||
-             voiceName.includes('karen') ||
-             voiceName.includes('victoria') ||
-             voiceName.includes('martha') ||
-             voiceName.includes('serena') ||
-             voiceName.includes('tessa') ||
-             voiceName.includes('alex') ||
-             voiceName.includes('siri') ||
-             voiceURI.includes('female') ||
-             voiceURI.includes('samantha') ||
-             voiceURI.includes('karen') ||
-             voiceURI.includes('victoria'))
-          );
-        });
-        
         const utterance = new SpeechSynthesisUtterance(message.content);
         utterance.lang = 'en-US';
         utterance.volume = 0.9;
         utterance.rate = 0.85;
         utterance.pitch = 1.2;
         
-        if (femaleVoice) {
-          utterance.voice = femaleVoice;
-          console.log('Using voice for playback:', femaleVoice.name, femaleVoice.lang);
+        if (selectedVoiceRef.current) {
+          utterance.voice = selectedVoiceRef.current;
+          console.log('Using selected voice:', selectedVoiceRef.current.name, selectedVoiceRef.current.lang);
         } else {
-          console.log('No female voice found for playback, using default');
+          console.log('No selected voice, using default');
         }
         
         utterance.onstart = () => setIsAudioPlaying(true);
@@ -313,14 +281,12 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
         speechSynthesis.speak(utterance);
       }
     } else {
-      // Mute and stop playback
       updatedMuted.add(messageId);
       setMutedMessages(updatedMuted);
       stopAudioPlayback();
     }
   }, [messages, mutedMessages, isAudioPlaying]);
 
-  // Initialize session and test API connection
   useEffect(() => {
     if (!isVisible) return;
     testAPIConnection();
@@ -338,7 +304,6 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
       });
   }, [isVisible]);
 
-  // Display welcome message when chat is visible and no messages exist
   useEffect(() => {
     if (isVisible && messages.length === 0) {
       const welcome = {
@@ -352,19 +317,16 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
     }
   }, [isVisible, messages.length]);
 
-  // Auto-scroll to the latest message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Auto-focus input when visible and in text mode
   useEffect(() => {
     if (isVisible && inputMode === 'text' && !isTyping && !isListening) {
       setTimeout(() => inputRef.current?.focus(), 200);
     }
   }, [isVisible, inputMode, isTyping, isListening]);
 
-  // Cleanup speech recognition and audio when component unmounts
   useEffect(() => {
     return () => {
       if (recognitionRef.current) {
