@@ -12,6 +12,7 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
   const [inputMode, setInputMode] = useState('text');
   const [mutedMessages, setMutedMessages] = useState(new Set());
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
 
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -48,10 +49,12 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
     audio.addEventListener('play', () => {
       console.log('Audio started playing');
       setIsAudioPlaying(true);
+      setCurrentlyPlaying(messageId);
     });
     audio.addEventListener('ended', () => {
       console.log('Audio finished playing');
       setIsAudioPlaying(false);
+      setCurrentlyPlaying(null);
       audioRef.current = null;
     });
     audio.addEventListener('error', (e) => {
@@ -66,25 +69,16 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
         const voices = speechSynthesis.getVoices();
         console.log('Available voices for fallback:', voices.map(v => `${v.name} (${v.lang})`));
         
-        // Search for a female voice
-        const femaleVoice = voices.find(voice => {
+        // Find ONLY Siri voice
+        console.log('All available voices:', voices.map(v => `${v.name} (${v.lang}) - ${v.voiceURI}`));
+        
+        // Look for Siri voice specifically
+        const selectedVoice = voices.find(voice => {
           const voiceName = voice.name.toLowerCase();
           const voiceURI = voice.voiceURI.toLowerCase();
           return (
             voice.lang.startsWith('en') &&
-            (voiceName.includes('female') ||
-             voiceName.includes('samantha') ||
-             voiceName.includes('karen') ||
-             voiceName.includes('victoria') ||
-             voiceName.includes('martha') ||
-             voiceName.includes('serena') ||
-             voiceName.includes('tessa') ||
-             voiceName.includes('alex') ||
-             voiceName.includes('siri') ||
-             voiceURI.includes('female') ||
-             voiceURI.includes('samantha') ||
-             voiceURI.includes('karen') ||
-             voiceURI.includes('victoria'))
+            (voiceName.includes('siri') || voiceURI.includes('siri'))
           );
         });
         
@@ -94,16 +88,22 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
         utterance.rate = 0.85; // Slightly slower for more natural sound
         utterance.pitch = 1.2; // Higher pitch for female voice
         
-        if (femaleVoice) {
-          utterance.voice = femaleVoice;
-          console.log('Using voice:', femaleVoice.name, femaleVoice.lang);
+        if (selectedVoice) {
+          utterance.voice = selectedVoice;
+          console.log('Using selected voice:', selectedVoice.name, selectedVoice.lang);
         } else {
-          console.log('No female voice found, using default');
+          console.log('No suitable voice found, using default');
         }
         
         // Update audio playing state for speech synthesis
-        utterance.onstart = () => setIsAudioPlaying(true);
-        utterance.onend = () => setIsAudioPlaying(false);
+        utterance.onstart = () => {
+          setIsAudioPlaying(true);
+          setCurrentlyPlaying(messageId);
+        };
+        utterance.onend = () => {
+          setIsAudioPlaying(false);
+          setCurrentlyPlaying(null);
+        };
         
         // Stop any current speech
         speechSynthesis.cancel();
@@ -122,10 +122,12 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
       audioRef.current.pause();
       audioRef.current = null;
       setIsAudioPlaying(false);
+      setCurrentlyPlaying(null);
     }
     if (window.speechSynthesis.speaking) {
       window.speechSynthesis.cancel();
       setIsAudioPlaying(false);
+      setCurrentlyPlaying(null);
     }
   };
 
@@ -271,25 +273,16 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
         const voices = speechSynthesis.getVoices();
         console.log('Available voices for playback:', voices.map(v => `${v.name} (${v.lang})`));
         
-        // Search for a female voice
-        const femaleVoice = voices.find(voice => {
+        // Find ONLY Siri voice
+        console.log('All available voices for playback:', voices.map(v => `${v.name} (${v.lang}) - ${v.voiceURI}`));
+        
+        // Look for Siri voice specifically
+        const selectedVoice = voices.find(voice => {
           const voiceName = voice.name.toLowerCase();
           const voiceURI = voice.voiceURI.toLowerCase();
           return (
             voice.lang.startsWith('en') &&
-            (voiceName.includes('female') ||
-             voiceName.includes('samantha') ||
-             voiceName.includes('karen') ||
-             voiceName.includes('victoria') ||
-             voiceName.includes('martha') ||
-             voiceName.includes('serena') ||
-             voiceName.includes('tessa') ||
-             voiceName.includes('alex') ||
-             voiceName.includes('siri') ||
-             voiceURI.includes('female') ||
-             voiceURI.includes('samantha') ||
-             voiceURI.includes('karen') ||
-             voiceURI.includes('victoria'))
+            (voiceName.includes('siri') || voiceURI.includes('siri'))
           );
         });
         
@@ -297,17 +290,23 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
         utterance.lang = 'en-US';
         utterance.volume = 0.9;
         utterance.rate = 0.85;
-        utterance.pitch = 1.2;
+        utterance.pitch = 1.2; // Higher pitch for female voice
         
-        if (femaleVoice) {
-          utterance.voice = femaleVoice;
-          console.log('Using voice for playback:', femaleVoice.name, femaleVoice.lang);
+        if (selectedVoice) {
+          utterance.voice = selectedVoice;
+          console.log('Using selected voice for playback:', selectedVoice.name, selectedVoice.lang);
         } else {
-          console.log('No female voice found for playback, using default');
+          console.log('No suitable voice found for playback, using default');
         }
         
-        utterance.onstart = () => setIsAudioPlaying(true);
-        utterance.onend = () => setIsAudioPlaying(false);
+        utterance.onstart = () => {
+          setIsAudioPlaying(true);
+          setCurrentlyPlaying(messageId);
+        };
+        utterance.onend = () => {
+          setIsAudioPlaying(false);
+          setCurrentlyPlaying(null);
+        };
         
         speechSynthesis.cancel();
         speechSynthesis.speak(utterance);
@@ -382,6 +381,7 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
     isTyping,
     inputMode,
     mutedMessages,
+    currentlyPlaying,
     handleSendMessage,
     handleVoiceButtonClick,
     handleSpeakerClick,

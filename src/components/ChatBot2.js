@@ -29,69 +29,29 @@ async function playBotAudio(text, language = 'en') {
         });
       }
       
+      // Show all available voices for debugging
+      console.log('=== ALL AVAILABLE VOICES IN CHATBOT2 ===');
+      voices.forEach((voice, index) => {
+        console.log(`${index + 1}. Name: "${voice.name}" | Language: ${voice.lang} | URI: ${voice.voiceURI}`);
+      });
+      console.log('=== END VOICE LIST ===');
+      
       console.log('Available voices:', voices.map(v => `${v.name} (${v.lang}) - ${v.voiceURI}`));
       
-      // Find Lisa or Eva voice with fallback
+      // Find ONLY Siri voice
       let selectedVoice = null;
       
-      // First priority: Look specifically for Lisa or Eva voices
+      console.log('All available voices:', voices.map(v => `${v.name} (${v.lang}) - ${v.voiceURI}`));
+      
+      // Look for Siri voice specifically
       selectedVoice = voices.find(voice => {
         const voiceName = voice.name.toLowerCase();
         const voiceURI = voice.voiceURI.toLowerCase();
         return (
-          voiceName.includes('lisa') ||
-          voiceName.includes('eva') ||
-          voiceURI.includes('lisa') ||
-          voiceURI.includes('eva')
-        ) && voice.lang.startsWith('en');
+          voice.lang.startsWith('en') &&
+          (voiceName.includes('siri') || voiceURI.includes('siri'))
+        );
       });
-      
-      // Second priority: If Lisa/Eva not found, try any female voice
-      if (!selectedVoice) {
-        console.log('Lisa/Eva not found, trying other female voices');
-        selectedVoice = voices.find(voice => {
-          const voiceName = voice.name.toLowerCase();
-          const voiceURI = voice.voiceURI.toLowerCase();
-          return (
-            voiceName.includes('female') ||
-            voiceName.includes('samantha') ||
-            voiceName.includes('karen') ||
-            voiceName.includes('victoria') ||
-            voiceName.includes('martha') ||
-            voiceName.includes('serena') ||
-            voiceName.includes('tessa') ||
-            voiceName.includes('alex') ||
-            voiceName.includes('siri') ||
-            voiceURI.includes('female') ||
-            voiceURI.includes('samantha') ||
-            voiceURI.includes('karen') ||
-            voiceURI.includes('victoria')
-          ) && voice.lang.startsWith('en');
-        });
-      }
-      
-      // Third priority: Any English voice that's not obviously male
-      if (!selectedVoice) {
-        console.log('No female voice found, trying non-male voices');
-        selectedVoice = voices.find(voice => {
-          const voiceName = voice.name.toLowerCase();
-          return (
-            voice.lang.startsWith('en') &&
-            !voiceName.includes('male') &&
-            !voiceName.includes('david') &&
-            !voiceName.includes('tom') &&
-            !voiceName.includes('james') &&
-            !voiceName.includes('john') &&
-            !voiceName.includes('mike')
-          );
-        });
-      }
-      
-      // Last resort: any English voice
-      if (!selectedVoice) {
-        console.log('No suitable voice found, using any English voice');
-        selectedVoice = voices.find(voice => voice.lang.startsWith('en'));
-      }
       
       if (selectedVoice) {
         console.log('Selected voice:', selectedVoice.name, selectedVoice.lang, selectedVoice.voiceURI);
@@ -100,7 +60,7 @@ async function playBotAudio(text, language = 'en') {
         utterance.voice = selectedVoice;
         utterance.volume = 0.9;
         utterance.rate = 0.85; // Slightly slower for more natural sound
-        utterance.pitch = 1.2; // Higher pitch for more feminine sound
+        utterance.pitch = 1.2; // Higher pitch for female voice
         utterance.lang = selectedVoice.lang;
         
         // Add event listeners for debugging
@@ -174,29 +134,68 @@ async function playBotAudio(text, language = 'en') {
         const voices = speechSynthesis.getVoices();
         console.log('Fallback voices available:', voices.map(v => v.name));
         
-                 // Force find Lisa/Eva voice with fallback
+                 // Force find female voice with fallback
+         console.log('Fallback voices available:', voices.map(v => `${v.name} (${v.lang}) - ${v.voiceURI}`));
+         
+         // First, try to find any voice that's not obviously male
          let fallbackVoice = voices.find(voice => {
            const name = voice.name.toLowerCase();
            const voiceURI = voice.voiceURI.toLowerCase();
+           
+           // Skip obviously male voices
+           if (name.includes('david') || name.includes('james') || 
+               name.includes('john') || name.includes('mike') || 
+               name.includes('tom') || name.includes('male') ||
+               voiceURI.includes('david') || voiceURI.includes('james') ||
+               voiceURI.includes('john') || voiceURI.includes('mike') ||
+               voiceURI.includes('tom') || voiceURI.includes('male')) {
+             return false;
+           }
+           
+           // Look for female indicators
            return (
-             name.includes('lisa') ||
-             name.includes('eva') ||
-             voiceURI.includes('lisa') ||
-             voiceURI.includes('eva')
-           ) && voice.lang.startsWith('en');
+             voice.lang.startsWith('en') &&
+             (name.includes('siri') ||
+              name.includes('samantha') ||
+              name.includes('karen') ||
+              name.includes('victoria') ||
+              name.includes('lisa') ||
+              name.includes('eva') ||
+              name.includes('serena') ||
+              name.includes('tessa') ||
+              name.includes('female') ||
+              voiceURI.includes('female') ||
+              voiceURI.includes('siri') ||
+              voiceURI.includes('samantha') ||
+              voiceURI.includes('karen') ||
+              voiceURI.includes('victoria'))
+           );
          });
          
-         // If Lisa/Eva not found, try any female voice
+         // If no female voice found, try to find any voice that's not male
          if (!fallbackVoice) {
+           console.log('No female voice found in fallback, trying non-male voices...');
            fallbackVoice = voices.find(voice => {
              const name = voice.name.toLowerCase();
+             const voiceURI = voice.voiceURI.toLowerCase();
+             
+             // Skip male voices
              return (
-               name.includes('female') ||
-               name.includes('samantha') ||
-               name.includes('karen') ||
-               name.includes('victoria') ||
-               name.includes('martha')
-             ) && voice.lang.startsWith('en');
+               voice.lang.startsWith('en') &&
+               !name.includes('david') && !name.includes('james') &&
+               !name.includes('john') && !name.includes('mike') &&
+               !name.includes('tom') && !name.includes('male') &&
+               !voiceURI.includes('david') && !voiceURI.includes('james') &&
+               !voiceURI.includes('john') && !voiceURI.includes('mike') &&
+               !voiceURI.includes('tom') && !voiceURI.includes('male')
+             );
+           });
+         }
+         
+         // If still no voice found, try any English voice
+         if (!fallbackVoice) {
+           fallbackVoice = voices.find(voice => {
+             return voice.lang.startsWith('en');
            });
          }
          

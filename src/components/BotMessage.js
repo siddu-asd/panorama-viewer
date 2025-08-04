@@ -74,10 +74,10 @@ const BotMessage = ({ message, handleSpeakerClick, isMuted, isPlaying, switchToS
             onClick={onSpeakClick}
             title={
               isPlaying 
-                ? 'Stop playing this message' 
+                ? 'Pause/Stop this message' 
                 : isMuted 
-                  ? 'Unmute and speak this message' 
-                  : 'Click to hear this message'
+                  ? 'Unmute and play this message' 
+                  : 'Play this message'
             }
           >
             {isPlaying ? (
