@@ -140,22 +140,22 @@
 }
 
 .custom-marker-label.always-visible {
-  margin-bottom: 20px;
-  font-size: 1rem;
+  margin-bottom: 15px;
+  font-size: 0.85rem;
   font-weight: 600;
   color: #222;
   background: #fff;
-  border-radius: 6px;
-  padding: 2px 12px;
-  border: 1.5px solid #264528;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-radius: 4px;
+  padding: 1px 8px;
+  border: 1px solid #264528;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   transition: border-color 0.2s, color 0.2s;
   z-index: 2;
 }
 
 .custom-marker-dot {
-  width: 36px;
-  height: 36px;
+  width: 24px;
+  height: 24px;
   background: transparent;
   border: none;
   position: relative;
@@ -167,11 +167,11 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 60px;
-  height: 60px;
+  width: 40px;
+  height: 40px;
   transform: translate(-50%, -50%);
   border: 2px solid #fff;
-  border-radius: 12px;
+  border-radius: 8px;
   background: transparent;
   pointer-events: none;
   z-index: 2;
@@ -182,10 +182,10 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 74px;
-  height: 74px;
-  border: 3px solid #9555df;
-  border-radius: 16px;
+  width: 50px;
+  height: 50px;
+  border: 2px solid #9555df;
+  border-radius: 10px;
   background: transparent;
   pointer-events: none;
   z-index: 1;
@@ -529,8 +529,8 @@
 }
 
 .custom-marker-dot {
-  width: 36px;
-  height: 36px;
+  width: 24px;
+  height: 24px;
   background: transparent;
   border: none;
   position: relative;
@@ -542,11 +542,11 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 60px;
-  height: 60px;
+  width: 40px;
+  height: 40px;
   transform: translate(-50%, -50%);
   border: 2px solid #fff;
-  border-radius: 12px;
+  border-radius: 8px;
   background: transparent;
   pointer-events: none;
   z-index: 2;
@@ -557,10 +557,10 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 74px;
-  height: 74px;
-  border: 3px solid #9555df;
-  border-radius: 16px;
+  width: 50px;
+  height: 50px;
+  border: 2px solid #9555df;
+  border-radius: 10px;
   background: transparent;
   pointer-events: none;
   z-index: 1;
@@ -583,8 +583,8 @@
 } 
 
 .custom-marker-dot {
-  width: 36px;
-  height: 36px;
+  width: 24px;
+  height: 24px;
   background: transparent;
   background-size: cover;
   background-position: center;
@@ -593,7 +593,7 @@
   position: relative;
   z-index: 3;
   transition: all 0.3s ease;
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 .custom-marker-outer:hover .custom-marker-dot,
@@ -603,20 +603,20 @@
   background-position: center;
   background-repeat: no-repeat;
   filter: brightness(1.1) contrast(1.05);
-  transform: scale(2.2);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-  width: 74px;
-  height: 74px;
+  transform: scale(1.8);
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+  width: 50px;
+  height: 50px;
 }
 
 .custom-marker-outer:hover .custom-marker-dot::before,
 .custom-marker-outer:focus-within .custom-marker-dot::before {
   transform: translate(-50%, -50%) scale(1.0);
   border-color: #9555df;
-  box-shadow: 0 0 16px rgba(149,85,223,0.4);
-  width: 74px;
-  height: 74px;
+  box-shadow: 0 0 12px rgba(149,85,223,0.4);
+  width: 50px;
+  height: 50px;
 }
 
 .custom-marker-outer:hover .custom-marker-dot::after,
@@ -624,7 +624,7 @@
   transform: translate(-50%, -50%) scale(1.0);
   opacity: 1;
   border-color: #9555df;
-  box-shadow: 0 0 24px rgba(149,85,223,0.3);
-  width: 74px;
-  height: 74px;
+  box-shadow: 0 0 18px rgba(149,85,223,0.3);
+  width: 50px;
+  height: 50px;
 } 

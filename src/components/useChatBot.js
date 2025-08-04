@@ -12,14 +12,15 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
   const [sessionId, setSessionId] = useState('');
   const [inputMode, setInputMode] = useState('text');
   const [mutedMessages, setMutedMessages] = useState(new Set());
+  const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
 
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const audioRef = useRef(null);
 
-  const playAudioFromURL = (url, messageId) => {
-    console.log('playAudioFromURL called with:', url, messageId);
+  const playAudioFromURL = (url, messageId, forcePlay = false) => {
+    console.log('playAudioFromURL called with:', url, messageId, 'forcePlay:', forcePlay);
     
     if (audioRef.current) {
       console.log('Stopping previous audio');
@@ -27,7 +28,7 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
       audioRef.current = null;
     }
 
-    if (mutedMessages.has(messageId)) {
+    if (!forcePlay && mutedMessages.has(messageId)) {
       console.log('Message is muted, not playing audio');
       return;
     }
@@ -44,9 +45,18 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
     // Add event listeners for debugging
     audio.addEventListener('loadstart', () => console.log('Audio loading started'));
     audio.addEventListener('canplay', () => console.log('Audio can play'));
-    audio.addEventListener('play', () => console.log('Audio started playing'));
-    audio.addEventListener('ended', () => console.log('Audio finished playing'));
-    audio.addEventListener('error', (e) => console.error('Audio error:', e));
+    audio.addEventListener('play', () => {
+      console.log('Audio started playing');
+      setCurrentlyPlaying(messageId);
+    });
+    audio.addEventListener('ended', () => {
+      console.log('Audio finished playing');
+      setCurrentlyPlaying(null);
+    });
+    audio.addEventListener('error', (e) => {
+      console.error('Audio error:', e);
+      setCurrentlyPlaying(null);
+    });
     
     audio.play().catch(err => {
       console.error('Audio playback failed:', err.message);
@@ -55,47 +65,64 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
       
       // Find the bot message and play it with speech synthesis
       const message = messages.find(m => m.id === messageId);
-      if (message && message.content && 'speechSynthesis' in window) {
+      if (message && message.content && 'speechSynthesis' in window && (forcePlay || !mutedMessages.has(messageId))) {
         const voices = speechSynthesis.getVoices();
         console.log('Available voices for fallback:', voices.map(v => `${v.name} (${v.lang})`));
         
-        // Aggressive female voice search
-        const femaleVoice = voices.find(voice => {
-          const voiceName = voice.name.toLowerCase();
-          const voiceURI = voice.voiceURI.toLowerCase();
-          return (
-            voice.lang.startsWith('en') &&
-            (voiceName.includes('female') ||
-             voiceName.includes('samantha') ||
-             voiceName.includes('karen') ||
-             voiceName.includes('victoria') ||
-             voiceName.includes('martha') ||
-             voiceName.includes('serena') ||
-             voiceName.includes('tessa') ||
-             voiceName.includes('alex') ||
-             voiceName.includes('siri') ||
-             voiceURI.includes('female') ||
-             voiceURI.includes('samantha') ||
-             voiceURI.includes('karen') ||
-             voiceURI.includes('victoria'))
-          );
-        });
-        
-        // If no female voice, try any voice that's not obviously male
-        const nonMaleVoice = !femaleVoice ? voices.find(voice => {
-          const voiceName = voice.name.toLowerCase();
-          return (
-            voice.lang.startsWith('en') &&
-            !voiceName.includes('male') &&
-            !voiceName.includes('david') &&
-            !voiceName.includes('tom') &&
-            !voiceName.includes('james') &&
-            !voiceName.includes('john') &&
-            !voiceName.includes('mike')
-          );
-        }) : null;
-        
-        const selectedVoice = femaleVoice || nonMaleVoice;
+                 // Lisa/Eva voice search with fallback
+         let selectedVoice = voices.find(voice => {
+           const voiceName = voice.name.toLowerCase();
+           const voiceURI = voice.voiceURI.toLowerCase();
+           return (
+             voice.lang.startsWith('en') &&
+             (voiceName.includes('lisa') ||
+              voiceName.includes('eva') ||
+              voiceURI.includes('lisa') ||
+              voiceURI.includes('eva'))
+           );
+         });
+         
+         // If Lisa/Eva not found, try any female voice
+         if (!selectedVoice) {
+           console.log('Lisa/Eva not found, trying other female voices');
+           selectedVoice = voices.find(voice => {
+             const voiceName = voice.name.toLowerCase();
+             const voiceURI = voice.voiceURI.toLowerCase();
+             return (
+               voice.lang.startsWith('en') &&
+               (voiceName.includes('female') ||
+                voiceName.includes('samantha') ||
+                voiceName.includes('karen') ||
+                voiceName.includes('victoria') ||
+                voiceName.includes('martha') ||
+                voiceName.includes('serena') ||
+                voiceName.includes('tessa') ||
+                voiceName.includes('alex') ||
+                voiceName.includes('siri') ||
+                voiceURI.includes('female') ||
+                voiceURI.includes('samantha') ||
+                voiceURI.includes('karen') ||
+                voiceURI.includes('victoria'))
+             );
+           });
+         }
+         
+         // If still no voice, try any non-male voice
+         if (!selectedVoice) {
+           console.log('No female voice found, trying non-male voices');
+           selectedVoice = voices.find(voice => {
+             const voiceName = voice.name.toLowerCase();
+             return (
+               voice.lang.startsWith('en') &&
+               !voiceName.includes('male') &&
+               !voiceName.includes('david') &&
+               !voiceName.includes('tom') &&
+               !voiceName.includes('james') &&
+               !voiceName.includes('john') &&
+               !voiceName.includes('mike')
+             );
+           });
+         }
         
         const utterance = new SpeechSynthesisUtterance(message.content);
         utterance.lang = 'en-US';
@@ -242,19 +269,133 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
     const message = messages.find(m => m.id === messageId);
     if (!message) return;
 
+    // If this message is currently playing, stop it
+    if (currentlyPlaying === messageId) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+      }
+      setCurrentlyPlaying(null);
+      return;
+    }
+
     const isMutedNow = mutedMessages.has(messageId);
     const updatedMuted = new Set(mutedMessages);
 
     if (isMutedNow) {
+      // Unmuting - remove from muted set and play audio
       updatedMuted.delete(messageId);
-      if (message.audioUrl) playAudioFromURL(message.audioUrl, messageId);
+      setMutedMessages(updatedMuted);
+      
+      // Play audio immediately
+      playMessageAudio(message, messageId);
     } else {
-      updatedMuted.add(messageId);
-      if (audioRef.current) audioRef.current.pause();
+      // If not muted, just play the audio without changing mute state
+      playMessageAudio(message, messageId);
     }
+  }, [messages, mutedMessages, currentlyPlaying]);
 
-    setMutedMessages(updatedMuted);
-  }, [messages, mutedMessages]);
+  // Helper function to play message audio
+  const playMessageAudio = useCallback((message, messageId) => {
+    // Stop any currently playing audio first
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+    }
+    
+    // Set currently playing state
+    setCurrentlyPlaying(messageId);
+    
+    // Then play the message audio
+    if (message.audioUrl) {
+      playAudioFromURL(message.audioUrl, messageId, true);
+    } else if (message.content && 'speechSynthesis' in window) {
+      // Fallback to speech synthesis if no audio URL
+      const voices = speechSynthesis.getVoices();
+      
+      // Find Lisa/Eva voice with fallback
+      let selectedVoice = voices.find(voice => {
+        const voiceName = voice.name.toLowerCase();
+        const voiceURI = voice.voiceURI.toLowerCase();
+        return (
+          voice.lang.startsWith('en') &&
+          (voiceName.includes('lisa') ||
+           voiceName.includes('eva') ||
+           voiceURI.includes('lisa') ||
+           voiceURI.includes('eva'))
+        );
+      });
+      
+      // If Lisa/Eva not found, try any female voice
+      if (!selectedVoice) {
+        console.log('Lisa/Eva not found, trying other female voices');
+        selectedVoice = voices.find(voice => {
+          const voiceName = voice.name.toLowerCase();
+          const voiceURI = voice.voiceURI.toLowerCase();
+          return (
+            voice.lang.startsWith('en') &&
+            (voiceName.includes('female') ||
+             voiceName.includes('samantha') ||
+             voiceName.includes('karen') ||
+             voiceName.includes('victoria') ||
+             voiceName.includes('martha') ||
+             voiceName.includes('serena') ||
+             voiceName.includes('tessa') ||
+             voiceName.includes('alex') ||
+             voiceName.includes('siri') ||
+             voiceURI.includes('female') ||
+             voiceURI.includes('samantha') ||
+             voiceURI.includes('karen') ||
+             voiceURI.includes('victoria'))
+          );
+        });
+      }
+      
+      // If still no voice, try any non-male voice
+      if (!selectedVoice) {
+        console.log('No female voice found, trying non-male voices');
+        selectedVoice = voices.find(voice => {
+          const voiceName = voice.name.toLowerCase();
+          return (
+            voice.lang.startsWith('en') &&
+            !voiceName.includes('male') &&
+            !voiceName.includes('david') &&
+            !voiceName.includes('tom') &&
+            !voiceName.includes('james') &&
+            !voiceName.includes('john') &&
+            !voiceName.includes('mike')
+          );
+        });
+      }
+      
+      const utterance = new SpeechSynthesisUtterance(message.content);
+      utterance.lang = 'en-US';
+      utterance.volume = 0.9;
+      utterance.rate = 0.85;
+      utterance.pitch = 1.2;
+      
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+        console.log('Using voice:', selectedVoice.name);
+      } else {
+        console.log('No suitable voice found, not playing audio');
+        setCurrentlyPlaying(null);
+        return;
+      }
+      
+      // Add event listeners to track when audio ends
+      utterance.onend = () => setCurrentlyPlaying(null);
+      utterance.onerror = () => setCurrentlyPlaying(null);
+      
+      speechSynthesis.speak(utterance);
+    }
+  }, []);
 
   useEffect(() => {
     if (!isVisible) return;
@@ -297,18 +438,19 @@ export const useChatBot = (isVisible, selectedLanguage = 'en', switchToScene) =>
     };
   }, []);
 
-  return {
-    userMessage,
-    setUserMessage,
-    messages,
-    isListening,
-    isTyping,
-    inputMode,
-    mutedMessages,
-    handleSendMessage,
-    handleVoiceButtonClick,
-    handleSpeakerClick,
-    inputRef,
-    messagesEndRef,
-  };
+      return {
+      userMessage,
+      setUserMessage,
+      messages,
+      isListening,
+      isTyping,
+      inputMode,
+      mutedMessages,
+      currentlyPlaying,
+      handleSendMessage,
+      handleVoiceButtonClick,
+      handleSpeakerClick,
+      inputRef,
+      messagesEndRef,
+    };
 };
