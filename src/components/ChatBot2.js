@@ -9,28 +9,59 @@ import { useTranslation } from 'react-i18next';
 async function playBotAudio(text, language = 'en', messageId = null, setMutedMessages = null) {
   try {
     console.log('Playing bot audio for:', text, 'language:', language);
+    console.log('Browser:', navigator.userAgent);
     
     // Use browser speech synthesis for reliable voice output
     if ('speechSynthesis' in window) {
-      console.log('Using browser speech synthesis');
+      console.log('Speech synthesis supported');
       
-      // Get available voices
+      // Get available voices with better browser compatibility
       let voices = speechSynthesis.getVoices();
+      console.log('Initial voices count:', voices.length);
       
-      // If voices aren't loaded yet, wait for them
+      // If voices aren't loaded yet, wait for them with multiple attempts
       if (voices.length === 0) {
         console.log('Waiting for voices to load...');
-        voices = await new Promise(resolve => {
-          speechSynthesis.onvoiceschanged = () => {
-            const loadedVoices = speechSynthesis.getVoices();
-            console.log('Voices loaded:', loadedVoices.length);
-            resolve(loadedVoices);
-          };
-          // Trigger voices to load
-          speechSynthesis.getVoices();
-        });
+        
+        // Try multiple approaches to load voices
+        for (let attempt = 0; attempt < 3; attempt++) {
+          console.log(`Voice loading attempt ${attempt + 1}`);
+          
+          // Method 1: Wait for voiceschanged event
+          voices = await new Promise((resolve) => {
+            const timeout = setTimeout(() => {
+              console.log('Voice loading timeout, trying direct getVoices()');
+              resolve(speechSynthesis.getVoices());
+            }, 2000);
+            
+            speechSynthesis.onvoiceschanged = () => {
+              clearTimeout(timeout);
+              const loadedVoices = speechSynthesis.getVoices();
+              console.log('Voices loaded via event:', loadedVoices.length);
+              resolve(loadedVoices);
+            };
+            
+            // Trigger voices to load
+            speechSynthesis.getVoices();
+          });
+          
+          if (voices.length > 0) {
+            console.log('Voices loaded successfully:', voices.length);
+            break;
+          }
+          
+          // Method 2: Try speaking a short utterance to trigger voice loading
+          if (attempt < 2) {
+            console.log('Trying to trigger voice loading with short utterance...');
+            const tempUtterance = new SpeechSynthesisUtterance('');
+            speechSynthesis.speak(tempUtterance);
+            speechSynthesis.cancel();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
       }
       
+      console.log('Final voices count:', voices.length);
       console.log('Available voices:', voices.map(v => `${v.name} (${v.lang}) - ${v.voiceURI}`));
       
       let selectedVoice = null;
@@ -44,6 +75,7 @@ async function playBotAudio(text, language = 'en', messageId = null, setMutedMes
           (voiceName.includes('lisa') || voiceURI.includes('lisa'))
         );
       });
+      
       if (selectedVoice) {
         console.log('Found Lisa voice:', selectedVoice.name);
       }
@@ -149,7 +181,18 @@ async function playBotAudio(text, language = 'en', messageId = null, setMutedMes
         }
       }
       
-      // Only proceed if we have a female voice
+      // 5. Fallback to any English voice if no female voice found
+      if (!selectedVoice && voices.length > 0) {
+        console.log('No female voice found, trying any English voice...');
+        selectedVoice = voices.find(voice => 
+          voice.lang.startsWith('en') && voice.default !== false
+        );
+        if (selectedVoice) {
+          console.log('Found fallback English voice:', selectedVoice.name);
+        }
+      }
+      
+      // Only proceed if we have a voice
       if (selectedVoice) {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = language === 'en' ? 'en-US' : language;
@@ -158,9 +201,9 @@ async function playBotAudio(text, language = 'en', messageId = null, setMutedMes
         utterance.pitch = 1.1; // Slightly higher pitch for sweetness
         
         utterance.voice = selectedVoice;
-        console.log('Using selected female voice:', selectedVoice.name, selectedVoice.lang);
+        console.log('Using selected voice:', selectedVoice.name, selectedVoice.lang);
         
-        utterance.onstart = () => console.log('Speech synthesis started with female voice');
+        utterance.onstart = () => console.log('Speech synthesis started');
         utterance.onend = () => {
           console.log('Speech synthesis ended');
           // Automatically mute the message after it finishes speaking
@@ -169,21 +212,46 @@ async function playBotAudio(text, language = 'en', messageId = null, setMutedMes
             setMutedMessages(prev => new Set([...prev, messageId]));
           }
         };
-        utterance.onerror = (e) => console.error('Speech synthesis error:', e);
+        utterance.onerror = (e) => {
+          console.error('Speech synthesis error:', e);
+          console.log('Error details:', {
+            error: e.error,
+            message: e.message,
+            elapsedTime: e.elapsedTime,
+            charIndex: e.charIndex
+          });
+        };
         
+        // Cancel any ongoing speech before starting new one
         speechSynthesis.cancel();
-        speechSynthesis.speak(utterance);
-        console.log('Speech synthesis initiated with female voice');
+        
+        // Add a small delay to ensure cancellation is complete
+        setTimeout(() => {
+          speechSynthesis.speak(utterance);
+          console.log('Speech synthesis initiated');
+        }, 100);
+        
       } else {
-        console.log('NO FEMALE VOICE FOUND - NOT SPEAKING TO AVOID MALE VOICE');
+        console.log('NO VOICE FOUND - NOT SPEAKING');
+        console.log('Available voices were:', voices.map(v => `${v.name} (${v.lang})`));
       }
       
     } else {
       console.error('Speech synthesis not supported in this browser');
+      console.log('Browser details:', {
+        userAgent: navigator.userAgent,
+        vendor: navigator.vendor,
+        platform: navigator.platform
+      });
     }
     
   } catch (err) {
     console.error('Audio playback error:', err);
+    console.log('Error details:', {
+      message: err.message,
+      stack: err.stack,
+      browser: navigator.userAgent
+    });
   }
 }
 
@@ -230,18 +298,27 @@ const ChatBot2 = ({ isVisible, toggleChatBot, switchToScene }) => {
       const lastMsg = messages[messages.length - 1];
       console.log('Last message:', lastMsg);
       
+      // Check if this is a welcome message or a new bot message
+      const isWelcomeMessage = lastMsg.id === 'welcome';
+      const isNewMessage = lastBotMsgRef.current !== lastMsg.content;
+      const shouldSpeak = isWelcomeMessage || isNewMessage;
+      
       // Re-enabled automatic TTS to ensure voice works
-      if (lastMsg.type === 'bot' && lastBotMsgRef.current !== lastMsg.content && !mutedMessages.has(lastMsg.id)) {
+      if (lastMsg.type === 'bot' && shouldSpeak && !mutedMessages.has(lastMsg.id)) {
         console.log('Playing bot audio for message:', lastMsg.content);
         console.log('Current language:', i18n.language);
         console.log('Message muted:', mutedMessages.has(lastMsg.id));
+        console.log('Is welcome message:', isWelcomeMessage);
+        console.log('Is new message:', isNewMessage);
         
         playBotAudio(lastMsg.content, i18n.language, lastMsg.id, setMutedMessages);
         lastBotMsgRef.current = lastMsg.content;
       } else {
         console.log('Bot audio not triggered because:', {
           isBot: lastMsg.type === 'bot',
-          isNew: lastBotMsgRef.current !== lastMsg.content,
+          isWelcome: isWelcomeMessage,
+          isNew: isNewMessage,
+          shouldSpeak: shouldSpeak,
           isMuted: mutedMessages.has(lastMsg.id)
         });
       }
