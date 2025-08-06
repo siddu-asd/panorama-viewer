@@ -325,6 +325,26 @@ const ChatBot2 = ({ isVisible, toggleChatBot, switchToScene }) => {
     }
   }, [messages, i18n.language, mutedMessages]);
 
+  // Trigger voice when user stops interacting (only if message wasn't already spoken)
+  useEffect(() => {
+    if (messages.length > 0 && !isTyping && !isListening && isVisible) {
+      const lastMessage = messages[messages.length - 1];
+      
+      // Only speak if it's a bot message, not muted, and wasn't already spoken
+      if (lastMessage.type === 'bot' && 
+          !mutedMessages.has(lastMessage.id) && 
+          lastBotMsgRef.current !== lastMessage.content) {
+        const timeoutId = setTimeout(() => {
+          console.log('User stopped interacting, speaking last bot message');
+          playBotAudio(lastMessage.content, i18n.language, lastMessage.id, setMutedMessages);
+          lastBotMsgRef.current = lastMessage.content; // Mark as spoken
+        }, 3000); // Wait 3 seconds after user stops interacting
+        
+        return () => clearTimeout(timeoutId);
+      }
+    }
+  }, [messages, isTyping, isListening, isVisible, mutedMessages, i18n.language]);
+
   if (!isVisible) return null;
 
   if (!languageSelected) {
