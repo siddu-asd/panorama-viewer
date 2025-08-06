@@ -6,13 +6,13 @@ import UserMessage from './UserMessage';
 import InputContainer from './InputContainer';
 import { useTranslation } from 'react-i18next';
 
-async function playBotAudio(text, language = 'en') {
+async function playBotAudio(text, language = 'en', messageId = null, setMutedMessages = null) {
   try {
     console.log('Playing bot audio for:', text, 'language:', language);
     
-    // Try browser speech synthesis first for better voice control
+    // Use browser speech synthesis for reliable voice output
     if ('speechSynthesis' in window) {
-      console.log('Using browser speech synthesis for Siri-like voice');
+      console.log('Using browser speech synthesis');
       
       // Get available voices
       let voices = speechSynthesis.getVoices();
@@ -26,199 +26,164 @@ async function playBotAudio(text, language = 'en') {
             console.log('Voices loaded:', loadedVoices.length);
             resolve(loadedVoices);
           };
+          // Trigger voices to load
+          speechSynthesis.getVoices();
         });
       }
       
-      // Show all available voices for debugging
-      console.log('=== ALL AVAILABLE VOICES IN CHATBOT2 ===');
-      voices.forEach((voice, index) => {
-        console.log(`${index + 1}. Name: "${voice.name}" | Language: ${voice.lang} | URI: ${voice.voiceURI}`);
-      });
-      console.log('=== END VOICE LIST ===');
-      
       console.log('Available voices:', voices.map(v => `${v.name} (${v.lang}) - ${v.voiceURI}`));
       
-      // Find ONLY Siri voice
       let selectedVoice = null;
       
-      console.log('All available voices:', voices.map(v => `${v.name} (${v.lang}) - ${v.voiceURI}`));
-      
-      // Look for Siri voice specifically
+      // 1. Try Lisa (best quality)
       selectedVoice = voices.find(voice => {
         const voiceName = voice.name.toLowerCase();
         const voiceURI = voice.voiceURI.toLowerCase();
         return (
           voice.lang.startsWith('en') &&
-          (voiceName.includes('siri') || voiceURI.includes('siri'))
+          (voiceName.includes('lisa') || voiceURI.includes('lisa'))
         );
       });
-      
       if (selectedVoice) {
-        console.log('Selected voice:', selectedVoice.name, selectedVoice.lang, selectedVoice.voiceURI);
-        
+        console.log('Found Lisa voice:', selectedVoice.name);
+      }
+      
+      // 2. If no Lisa, try Serena
+      if (!selectedVoice) {
+        selectedVoice = voices.find(voice => {
+          const voiceName = voice.name.toLowerCase();
+          const voiceURI = voice.voiceURI.toLowerCase();
+          return (
+            voice.lang.startsWith('en') &&
+            (voiceName.includes('serena') || voiceURI.includes('serena'))
+          );
+        });
+        if (selectedVoice) {
+          console.log('Found Serena voice:', selectedVoice.name);
+        }
+      }
+      
+      // 3. If no Serena, try Karen
+      if (!selectedVoice) {
+        selectedVoice = voices.find(voice => {
+          const voiceName = voice.name.toLowerCase();
+          const voiceURI = voice.voiceURI.toLowerCase();
+          return (
+            voice.lang.startsWith('en') &&
+            (voiceName.includes('karen') || voiceURI.includes('karen'))
+          );
+        });
+        if (selectedVoice) {
+          console.log('Found Karen voice:', selectedVoice.name);
+        }
+      }
+      
+      // 4. If no specific voices, find ANY female voice (no male voices)
+      if (!selectedVoice) {
+        console.log('Looking for any female voice...');
+        selectedVoice = voices.find(voice => {
+          const voiceName = voice.name.toLowerCase();
+          const voiceURI = voice.voiceURI.toLowerCase();
+          
+          // Skip male voices
+          if (voiceName.includes('david') || voiceName.includes('james') || 
+              voiceName.includes('john') || voiceName.includes('mike') || 
+              voiceName.includes('tom') || voiceName.includes('male') ||
+              voiceName.includes('alex') || voiceName.includes('daniel') ||
+              voiceName.includes('mark') || voiceName.includes('peter') ||
+              voiceName.includes('robert') || voiceName.includes('steve') ||
+              voiceURI.includes('david') || voiceURI.includes('james') ||
+              voiceURI.includes('john') || voiceURI.includes('mike') ||
+              voiceURI.includes('tom') || voiceURI.includes('male') ||
+              voiceURI.includes('alex') || voiceURI.includes('daniel') ||
+              voiceURI.includes('mark') || voiceURI.includes('peter') ||
+              voiceURI.includes('robert') || voiceURI.includes('steve')) {
+            return false;
+          }
+          
+          // Look for female indicators
+          return (
+            voice.lang.startsWith('en') &&
+            (voiceName.includes('female') ||
+             voiceURI.includes('female') ||
+             voiceName.includes('samantha') ||
+             voiceName.includes('victoria') ||
+             voiceName.includes('tessa') ||
+             voiceName.includes('eva') ||
+             voiceName.includes('sarah') ||
+             voiceName.includes('emma') ||
+             voiceName.includes('sophie') ||
+             voiceName.includes('olivia') ||
+             voiceName.includes('chloe') ||
+             voiceName.includes('grace') ||
+             voiceName.includes('lily') ||
+             voiceName.includes('zoe') ||
+             voiceName.includes('mia') ||
+             voiceName.includes('ava') ||
+             voiceName.includes('isabella') ||
+             voiceName.includes('emily') ||
+             voiceName.includes('madison') ||
+             voiceName.includes('abigail') ||
+             voiceURI.includes('samantha') ||
+             voiceURI.includes('victoria') ||
+             voiceURI.includes('tessa') ||
+             voiceURI.includes('eva') ||
+             voiceURI.includes('sarah') ||
+             voiceURI.includes('emma') ||
+             voiceURI.includes('sophie') ||
+             voiceURI.includes('olivia') ||
+             voiceURI.includes('chloe') ||
+             voiceURI.includes('grace') ||
+             voiceURI.includes('lily') ||
+             voiceURI.includes('zoe') ||
+             voiceURI.includes('mia') ||
+             voiceURI.includes('ava') ||
+             voiceURI.includes('isabella') ||
+             voiceURI.includes('emily') ||
+             voiceURI.includes('madison') ||
+             voiceURI.includes('abigail'))
+          );
+        });
+        if (selectedVoice) {
+          console.log('Found female voice:', selectedVoice.name);
+        }
+      }
+      
+      // Only proceed if we have a female voice
+      if (selectedVoice) {
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.voice = selectedVoice;
-        utterance.volume = 0.9;
-        utterance.rate = 0.85; // Slightly slower for more natural sound
-        utterance.pitch = 1.2; // Higher pitch for female voice
-        utterance.lang = selectedVoice.lang;
+        utterance.lang = language === 'en' ? 'en-US' : language;
+        utterance.volume = 1.0; // Full volume for clarity
+        utterance.rate = 0.9; // Slightly slower for sweetness and clarity
+        utterance.pitch = 1.1; // Slightly higher pitch for sweetness
         
-        // Add event listeners for debugging
-        utterance.onstart = () => console.log('Speech synthesis started with voice:', selectedVoice.name);
-        utterance.onend = () => console.log('Speech synthesis ended');
+        utterance.voice = selectedVoice;
+        console.log('Using selected female voice:', selectedVoice.name, selectedVoice.lang);
+        
+        utterance.onstart = () => console.log('Speech synthesis started with female voice');
+        utterance.onend = () => {
+          console.log('Speech synthesis ended');
+          // Automatically mute the message after it finishes speaking
+          if (messageId && setMutedMessages) {
+            console.log('Automatically muting message after speech:', messageId);
+            setMutedMessages(prev => new Set([...prev, messageId]));
+          }
+        };
         utterance.onerror = (e) => console.error('Speech synthesis error:', e);
         
-        // Stop any currently speaking
         speechSynthesis.cancel();
-        
         speechSynthesis.speak(utterance);
-        return; // Exit early if speech synthesis works
+        console.log('Speech synthesis initiated with female voice');
       } else {
-        console.log('No suitable voice found, falling back to TTS server');
+        console.log('NO FEMALE VOICE FOUND - NOT SPEAKING TO AVOID MALE VOICE');
       }
+      
+    } else {
+      console.error('Speech synthesis not supported in this browser');
     }
-    
-    // Fallback to TTS server with explicit female voice request
-    console.log('Falling back to TTS server with female voice request');
-      const response = await fetch('https://nissa-chat-bot.onrender.com/tts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        text, 
-        language,
-        voice: 'female', // Explicitly request female voice
-        speed: 0.85, // Slightly slower speed
-        pitch: 1.2, // Higher pitch for female voice
-        gender: 'female' // Additional gender parameter
-      }),
-    });
-    
-    console.log('TTS response status:', response.status);
-    
-    if (!response.ok) {
-      console.error('TTS failed with status:', response.status);
-      throw new Error(`TTS failed with status: ${response.status}`);
-    }
-    
-    const audioData = await response.arrayBuffer();
-    console.log('Audio data received, size:', audioData.byteLength);
-    
-    const blob = new Blob([audioData], { type: 'audio/mpeg' });
-    const url = URL.createObjectURL(blob);
-    console.log('Audio URL created:', url);
-    
-    const audio = new Audio(url);
-    
-    // Add event listeners for debugging
-    audio.addEventListener('loadstart', () => console.log('Audio loading started'));
-    audio.addEventListener('canplay', () => console.log('Audio can play'));
-    audio.addEventListener('play', () => console.log('Audio started playing'));
-    audio.addEventListener('ended', () => console.log('Audio finished playing'));
-    audio.addEventListener('error', (e) => console.error('Audio error:', e));
-    
-    // Set volume and play
-    audio.volume = 0.9;
-    await audio.play();
-    console.log('Audio play() called successfully');
-    
-    // Clean up URL after playing
-    audio.addEventListener('ended', () => {
-      URL.revokeObjectURL(url);
-    });
     
   } catch (err) {
     console.error('Audio playback error:', err);
-    // Final fallback: force female voice with speech synthesis
-    try {
-      if ('speechSynthesis' in window) {
-        const voices = speechSynthesis.getVoices();
-        console.log('Fallback voices available:', voices.map(v => v.name));
-        
-                 // Force find female voice with fallback
-         console.log('Fallback voices available:', voices.map(v => `${v.name} (${v.lang}) - ${v.voiceURI}`));
-         
-         // First, try to find any voice that's not obviously male
-         let fallbackVoice = voices.find(voice => {
-           const name = voice.name.toLowerCase();
-           const voiceURI = voice.voiceURI.toLowerCase();
-           
-           // Skip obviously male voices
-           if (name.includes('david') || name.includes('james') || 
-               name.includes('john') || name.includes('mike') || 
-               name.includes('tom') || name.includes('male') ||
-               voiceURI.includes('david') || voiceURI.includes('james') ||
-               voiceURI.includes('john') || voiceURI.includes('mike') ||
-               voiceURI.includes('tom') || voiceURI.includes('male')) {
-             return false;
-           }
-           
-           // Look for female indicators
-           return (
-             voice.lang.startsWith('en') &&
-             (name.includes('siri') ||
-              name.includes('samantha') ||
-              name.includes('karen') ||
-              name.includes('victoria') ||
-              name.includes('lisa') ||
-              name.includes('eva') ||
-              name.includes('serena') ||
-              name.includes('tessa') ||
-              name.includes('female') ||
-              voiceURI.includes('female') ||
-              voiceURI.includes('siri') ||
-              voiceURI.includes('samantha') ||
-              voiceURI.includes('karen') ||
-              voiceURI.includes('victoria'))
-           );
-         });
-         
-         // If no female voice found, try to find any voice that's not male
-         if (!fallbackVoice) {
-           console.log('No female voice found in fallback, trying non-male voices...');
-           fallbackVoice = voices.find(voice => {
-             const name = voice.name.toLowerCase();
-             const voiceURI = voice.voiceURI.toLowerCase();
-             
-             // Skip male voices
-             return (
-               voice.lang.startsWith('en') &&
-               !name.includes('david') && !name.includes('james') &&
-               !name.includes('john') && !name.includes('mike') &&
-               !name.includes('tom') && !name.includes('male') &&
-               !voiceURI.includes('david') && !voiceURI.includes('james') &&
-               !voiceURI.includes('john') && !voiceURI.includes('mike') &&
-               !voiceURI.includes('tom') && !voiceURI.includes('male')
-             );
-           });
-         }
-         
-         // If still no voice found, try any English voice
-         if (!fallbackVoice) {
-           fallbackVoice = voices.find(voice => {
-             return voice.lang.startsWith('en');
-           });
-         }
-         
-         const utterance = new SpeechSynthesisUtterance(text);
-         if (fallbackVoice) {
-           utterance.voice = fallbackVoice;
-           console.log('Using fallback voice:', fallbackVoice.name);
-         } else {
-           console.log('No suitable voice found, using default');
-         }
-        
-        utterance.lang = language === 'en' ? 'en-US' : language;
-        utterance.volume = 0.9;
-        utterance.rate = 0.85;
-        utterance.pitch = 1.2; // Higher pitch for female voice
-        
-        speechSynthesis.cancel(); // Stop any current speech
-        speechSynthesis.speak(utterance);
-        console.log('Using forced speech synthesis with female settings');
-      }
-    } catch (fallbackErr) {
-      console.error('All audio methods failed:', fallbackErr);
-    }
   }
 }
 
@@ -243,6 +208,7 @@ const ChatBot2 = ({ isVisible, toggleChatBot, switchToScene }) => {
     handleVoiceButtonClick,
     inputRef,
     mutedMessages,
+    setMutedMessages,
     currentlyPlaying,
     handleSpeakerClick,
   } = useChatBot(isVisible, 'en', switchToScene);
@@ -264,12 +230,13 @@ const ChatBot2 = ({ isVisible, toggleChatBot, switchToScene }) => {
       const lastMsg = messages[messages.length - 1];
       console.log('Last message:', lastMsg);
       
+      // Re-enabled automatic TTS to ensure voice works
       if (lastMsg.type === 'bot' && lastBotMsgRef.current !== lastMsg.content && !mutedMessages.has(lastMsg.id)) {
         console.log('Playing bot audio for message:', lastMsg.content);
         console.log('Current language:', i18n.language);
         console.log('Message muted:', mutedMessages.has(lastMsg.id));
         
-        playBotAudio(lastMsg.content, i18n.language);
+        playBotAudio(lastMsg.content, i18n.language, lastMsg.id, setMutedMessages);
         lastBotMsgRef.current = lastMsg.content;
       } else {
         console.log('Bot audio not triggered because:', {
