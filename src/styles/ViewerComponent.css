@@ -471,30 +471,30 @@
 /* Gradient backgrounds for overlay icons by order */
 .psv-navbar .psv-button:nth-child(1) {
   background: rgba(255,255,255,0.22) !important;
-  border: 1.5px solid #A7C7FF !important;
+  border: 1.5px solid #7B3FF2 !important;
 }
 .psv-navbar .psv-button:nth-child(1):hover, .psv-navbar .psv-button:nth-child(1):focus {
   background: rgba(255,255,255,0.35) !important;
-  box-shadow: 0 0 16px #3FA9F5, 0 8px 32px #A7C7FF !important;
-  border: 2.5px solid #3FA9F5 !important;
+  box-shadow: 0 0 16px #7B3FF2, 0 8px 32px #E0D7FF !important;
+  border: 2.5px solid #ffffffef !important;
 }
 .psv-navbar .psv-button:nth-child(2) {
   background: rgba(255,255,255,0.22) !important;
-  border: 1.5px solid #FFD1E3 !important;
+  border: 1.5px solid #7B3FF2 !important;
 }
 .psv-navbar .psv-button:nth-child(2):hover, .psv-navbar .psv-button:nth-child(2):focus {
   background: rgba(255,255,255,0.35) !important;
-  box-shadow: 0 0 16px #E15CB7, 0 8px 32px #FFD1E3 !important;
-  border: 2.5px solid #E15CB7 !important;
+  box-shadow: 0 0 16px #7B3FF2, 0 8px 32px #E0D7FF !important;
+  border: 2.5px solid #ffffffef !important;
 }
 .psv-navbar .psv-button:nth-child(3) {
   background: rgba(255,255,255,0.22) !important;
-  border: 1.5px solid #E0D7FF !important;
+  border: 1.5px solid #7B3FF2 !important;
 }
 .psv-navbar .psv-button:nth-child(3):hover, .psv-navbar .psv-button:nth-child(3):focus {
   background: rgba(255,255,255,0.35) !important;
   box-shadow: 0 0 16px #7B3FF2, 0 8px 32px #E0D7FF !important;
-  border: 2.5px solid #7B3FF2 !important;
+  border: 2.5px solid #ffffffef !important;
 }
 .psv-navbar .psv-button svg {
   color: #fff !important;
